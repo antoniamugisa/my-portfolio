@@ -9,6 +9,13 @@ const About = () => {
     'PostgreSQL', 'MongoDB', 'AWS', 'Docker', 'Git', 'GraphQL'
   ];
 
+  const certifications = [
+    { name: 'AWS Certified Developer', issuer: 'Amazon Web Services', year: '2023' },
+    { name: 'React Professional Certificate', issuer: 'Meta', year: '2023' },
+    { name: 'JavaScript Algorithms and Data Structures', issuer: 'freeCodeCamp', year: '2022' },
+    { name: 'Google Cloud Professional Developer', issuer: 'Google Cloud', year: '2022' }
+  ];
+
   const interests = [
     { icon: <Code2 className="w-5 h-5" />, title: 'Coding', desc: 'Passionate about clean, efficient code' },
     { icon: <Gamepad2 className="w-5 h-5" />, title: 'Anime & Gaming', desc: 'Drawing inspiration from digital art' },
@@ -70,6 +77,25 @@ const About = () => {
                 ))}
               </div>
             </Card>
+          </div>
+
+          {/* Certifications Section */}
+          <div>
+            <h2 className="text-3xl font-bold text-center mb-8">Certifications</h2>
+            <div className="grid md:grid-cols-2 gap-4">
+              {certifications.map((cert, index) => (
+                <Card
+                  key={index}
+                  className="p-6 bg-card hover:bg-card/80 border-border hover:border-primary/50 transition-all duration-300"
+                >
+                  <div className="space-y-2">
+                    <h3 className="font-semibold text-lg text-primary">{cert.name}</h3>
+                    <p className="text-foreground/70">{cert.issuer}</p>
+                    <p className="text-sm text-foreground/50">{cert.year}</p>
+                  </div>
+                </Card>
+              ))}
+            </div>
           </div>
 
           {/* Interests Section */}
