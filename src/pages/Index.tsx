@@ -23,7 +23,8 @@ import {
   Twitter, 
   Send,
   Zap,
-  Palette
+  Palette,
+  Camera
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import heroImage from '@/assets/hero-bg.jpg';
@@ -344,6 +345,11 @@ const Index = () => {
       <section id="about" className="py-24 bg-gradient-secondary">
         <div className="container mx-auto px-6 max-w-4xl">
           <div className="text-center mb-16">
+            <div className="flex justify-center mb-6">
+              <div className="p-4 rounded-full bg-primary/10 border border-primary/20">
+                <Camera className="w-12 h-12 text-primary" />
+              </div>
+            </div>
             <h2 className="text-5xl md:text-6xl font-bold mb-6 bg-gradient-primary bg-clip-text text-transparent">
               About Me
             </h2>
