@@ -241,27 +241,22 @@ const Index = () => {
   return (
     <div className="min-h-screen">
       {/* Hero Section */}
-      <section id="home" className="relative min-h-screen flex items-center justify-center overflow-hidden">
-        <div 
-          className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-          style={{ backgroundImage: `url(${heroImage})` }}
-        />
-        <div className="absolute inset-0 bg-gradient-subtle" />
+      <section id="home" className="relative min-h-screen flex items-center justify-center overflow-hidden bg-white">
         
         <div className="relative z-10 text-center px-6 max-w-4xl mx-auto">
           <div className="space-y-8 animate-fade-in">
             <h1 className="text-6xl md:text-8xl font-bold leading-tight">
-              <span className="block text-white">Welcome to</span>
-              <span className="block text-white">
+              <span className="block text-foreground">Welcome to</span>
+              <span className="block text-foreground">
                 My Digital Realm
               </span>
             </h1>
             
             <div className="space-y-4">
-              <h2 className="text-2xl md:text-3xl font-semibold text-white/90">
+              <h2 className="text-2xl md:text-3xl font-semibold text-foreground">
                 Software Developer
               </h2>
-              <p className="text-lg md:text-xl text-foreground/70 max-w-2xl mx-auto leading-relaxed">
+              <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
                 Crafting beautiful, functional applications with cutting-edge technology and creative flair
               </p>
             </div>
@@ -277,7 +272,7 @@ const Index = () => {
               <Button 
                 size="lg" 
                 variant="outline"
-                className="border-white/20 text-foreground hover:bg-white/10"
+                className="border-border text-foreground hover:bg-muted"
                 onClick={() => scrollToSection('contact')}
               >
                 Get In Touch
@@ -290,8 +285,8 @@ const Index = () => {
           onClick={() => scrollToSection('about')}
           className="absolute bottom-8 left-1/2 transform -translate-x-1/2 animate-bounce cursor-pointer group"
         >
-          <div className="p-2 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 group-hover:bg-white/20 transition-all duration-300">
-            <ChevronDown className="w-6 h-6 text-white" />
+          <div className="p-2 rounded-full bg-muted backdrop-blur-sm border border-border group-hover:bg-muted/80 transition-all duration-300">
+            <ChevronDown className="w-6 h-6 text-foreground" />
           </div>
         </button>
       </section>

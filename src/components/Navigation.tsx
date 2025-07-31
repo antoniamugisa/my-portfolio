@@ -65,7 +65,7 @@ const Navigation = () => {
                 key={item.id}
                 onClick={() => scrollToSection(item.id)}
                 className={`relative text-sm font-medium transition-colors hover:text-primary story-link ${
-                  activeSection === item.id ? 'text-primary' : isScrolled ? 'text-foreground' : 'text-white'
+                  activeSection === item.id ? 'text-primary' : 'text-foreground'
                 }`}
               >
                 {item.name}
@@ -96,7 +96,7 @@ const Navigation = () => {
                   key={item.id}
                   onClick={() => scrollToSection(item.id)}
                   className={`text-sm font-medium transition-colors hover:text-primary text-left ${
-                    activeSection === item.id ? 'text-primary' : isScrolled ? 'text-foreground' : 'text-white'
+                    activeSection === item.id ? 'text-primary' : 'text-foreground'
                   }`}
                 >
                   {item.name}
