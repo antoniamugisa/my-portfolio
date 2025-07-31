@@ -251,14 +251,14 @@ const Index = () => {
         <div className="relative z-10 text-center px-6 max-w-4xl mx-auto">
           <div className="space-y-8 animate-fade-in">
             <h1 className="text-6xl md:text-8xl font-bold leading-tight">
-              <span className="block text-foreground/90">Welcome to</span>
-              <span className="block bg-gradient-primary bg-clip-text text-transparent">
+              <span className="block text-white">Welcome to</span>
+              <span className="block text-white">
                 My Digital Realm
               </span>
             </h1>
             
             <div className="space-y-4">
-              <h2 className="text-2xl md:text-3xl font-semibold text-foreground/80">
+              <h2 className="text-2xl md:text-3xl font-semibold text-white/90">
                 Software Developer
               </h2>
               <p className="text-lg md:text-xl text-foreground/70 max-w-2xl mx-auto leading-relaxed">
