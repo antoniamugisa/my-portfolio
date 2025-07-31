@@ -246,15 +246,14 @@ const Index = () => {
         <div className="relative z-10 text-center px-6 max-w-4xl mx-auto">
           <div className="space-y-8 animate-fade-in">
             <h1 className="text-6xl md:text-8xl font-bold leading-tight">
-              <span className="block text-foreground">Welcome to</span>
               <span className="block text-foreground">
-                My Digital Realm
+                Antonia Mugisa
               </span>
             </h1>
             
             <div className="space-y-4">
               <h2 className="text-2xl md:text-3xl font-semibold text-foreground">
-                Software Developer
+                Software Engineer
               </h2>
               <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
                 Crafting beautiful, functional applications with cutting-edge technology and creative flair

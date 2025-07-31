@@ -41,12 +41,12 @@ const Home = () => {
           <div className="mb-6">
             <span className="inline-flex items-center px-4 py-2 rounded-full bg-primary/10 border border-primary/20 text-primary text-sm font-medium backdrop-blur-sm">
               <Sparkles className="w-4 h-4 mr-2" />
-              Antonia Mugisa
+              Antonia
             </span>
           </div>
           
           <h1 className="text-5xl md:text-7xl font-bold mb-6 bg-gradient-primary bg-clip-text text-transparent">
-            Software Developer
+            Software Develo
           </h1>
           
           <p className="text-xl md:text-2xl text-foreground/80 mb-8 leading-relaxed">

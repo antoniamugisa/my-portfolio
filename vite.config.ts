@@ -7,8 +7,8 @@ import { componentTagger } from "lovable-tagger";
 export default defineConfig(({ mode }) => ({
   server: {
     host: "::",
-    port: 5000,
-    hmr: false
+    port: 5001,
+    hmr: true
   },
   plugins: [
     react(),
