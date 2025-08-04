@@ -256,7 +256,7 @@ const Index = () => {
                 Software Engineer
               </h2>
               <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-                Creating aestheic and functional applications with cutting-edge technology.
+                Creating functional aestheic and applications with cutting-edge technology.
               </p>
             </div>
             
@@ -274,7 +274,7 @@ const Index = () => {
                 className="border-border text-foreground hover:bg-muted"
                 onClick={() => scrollToSection('contact')}
               >
-                Get In Touch!
+                Get In Touch
               </Button>
             </div>
           </div>
@@ -298,7 +298,7 @@ const Index = () => {
               What I Do
             </h2>
             <p className="text-xl text-foreground/70 max-w-2xl mx-auto">
-              Combining technical expertise with creative vision to deliver exceptional digital experiences
+              Merging backend expertise with AI-driven solutions to build efficient, scalable, and user-focused digital systems.
             </p>
           </div>
           
@@ -307,17 +307,17 @@ const Index = () => {
               {
                 icon: <Code2 className="w-8 h-8" />,
                 title: "Full-Stack Development",
-                description: "Building scalable applications from frontend to backend with modern technologies and best practices."
+                description: "Engineering robust web applications from frontend interfaces to backend APIs using technologies like React, Node.js, and MongoDB. Prioritize clean architecture, security, and cloud deployment."
               },
               {
                 icon: <Zap className="w-8 h-8" />,
                 title: "Performance Optimization",
-                description: "Enhancing user experience through code optimization, caching strategies, and performance monitoring."
+                description: "Improving system responsiveness and scalability through CI/CD automation, containerization (Docker, Kubernetes), and cloud services (Azure). Monitor and fine-tune performance to ensure seamless experiences."
               },
               {
                 icon: <Palette className="w-8 h-8" />,
                 title: "Creative Solutions",
-                description: "Designing intuitive interfaces and solving complex problems with innovative approaches."
+                description: "Integrating large language models and NLP into real-world applications like chatbots, document readers, and mood-based tools, to solve complex problems with intelligence and empathy."
               }
             ].map((feature, index) => (
               <Card 
@@ -358,15 +358,14 @@ const Index = () => {
               <h3 className="text-3xl font-bold text-center mb-8">My Journey</h3>
               <div className="space-y-6 text-lg text-foreground/80 leading-relaxed">
                 <p>
-                  Welcome to my digital realm! I'm a software developer who found my calling at the intersection 
-                  of code and creativity. My journey began with a simple fascination for how technology could 
-                  bring imaginative worlds to life—much like the anime that inspired my aesthetic sense.
+                  Hi! I’m Antonia, a software developer who thrives at the intersection of thoughtful engineering and 
+                  creative problem-solving. My journey began with a curiosity about how things work, and grew into a 
+                  career where I get to design, build, and optimize full-stack applications that make a real impact.
                 </p>
                 <p>
-                  With several years of experience in full-stack development, I've worked on everything from 
-                  responsive web applications to complex backend systems. I believe that great software isn't 
-                  just about functionality—it's about creating experiences that resonate with users on an 
-                  emotional level.
+                  Over the years, I’ve worked on everything from AI-powered tools to cloud-native systems and intuitive 
+                  web interfaces. I believe that great software goes beyond functionality. It should feel effortless, 
+                  efficient, and user-first.
                 </p>
                 <p>
                   When I'm not immersed in code, you'll find me exploring the latest anime series, gaming, 
