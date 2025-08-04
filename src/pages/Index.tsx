@@ -256,7 +256,7 @@ const Index = () => {
                 Software Engineer
               </h2>
               <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-                Crafting beautiful, functional applications with cutting-edge technology and creative flair
+                Creating aestheic and functional applications with cutting-edge technology.
               </p>
             </div>
             
@@ -274,7 +274,7 @@ const Index = () => {
                 className="border-border text-foreground hover:bg-muted"
                 onClick={() => scrollToSection('contact')}
               >
-                Get In Touch
+                Get In Touch!
               </Button>
             </div>
           </div>
