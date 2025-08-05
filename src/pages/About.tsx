@@ -6,7 +6,7 @@ import { Heart, Coffee, Gamepad2, Code2 } from 'lucide-react';
 const About = () => {
   const skills = [
     'React', 'TypeScript', 'Node.js', 'Python', 'Next.js', 'Tailwind CSS',
-    'PostgreSQL', 'MongoDB', 'AWS', 'Docker', 'Git', 'GraphQL'
+    'PostgreSQL', 'MongoDB', 'Azure', 'Docker', 'Git', 'GraphQL'
   ];
 
   const certifications = [

@@ -55,15 +55,15 @@ const Index = () => {
 
   // Data
   const skills = [
-    'React', 'TypeScript', 'Node.js', 'Python', 'Next.js', 'Tailwind CSS',
-    'PostgreSQL', 'MongoDB', 'AWS', 'Docker', 'Git', 'GraphQL'
+    'React', 'JavaScript', 'Node.js', 'Python', 'Kubernetes', 'Terraform',
+    'Java', 'MongoDB', 'Azure', 'Docker', 'Git', 'SQL'
   ];
 
   const certifications = [
-    { name: 'AWS Certified Developer', issuer: 'Amazon Web Services', year: '2023' },
-    { name: 'React Professional Certificate', issuer: 'Meta', year: '2023' },
-    { name: 'JavaScript Algorithms and Data Structures', issuer: 'freeCodeCamp', year: '2022' },
-    { name: 'Google Cloud Professional Developer', issuer: 'Google Cloud', year: '2022' }
+    { name: 'AWS Certified Developer', issuer: 'Microsoft', year: '2023' },
+    { name: 'React Professional Certificate', issuer: 'Microsoft', year: '2023' },
+    { name: 'JavaScript Algorithms and Data Structures', issuer: 'Microsoft', year: '2022' },
+    { name: 'Google Cloud Professional Developer', issuer: 'Microsoft', year: '2022' }
   ];
 
   const interests = [
@@ -200,19 +200,19 @@ const Index = () => {
     {
       icon: <Mail className="w-5 h-5" />,
       label: "Email",
-      value: "hello@developer.com",
-      href: "mailto:hello@developer.com"
+      value: "antoniamugisa@gmail.com",
+      href: "mailto:antoniamugisa@gmail.com"
     },
     {
       icon: <Phone className="w-5 h-5" />,
       label: "Phone",
-      value: "+1 (555) 123-4567",
-      href: "tel:+15551234567"
+      value: "+1 (902) 237-0744",
+      href: "tel:+19022370744"
     },
     {
       icon: <MapPin className="w-5 h-5" />,
       label: "Location",
-      value: "San Francisco, CA",
+      value: "Halifax, Nova Scotia, Canada",
       href: "#"
     }
   ];
@@ -221,21 +221,16 @@ const Index = () => {
     {
       icon: <Github className="w-5 h-5" />,
       label: "GitHub",
-      href: "https://github.com",
+      href: "https://github.com/antoniamugisa",
       color: "hover:text-foreground"
     },
     {
       icon: <Linkedin className="w-5 h-5" />,
       label: "LinkedIn",
-      href: "https://linkedin.com",
-      color: "hover:text-blue-400"
-    },
-    {
-      icon: <Twitter className="w-5 h-5" />,
-      label: "Twitter",
-      href: "https://twitter.com",
+      href: "https://www.linkedin.com/in/antoniamugisa/",
       color: "hover:text-blue-400"
     }
+
   ];
 
   return (
@@ -368,7 +363,7 @@ const Index = () => {
                   efficient, and user-first.
                 </p>
                 <p>
-                  When I'm not immersed in code, you'll find me exploring the latest anime series, gaming, 
+                  When I'm not immersed in code, you'll find me exploring the city with my friends and 
                   or experimenting with new technologies. This blend of technical skill and creative passion 
                   drives me to build applications that are both powerful and beautiful.
                 </p>
