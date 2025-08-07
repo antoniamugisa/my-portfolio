@@ -24,7 +24,8 @@ import {
   Send,
   Zap,
   Palette,
-  Camera
+  Camera,
+  Bike
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import heroImage from '@/assets/hero-bg.jpg';
@@ -56,36 +57,36 @@ const Index = () => {
   // Data
   const skills = [
     'React', 'JavaScript', 'Node.js', 'Python', 'Kubernetes', 'Terraform',
-    'Java', 'MongoDB', 'Azure', 'Docker', 'Git', 'SQL'
+    'Java', 'MongoDB', 'Azure', 'Docker', 'Git', 'SQL', 'GraphQL', 'REST APIs', 'CI/CD', 'OpenAI'
   ];
 
   const certifications = [
-    { name: 'AWS Certified Developer', issuer: 'Microsoft', year: '2023' },
-    { name: 'React Professional Certificate', issuer: 'Microsoft', year: '2023' },
-    { name: 'JavaScript Algorithms and Data Structures', issuer: 'Microsoft', year: '2022' },
-    { name: 'Google Cloud Professional Developer', issuer: 'Microsoft', year: '2022' }
+    { name: 'Azure Fundamentals: AZ-900', issuer: 'Microsoft', year: '2023' },
+    { name: 'Azure Data Fundamentals: DP-900', issuer: 'Microsoft', year: '2023' },
+    { name: 'Azure Artificial Intelligence Fundamentals: AI-900', issuer: 'Microsoft', year: '2024' },
+    { name: 'Azure AI Engineer Associate', issuer: 'Microsoft', year: '2024' }
   ];
 
   const interests = [
     { icon: <Code2 className="w-5 h-5" />, title: 'Coding', desc: 'Passionate about clean, efficient code' },
     { icon: <Gamepad2 className="w-5 h-5" />, title: 'Anime & Gaming', desc: 'Drawing inspiration from digital art' },
-    { icon: <Coffee className="w-5 h-5" />, title: 'Coffee', desc: 'Fueling late-night coding sessions' },
+    { icon: <Bike className="w-5 h-5" />, title: 'Biking', desc: 'The thrill of being outside in nature' },
     { icon: <Heart className="w-5 h-5" />, title: 'Open Source', desc: 'Contributing to the developer community' }
   ];
 
   const experiences = [
     {
-      company: "TechCorp Solutions",
-      position: "Senior Full-Stack Developer",
-      duration: "2022 - Present",
-      location: "Remote",
-      description: "Leading development of scalable web applications using React, Node.js, and cloud technologies. Mentoring junior developers and implementing best practices for code quality and performance.",
+      company: "Avanade",
+      position: "Software Engineer Intern",
+      duration: "May 2024 - Aug 2024",
+      location: "Hybrid",
+      description: "Designed and deployed high-accuracy AI solutions by integrating Azure Cognitive Search, OpenAI LLMs, and Azure Form Recognizer into a Retrieval-Augmented Generation pipeline, reducing search time to under 10 seconds and achieving up to 95% QA accuracy.",
       achievements: [
-        "Reduced application load time by 40% through optimization",
-        "Led a team of 5 developers on a major product redesign",
-        "Implemented CI/CD pipeline that improved deployment efficiency by 60%"
+        "Achieved 95% QA accuracy by optimizing a RAG pipeline with OpenAI LLMs and Azure Cognitive Search.",
+        "Cut search time to under 10 seconds using an AI-powered lease document reader.",
+        "Automated deployments with Terraform, Docker, and CI/CD on Azure Kubernetes Service."
       ],
-      technologies: ["React", "TypeScript", "Node.js", "AWS", "PostgreSQL", "Docker"]
+      technologies: ["Azure Cognitive Search", "OpenAI Large Language Models", "Azure Form Recognizer", "Azure Functions", "Terraform", "Docker"]
     },
     {
       company: "Digital Innovations Inc",
@@ -100,28 +101,15 @@ const Index = () => {
       ],
       technologies: ["React", "JavaScript", "SCSS", "Webpack", "Jest", "Figma"]
     },
-    {
-      company: "StartupLab",
-      position: "Junior Developer",
-      duration: "2019 - 2020",
-      location: "Austin, TX",
-      description: "Started my professional journey building dynamic web applications and learning industry best practices. Contributed to multiple client projects while rapidly expanding technical skills.",
-      achievements: [
-        "Delivered 8 client projects on time and within budget",
-        "Learned 5 new technologies in the first 6 months",
-        "Received 'Rising Star' award for exceptional growth"
-      ],
-      technologies: ["HTML", "CSS", "JavaScript", "PHP", "MySQL", "WordPress"]
-    }
   ];
 
   const education = [
     {
-      institution: "University of Technology",
+      institution: "Dalhousie University",
       degree: "Bachelor of Science in Computer Science",
-      duration: "2015 - 2019",
-      description: "Graduated Magna Cum Laude with focus on software engineering and algorithms.",
-      highlights: ["GPA: 3.8/4.0", "Dean's List: 6 semesters", "Programming Club President"]
+      duration: "2020 - 2025",
+      description: "Graduated with a focus on software engineering and algorithms.",
+      highlights: ["Women in Technology Society Member" ,"Computer Science Society Member", "HerCampus Social Media Director" ]
     }
   ];
 
@@ -436,8 +424,8 @@ const Index = () => {
               <Card className="p-8 bg-gradient-secondary border-border/50">
                 <blockquote className="text-xl italic text-foreground/80 leading-relaxed">
                   "Code is poetry written in logic. Every function, every component, every algorithm 
-                  should not only solve a problem but tell a story. Like the carefully crafted narratives 
-                  in anime, great software weaves together technical precision with emotional resonance."
+                  should not only solve a problem but tell a story. Great software weaves together 
+                  technical precision with emotional resonance."
                 </blockquote>
               </Card>
             </div>
