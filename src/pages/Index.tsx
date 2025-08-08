@@ -79,7 +79,7 @@ const Index = () => {
       company: "Avanade",
       position: "Software Engineer Intern",
       duration: "May 2024 - Aug 2024",
-      location: "Hybrid",
+      location: "Halifax, NS",
       description: "Designed and deployed high-accuracy AI solutions by integrating Azure Cognitive Search, OpenAI LLMs, and Azure Form Recognizer into a Retrieval-Augmented Generation pipeline, reducing search time to under 10 seconds and achieving up to 95% QA accuracy.",
       achievements: [
         "Achieved 95% QA accuracy by optimizing a RAG pipeline with OpenAI LLMs and Azure Cognitive Search.",
@@ -89,17 +89,17 @@ const Index = () => {
       technologies: ["Azure Cognitive Search", "OpenAI Large Language Models", "Azure Form Recognizer", "Azure Functions", "Terraform", "Docker"]
     },
     {
-      company: "Digital Innovations Inc",
-      position: "Frontend Developer",
-      duration: "2020 - 2022",
-      location: "San Francisco, CA",
-      description: "Developed responsive user interfaces and collaborated with UX/UI designers to create engaging user experiences. Focused on modern frontend technologies and accessibility standards.",
+      company: "Avanade",
+      position: "Software Engineer Intern",
+      duration: "May 2023 - Aug 2023",
+      location: "Halifax, NS",
+      description: "Supported the migration of legacy services to Azure, optimized infrastructure for performance, and automated deployments to enhance scalability and security.",
       achievements: [
-        "Built 15+ responsive web applications from scratch",
-        "Improved accessibility score by 35% across all projects",
-        "Mentored 3 interns and junior developers"
+        "Successfully migrated large-scale legal document processing workloads from on-premises to Azure, improving performance and resilience.",
+        "Automated CI/CD pipelines with PowerShell, Kubernetes, Docker, and Terraform, significantly reducing deployment times.",
+        "Implemented IAM policies and conducted risk assessments to ensure compliance with security standards."
       ],
-      technologies: ["React", "JavaScript", "SCSS", "Webpack", "Jest", "Figma"]
+      technologies: ["Azure", "Kubernetes", "Docker", "Terraform", "Powershell", "App Services"]
     },
   ];
 
