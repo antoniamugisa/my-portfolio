@@ -69,8 +69,8 @@ const Index = () => {
 
   const interests = [
     { icon: <Code2 className="w-5 h-5" />, title: 'Coding', desc: 'Passionate about clean, efficient code' },
-    { icon: <Gamepad2 className="w-5 h-5" />, title: 'Anime & Gaming', desc: 'Drawing inspiration from digital art' },
-    { icon: <Bike className="w-5 h-5" />, title: 'Biking', desc: 'The thrill of being outside in nature' },
+    { icon: <Gamepad2 className="w-5 h-5" />, title: 'Anime & Gaming', desc: 'Enjoying watching my favourite shows' },
+    { icon: <Bike className="w-5 h-5" />, title: 'Biking', desc: 'Enjoying nature by moving my body' },
     { icon: <Heart className="w-5 h-5" />, title: 'Open Source', desc: 'Contributing to the developer community' }
   ];
 

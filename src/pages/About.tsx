@@ -43,8 +43,8 @@ const About = () => {
             <h2 className="text-3xl font-bold text-center mb-8">My Journey</h2>
             <div className="space-y-6 text-lg text-foreground/80 leading-relaxed">
               <p>
-                Welcome to my digital realm! I'm a software developer who found my calling at the intersection 
-                of code and creativity. My journey began with a simple fascination for how technology could 
+                WelcoI'm a software developer who found my calling at the intersection 
+                of creativity. My journey began with a simple fascination for how technology could 
                 bring imaginative worlds to life—much like the anime that inspired my aesthetic sense.
               </p>
               <p>
