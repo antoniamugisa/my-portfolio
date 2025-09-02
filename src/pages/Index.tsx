@@ -229,18 +229,6 @@ const Index = () => {
         
         <div className="relative z-10 text-center px-6 max-w-4xl mx-auto">
           <div className="space-y-8 animate-fade-in">
-            {/* Profile Photo */}
-            <div className="flex justify-center mb-8">
-              <div className="relative">
-                <img 
-                  src={profilePhoto} 
-                  alt="Antonia Mugisa - Software Engineer" 
-                  className="w-48 h-48 md:w-56 md:h-56 rounded-full object-cover border-4 border-primary/20 shadow-2xl"
-                />
-                <div className="absolute inset-0 rounded-full bg-gradient-to-br from-primary/20 to-transparent"></div>
-              </div>
-            </div>
-            
             <h1 className="text-6xl md:text-8xl font-bold leading-tight">
               <span className="block text-foreground">
                 Antonia Mugisa
