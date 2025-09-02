@@ -29,6 +29,7 @@ import {
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import heroImage from '@/assets/hero-bg.jpg';
+import profilePhoto from '@/assets/profile-photo.jpg';
 
 const Index = () => {
   const [selectedFilter, setSelectedFilter] = useState('All');
@@ -232,7 +233,7 @@ const Index = () => {
             <div className="flex justify-center mb-8">
               <div className="relative">
                 <img 
-                  src="/lovable-uploads/f312b34c-183f-4350-94e2-c2d8ed15de07.png" 
+                  src={profilePhoto} 
                   alt="Antonia Mugisa - Software Engineer" 
                   className="w-48 h-48 md:w-56 md:h-56 rounded-full object-cover border-4 border-primary/20 shadow-2xl"
                 />
