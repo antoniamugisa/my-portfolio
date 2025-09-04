@@ -136,16 +136,6 @@ const Index = () => {
       featured: true
     },
     {
-      title: "Real-time Chat Application",
-      description: "Modern chat application with real-time messaging, file sharing, and video calls. Features include group chats, emoji reactions, and message encryption for secure communication.",
-      image: "https://images.unsplash.com/photo-1611224923853-80b023f02d71?w=600",
-      technologies: ["React", "Socket.io", "Node.js", "WebRTC", "Redis"],
-      category: "Frontend",
-      demoUrl: "#",
-      githubUrl: "#",
-      featured: false
-    },
-    {
       title: "Task Management API",
       description: "RESTful API for task management with user authentication, role-based permissions, and comprehensive documentation. Includes automated testing and CI/CD pipeline.",
       image: "https://images.unsplash.com/photo-1611224923853-80b023f02d71?w=600",
@@ -155,26 +145,6 @@ const Index = () => {
       githubUrl: "#",
       featured: false
     },
-    {
-      title: "Data Visualization Dashboard",
-      description: "Interactive dashboard for visualizing complex datasets with dynamic charts, filters, and real-time updates. Built for analyzing business metrics and KPIs.",
-      image: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=600",
-      technologies: ["React", "D3.js", "Python", "FastAPI", "PostgreSQL"],
-      category: "Frontend",
-      demoUrl: "#",
-      githubUrl: "#",
-      featured: false
-    },
-    {
-      title: "Microservices Architecture",
-      description: "Scalable microservices system with Docker containers, API gateway, and service discovery. Includes monitoring, logging, and automated deployment strategies.",
-      image: "https://images.unsplash.com/photo-1667372393119-3d4c48d07fc9?w=600",
-      technologies: ["Docker", "Kubernetes", "Node.js", "Redis", "NGINX"],
-      category: "Backend",
-      demoUrl: "#",
-      githubUrl: "#",
-      featured: false
-    }
   ];
 
   const categories = ['All', 'Full-Stack', 'Frontend', 'Backend', 'Machine Learning'];
