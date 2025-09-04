@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -25,9 +26,13 @@ import {
   Zap,
   Palette,
   Camera,
-  Bike
+  Bike,
+  Clock,
+  ArrowRight,
+  BookOpen
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { blogPosts } from '@/data/blogPosts';
 import heroImage from '@/assets/hero-bg.jpg';
 import profilePhoto from '@/assets/profile-photo.jpg';
 
@@ -154,6 +159,18 @@ const Index = () => {
     : projects.filter(project => project.category === selectedFilter);
 
   const featuredProjects = projects.filter(project => project.featured);
+
+  // Get recent blog posts for preview (latest 3)
+  const recentBlogs = blogPosts.slice(0, 3);
+
+  // Format date for display
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric'
+    });
+  };
 
   const contactInfo = [
     {
@@ -691,6 +708,96 @@ const Index = () => {
               <p className="text-foreground/60 text-lg">No projects found in this category.</p>
             </div>
           )}
+        </div>
+      </section>
+
+      {/* Blog Preview Section */}
+      <section className="py-24 bg-gradient-secondary">
+        <div className="container mx-auto px-6 max-w-6xl">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl md:text-5xl font-bold mb-6 bg-gradient-primary bg-clip-text text-transparent">
+              Latest from the Blog
+            </h2>
+            <p className="text-xl text-foreground/70 max-w-2xl mx-auto leading-relaxed">
+              Insights on technology, development, and the journey of building impactful software
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
+            {recentBlogs.map((post, index) => (
+              <Card 
+                key={post.id}
+                className="group bg-card hover:bg-card/80 border-border hover:border-primary/50 transition-all duration-300 hover:shadow-card animate-fade-in overflow-hidden"
+                style={{ animationDelay: `${index * 100}ms` }}
+              >
+                {/* Post Image */}
+                <div className="aspect-video overflow-hidden">
+                  <img 
+                    src={post.image} 
+                    alt={post.title}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                  />
+                </div>
+
+                <div className="p-6">
+                  {/* Category Badge */}
+                  <Badge 
+                    variant="secondary" 
+                    className="w-fit mb-3 bg-primary/10 text-primary border-primary/20 text-xs"
+                  >
+                    {post.category}
+                  </Badge>
+
+                  {/* Post Title */}
+                  <h3 className="text-xl font-semibold leading-tight mb-3 group-hover:text-primary transition-colors duration-300">
+                    {post.title}
+                  </h3>
+
+                  {/* Post Description */}
+                  <p className="text-foreground/70 text-sm leading-relaxed mb-4 line-clamp-3">
+                    {post.description}
+                  </p>
+
+                  {/* Post Meta */}
+                  <div className="flex items-center justify-between text-xs text-muted-foreground mb-4">
+                    <div className="flex items-center gap-1">
+                      <Calendar className="w-3 h-3" />
+                      {formatDate(post.date)}
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <Clock className="w-3 h-3" />
+                      {post.readTime} min read
+                    </div>
+                  </div>
+
+                  {/* Read More Link */}
+                  <Link to={`/blog/${post.id}`}>
+                    <Button 
+                      variant="ghost" 
+                      size="sm"
+                      className="w-full group-hover:text-primary group-hover:bg-primary/10 transition-colors duration-300"
+                    >
+                      Read More
+                      <ArrowRight className="w-3 h-3 ml-1 group-hover:translate-x-1 transition-transform duration-300" />
+                    </Button>
+                  </Link>
+                </div>
+              </Card>
+            ))}
+          </div>
+
+          {/* View All Blog Button */}
+          <div className="text-center">
+            <Link to="/blog">
+              <Button 
+                size="lg" 
+                className="bg-gradient-primary hover:shadow-glow transition-all duration-300"
+              >
+                <BookOpen className="w-5 h-5 mr-2" />
+                View All Posts
+              </Button>
+            </Link>
+          </div>
         </div>
       </section>
 
