@@ -716,10 +716,10 @@ const Index = () => {
         <div className="container mx-auto px-6 max-w-6xl">
           <div className="text-center mb-16">
             <h2 className="text-4xl md:text-5xl font-bold mb-6 bg-gradient-primary bg-clip-text text-transparent">
-              Latest from the Blog
+              My Blogs
             </h2>
             <p className="text-xl text-foreground/70 max-w-2xl mx-auto leading-relaxed">
-              Insights on technology, development, and the journey of building impactful software
+              My thoughts on my journey as a developer, lessons learned, and stories from my own life in tech and beyond.
             </p>
           </div>
 
@@ -945,7 +945,7 @@ const Index = () => {
                   </div>
                   <div className="flex items-center justify-between">
                     <span>Full-time Positions</span>
-                    <span className="px-3 py-1 rounded-full bg-yellow-500/20 text-yellow-400 text-sm font-medium">
+                    <span className="px-3 py-1 rounded-full bg-green-500/20 text-green-400 text-sm font-medium">
                       Open to offers
                     </span>
                   </div>
