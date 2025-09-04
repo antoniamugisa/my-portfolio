@@ -40,11 +40,11 @@ const Blog = () => {
       {/* Hero Section */}
       <section className="py-16 bg-gradient-secondary">
         <div className="container mx-auto px-6 max-w-4xl text-center">
-          <h1 className="text-5xl md:text-6xl font-bold mb-6 bg-gradient-primary bg-clip-text text-transparent">
-            Blog & Insights
+          <h1 className="text-5xl md:text-6xl font-bold mb-8 bg-gradient-primary bg-clip-text text-transparent">
+            Antonia's Blog
           </h1>
           <p className="text-xl text-foreground/70 max-w-2xl mx-auto leading-relaxed">
-            Thoughts on technology, development, and the journey of building impactful software
+            My thoughts on my journey as a developer, lessons learned, and stories from my own life in tech and beyond.
           </p>
         </div>
       </section>
