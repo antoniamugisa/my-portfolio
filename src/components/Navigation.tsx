@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Link, useLocation } from 'react-router-dom';
 import { Menu, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
@@ -6,6 +7,7 @@ const Navigation = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [activeSection, setActiveSection] = useState('home');
+  const location = useLocation();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -32,16 +34,27 @@ const Navigation = () => {
   }, []);
 
   const navItems = [
-    { name: 'Home', id: 'home' },
-    { name: 'About', id: 'about' },
-    { name: 'Experience', id: 'experience' },
-    { name: 'Projects', id: 'projects' },
-    { name: 'Contact', id: 'contact' }
+    { name: 'Home', id: 'home', path: '/' },
+    { name: 'About', id: 'about', path: '/' },
+    { name: 'Experience', id: 'experience', path: '/' },
+    { name: 'Projects', id: 'projects', path: '/' },
+    { name: 'Blog', id: 'blog', path: '/blog' },
+    { name: 'Contact', id: 'contact', path: '/' }
   ];
 
-  const scrollToSection = (id: string) => {
-    document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
+  const handleNavigation = (item: typeof navItems[0]) => {
     setIsMobileMenuOpen(false);
+    
+    if (item.path === '/blog') {
+      // Handle blog navigation - let React Router handle it
+      return;
+    } else if (item.path === '/' && location.pathname !== '/') {
+      // If we're not on home page, navigate to home first
+      window.location.href = `/#${item.id}`;
+    } else {
+      // We're on home page, scroll to section
+      document.getElementById(item.id)?.scrollIntoView({ behavior: 'smooth' });
+    }
   };
 
   return (
@@ -51,28 +64,43 @@ const Navigation = () => {
       <div className="container mx-auto px-6 py-4">
         <div className="flex items-center justify-between">
           {/* Logo */}
-          <button 
-            onClick={() => scrollToSection('home')}
+          <Link 
+            to="/"
             className="text-2xl font-bold bg-gradient-primary bg-clip-text text-transparent"
           >
             DevPortfolio
-          </button>
+          </Link>
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-8">
             {navItems.map((item) => (
-              <button
-                key={item.id}
-                onClick={() => scrollToSection(item.id)}
-                className={`relative text-sm font-medium transition-colors hover:text-primary story-link ${
-                  activeSection === item.id ? 'text-primary' : 'text-foreground'
-                }`}
-              >
-                {item.name}
-                {activeSection === item.id && (
-                  <span className="absolute -bottom-1 left-0 w-full h-0.5 bg-gradient-primary rounded-full" />
-                )}
-              </button>
+              item.path === '/blog' ? (
+                <Link
+                  key={item.id}
+                  to={item.path}
+                  className={`relative text-sm font-medium transition-colors hover:text-primary story-link ${
+                    location.pathname.startsWith('/blog') ? 'text-primary' : 'text-foreground'
+                  }`}
+                >
+                  {item.name}
+                  {location.pathname.startsWith('/blog') && (
+                    <span className="absolute -bottom-1 left-0 w-full h-0.5 bg-gradient-primary rounded-full" />
+                  )}
+                </Link>
+              ) : (
+                <button
+                  key={item.id}
+                  onClick={() => handleNavigation(item)}
+                  className={`relative text-sm font-medium transition-colors hover:text-primary story-link ${
+                    activeSection === item.id && location.pathname === '/' ? 'text-primary' : 'text-foreground'
+                  }`}
+                >
+                  {item.name}
+                  {activeSection === item.id && location.pathname === '/' && (
+                    <span className="absolute -bottom-1 left-0 w-full h-0.5 bg-gradient-primary rounded-full" />
+                  )}
+                </button>
+              )
             ))}
           </div>
 
@@ -92,15 +120,28 @@ const Navigation = () => {
           <div className="md:hidden mt-4 pb-4">
             <div className="flex flex-col space-y-4">
               {navItems.map((item) => (
-                <button
-                  key={item.id}
-                  onClick={() => scrollToSection(item.id)}
-                  className={`text-sm font-medium transition-colors hover:text-primary text-left ${
-                    activeSection === item.id ? 'text-primary' : 'text-foreground'
-                  }`}
-                >
-                  {item.name}
-                </button>
+                item.path === '/blog' ? (
+                  <Link
+                    key={item.id}
+                    to={item.path}
+                    className={`text-sm font-medium transition-colors hover:text-primary text-left ${
+                      location.pathname.startsWith('/blog') ? 'text-primary' : 'text-foreground'
+                    }`}
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    {item.name}
+                  </Link>
+                ) : (
+                  <button
+                    key={item.id}
+                    onClick={() => handleNavigation(item)}
+                    className={`text-sm font-medium transition-colors hover:text-primary text-left ${
+                      activeSection === item.id && location.pathname === '/' ? 'text-primary' : 'text-foreground'
+                    }`}
+                  >
+                    {item.name}
+                  </button>
+                )
               ))}
             </div>
           </div>
