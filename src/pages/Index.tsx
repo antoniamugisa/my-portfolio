@@ -109,7 +109,7 @@ const Index = () => {
       institution: "Dalhousie University",
       degree: "Bachelor of Science in Computer Science",
       duration: "2020 - 2025",
-      description: "Graduating with a focus on software engineering and algorithms.",
+      description: "Graduating with a focus on cloud development, machine learning and software development.",
       highlights: ["Women in Technology Society Member" ,"Computer Science Society Member", "HerCampus Social Media Director" ]
     }
   ];
