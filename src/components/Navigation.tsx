@@ -68,7 +68,7 @@ const Navigation = () => {
             to="/"
             className="text-2xl font-bold bg-gradient-primary bg-clip-text text-transparent"
           >
-            DevPortfolio
+            AM
           </Link>
 
           {/* Desktop Navigation */}
