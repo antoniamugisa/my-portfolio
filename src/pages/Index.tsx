@@ -966,7 +966,7 @@ const Index = () => {
               <h3 className="text-2xl font-bold mb-4">Ready to Start a Project?</h3>
               <p className="text-foreground/80 mb-6 leading-relaxed">
                 Whether you have a clear vision or just an idea, I'm here to help bring it to life. 
-                Let's discuss how we can work together to create something amazing.
+                Let's discuss how we can work together to create something amazing!
               </p>
               <Button size="lg" className="bg-gradient-primary hover:shadow-glow transition-all duration-300">
                 <Mail className="w-5 h-5 mr-2" />
