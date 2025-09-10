@@ -976,6 +976,36 @@ const Index = () => {
           </div>
         </div>
       </section>
+
+      {/* Footer */}
+      <footer className="py-8 bg-muted border-t border-border">
+        <div className="container mx-auto px-6 text-center">
+          <div className="space-y-2 text-sm text-muted-foreground">
+            <p>&copy; 2025 Antonia Mugisa</p>
+            <p>
+              Built using{' '}
+              <a 
+                href="https://lovable.dev" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="text-primary hover:text-primary/80 transition-colors"
+              >
+                Lovable
+              </a>
+              .{' '}
+              <a 
+                href="https://github.com/antoniamugisa" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="text-primary hover:text-primary/80 transition-colors inline-flex items-center gap-1"
+              >
+                <Github className="w-4 h-4" />
+                Check out my Github
+              </a>
+            </p>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 };
