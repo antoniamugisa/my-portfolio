@@ -941,24 +941,7 @@ const Index = () => {
       <footer className="py-8 bg-card border-t border-border">
         <div className="container mx-auto px-6 text-center">
           <p className="text-foreground/70 text-sm">
-            © 2025 Antonia Mugisa. Built using{' '}
-            <a 
-              href="https://lovable.dev" 
-              target="_blank" 
-              rel="noopener noreferrer"
-              className="text-primary hover:text-primary/80 transition-colors"
-            >
-              Lovable
-            </a>
-            . Check out my{' '}
-            <a 
-              href="https://github.com/antoniamugisa" 
-              target="_blank" 
-              rel="noopener noreferrer"
-              className="text-primary hover:text-primary/80 transition-colors"
-            >
-              Github
-            </a>
+            © 2025 Antonia Mugisa. 
           </p>
         </div>
       </footer>
