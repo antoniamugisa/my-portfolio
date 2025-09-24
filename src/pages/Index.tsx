@@ -214,39 +214,51 @@ const Index = () => {
       {/* Hero Section */}
       <section id="home" className="relative min-h-screen flex items-center justify-center overflow-hidden bg-white">
         
-        <div className="relative z-10 text-center px-6 max-w-4xl mx-auto">
-          <div className="space-y-8 animate-fade-in">
-            <h1 className="text-6xl md:text-8xl font-bold leading-tight">
-              <span className="block text-foreground">
-                Antonia Mugisa
-              </span>
-            </h1>
-            
-            <div className="space-y-4">
-              <h2 className="text-2xl md:text-3xl font-semibold text-foreground">
-                Software Engineer
-              </h2>
-              <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-                Creating functional aestheic and applications with cutting-edge technology.
-              </p>
+        <div className="relative z-10 px-6 max-w-6xl mx-auto">
+          <div className="grid lg:grid-cols-2 gap-12 items-center animate-fade-in">
+            <div className="space-y-8">
+              <h1 className="text-6xl md:text-8xl font-bold leading-tight">
+                <span className="block text-foreground">
+                  Antonia Mugisa
+                </span>
+              </h1>
+              
+              <div className="space-y-4">
+                <h2 className="text-2xl md:text-3xl font-semibold text-foreground">
+                  Software Engineer
+                </h2>
+                <p className="text-lg md:text-xl text-muted-foreground max-w-2xl leading-relaxed">
+                  Creating functional aestheic and applications with cutting-edge technology.
+                </p>
+              </div>
+              
+              <div className="flex flex-col sm:flex-row gap-4 pt-8">
+                <Button 
+                  size="lg" 
+                  className="bg-gradient-primary hover:shadow-glow transition-all duration-300"
+                  onClick={() => scrollToSection('projects')}
+                >
+                  View My Work
+                </Button>
+                <Button 
+                  size="lg" 
+                  variant="outline"
+                  className="border-border text-foreground hover:bg-muted"
+                  onClick={() => scrollToSection('contact')}
+                >
+                  Get In Touch
+                </Button>
+              </div>
             </div>
-            
-            <div className="flex flex-col sm:flex-row gap-4 justify-center pt-8">
-              <Button 
-                size="lg" 
-                className="bg-gradient-primary hover:shadow-glow transition-all duration-300"
-                onClick={() => scrollToSection('projects')}
-              >
-                View My Work
-              </Button>
-              <Button 
-                size="lg" 
-                variant="outline"
-                className="border-border text-foreground hover:bg-muted"
-                onClick={() => scrollToSection('contact')}
-              >
-                Get In Touch
-              </Button>
+
+            <div className="flex justify-center lg:justify-end">
+              <div className="p-4 rounded-full bg-primary/10 border border-primary/20">
+                <img 
+                  src="src/assets/image.png" 
+                  alt="Profile photo" 
+                  className="w-[20rem] h-[20rem] lg:w-[25rem] lg:h-[25rem] rounded-full object-cover"
+                />
+              </div>
             </div>
           </div>
         </div>
@@ -263,7 +275,7 @@ const Index = () => {
 
       {/* About Section */}
       <section id="about" className="py-24 bg-gradient-secondary">
-        <div className="container mx-auto px-6 max-w-6xl">
+        <div className="container mx-auto px-6 max-w-4xl">
           <div className="text-center mb-16">
             <h2 className="text-5xl md:text-6xl font-bold mb-6 bg-gradient-primary bg-clip-text text-transparent">
               About Me
@@ -273,97 +285,18 @@ const Index = () => {
             </p>
           </div>
 
-          <div className="grid lg:grid-cols-3 gap-12 items-start mb-16">
-            <div className="lg:col-span-2 space-y-8">
-              {/* Story Section */}
-              <div className="space-y-6">
-                <h3 className="text-3xl font-bold mb-6">My Journey</h3>
-                <div className="space-y-6 text-lg text-foreground/80 leading-relaxed">
-                  <p>
-                    Hi! I'm Antonia, a software developer who thrives at the intersection of thoughtful engineering and 
-                    creative problem-solving. My journey began with a curiosity about how things work, and grew into a 
-                    career where I get to design, build, and optimize full-stack applications that make a real impact.
-                  </p>
-                  <p>
-                    Over the years, I've worked on everything from AI-powered tools to cloud-native systems and intuitive 
-                    web interfaces. I believe that great software goes beyond functionality. It should feel effortless, 
-                    efficient, and user-first.
-                  </p>
-                  <p>
-                    When I'm not immersed in code, you'll find me exploring the city with my friends and 
-                    or experimenting with new technologies. This blend of technical skill and creative passion 
-                    drives me to build applications that are both powerful and beautiful.
-                  </p>
-                </div>
-              </div>
-
-              {/* What I Do Section */}
-              <div>
-                <h3 className="text-3xl font-bold mb-6">What I Do</h3>
-                <p className="text-xl text-foreground/70 mb-8">
-                  Merging backend expertise with AI-driven solutions to build efficient, scalable, and user-focused digital systems.
-                </p>
-                
-                <div className="grid md:grid-cols-1 gap-6">
-                  {[
-                    {
-                      icon: <Code2 className="w-8 h-8" />,
-                      title: "Full-Stack Development",
-                      description: "Engineering robust web applications from frontend interfaces to backend APIs using technologies like React, Node.js, and MongoDB. Prioritize clean architecture, security, and cloud deployment."
-                    },
-                    {
-                      icon: <Zap className="w-8 h-8" />,
-                      title: "Performance Optimization",
-                      description: "Improving system responsiveness and scalability through CI/CD automation, containerization (Docker, Kubernetes), and cloud services (Azure). Monitor and fine-tune performance to ensure seamless experiences."
-                    },
-                    {
-                      icon: <Palette className="w-8 h-8" />,
-                      title: "Creative Solutions",
-                      description: "Integrating large language models and NLP into real-world applications like chatbots, document readers, and mood-based tools, to solve complex problems with intelligence and empathy."
-                    }
-                  ].map((feature, index) => (
-                    <Card 
-                      key={index}
-                      className="p-6 bg-card hover:bg-card/80 border-border hover:border-primary/50 transition-all duration-300 hover:shadow-card group"
-                    >
-                      <div className="flex items-start space-x-4">
-                        <div className="text-primary group-hover:scale-110 transition-transform duration-300 flex-shrink-0">
-                          {feature.icon}
-                        </div>
-                        <div>
-                          <h4 className="text-xl font-semibold mb-3">{feature.title}</h4>
-                          <p className="text-foreground/70 leading-relaxed">{feature.description}</p>
-                        </div>
-                      </div>
-                    </Card>
-                  ))}
-                </div>
-              </div>
-            </div>
-
-            <div className="lg:col-span-1 flex justify-center lg:justify-end">
-              <div className="p-4 rounded-full bg-primary/10 border border-primary/20">
-                <img 
-                  src="src/assets/image.png" 
-                  alt="Profile photo" 
-                  className="w-[20rem] h-[20rem] lg:w-[25rem] lg:h-[25rem] rounded-full object-cover"
-                />
-              </div>
-            </div>
-          </div>
-
           <div className="space-y-16">
             {/* Story Section */}
             <div className="space-y-8">
               <h3 className="text-3xl font-bold text-center mb-8">My Journey</h3>
               <div className="space-y-6 text-lg text-foreground/80 leading-relaxed">
                 <p>
-                  Hi! I’m Antonia, a software developer who thrives at the intersection of thoughtful engineering and 
+                  Hi! I'm Antonia, a software developer who thrives at the intersection of thoughtful engineering and 
                   creative problem-solving. My journey began with a curiosity about how things work, and grew into a 
                   career where I get to design, build, and optimize full-stack applications that make a real impact.
                 </p>
                 <p>
-                  Over the years, I’ve worked on everything from AI-powered tools to cloud-native systems and intuitive 
+                  Over the years, I've worked on everything from AI-powered tools to cloud-native systems and intuitive 
                   web interfaces. I believe that great software goes beyond functionality. It should feel effortless, 
                   efficient, and user-first.
                 </p>
@@ -550,8 +483,8 @@ const Index = () => {
                             <ul className="space-y-1 text-foreground/80">
                               {exp.achievements.map((achievement, achIndex) => (
                                 <li key={achIndex} className="flex items-start">
-                                  <span className="text-primary mr-2">•</span>
-                                  {achievement}
+                                  <span className="text-primary mr-2 mt-1">•</span>
+                                  <span className="text-sm">{achievement}</span>
                                 </li>
                               ))}
                             </ul>
@@ -564,7 +497,7 @@ const Index = () => {
                                 <Badge
                                   key={techIndex}
                                   variant="secondary"
-                                  className="text-xs bg-primary/10 text-primary border-primary/20"
+                                  className="text-xs bg-primary/10 text-primary border-primary/30 hover:bg-primary/20"
                                 >
                                   {tech}
                                 </Badge>
@@ -585,22 +518,28 @@ const Index = () => {
             <h3 className="text-3xl font-bold text-center mb-12">Education</h3>
             
             {education.map((edu, index) => (
-              <Card
-                key={index}
-                className="p-8 bg-gradient-secondary border-border/50 hover:border-primary/50 transition-all duration-300"
-              >
-                <div className="text-center space-y-4">
-                  <h4 className="text-2xl font-bold text-primary">{edu.degree}</h4>
-                  <h5 className="text-xl font-semibold">{edu.institution}</h5>
-                  <p className="text-foreground/70">{edu.duration}</p>
-                  <p className="text-foreground/80 leading-relaxed max-w-2xl mx-auto">{edu.description}</p>
-                  
-                  <div className="flex flex-wrap justify-center gap-4 pt-4">
+              <Card key={index} className="p-8 bg-card hover:bg-card/80 border-border hover:border-primary/50 transition-all duration-300 hover:shadow-card">
+                <div className="flex items-start justify-between mb-4">
+                  <div>
+                    <h4 className="text-xl font-bold text-primary">{edu.degree}</h4>
+                    <h5 className="text-lg font-semibold text-foreground/90">{edu.institution}</h5>
+                  </div>
+                  <div className="text-sm text-foreground/70 flex items-center">
+                    <Calendar className="w-4 h-4 mr-1" />
+                    {edu.duration}
+                  </div>
+                </div>
+                
+                <p className="text-foreground/80 mb-4 leading-relaxed">{edu.description}</p>
+                
+                <div>
+                  <h6 className="font-semibold mb-2">Involvement:</h6>
+                  <div className="flex flex-wrap gap-2">
                     {edu.highlights.map((highlight, hIndex) => (
                       <Badge
                         key={hIndex}
-                        variant="outline"
-                        className="border-primary/50 text-primary"
+                        variant="secondary"
+                        className="text-xs bg-primary/10 text-primary border-primary/30"
                       >
                         {highlight}
                       </Badge>
@@ -615,250 +554,249 @@ const Index = () => {
 
       {/* Projects Section */}
       <section id="projects" className="py-24 bg-gradient-secondary">
-        <div className="container mx-auto px-6 max-w-7xl">
+        <div className="container mx-auto px-6 max-w-6xl">
           <div className="text-center mb-16">
             <h2 className="text-5xl md:text-6xl font-bold mb-6 bg-gradient-primary bg-clip-text text-transparent">
               Projects
             </h2>
             <p className="text-xl text-foreground/70 max-w-2xl mx-auto leading-relaxed">
-              A showcase of my technical skills and creative solutions
+              A showcase of applications that demonstrate my technical skills and creative approach to problem-solving
             </p>
           </div>
 
           {/* Featured Projects */}
-          {selectedFilter === 'All' && (
-            <div className="mb-20">
-              <h3 className="text-3xl font-bold text-center mb-12">Featured Projects</h3>
-              <div className="grid lg:grid-cols-2 gap-8">
-                {featuredProjects.map((project, index) => (
-                  <Card
-                    key={index}
-                    className="group overflow-hidden bg-card border-border hover:border-primary/50 transition-all duration-500 hover:shadow-card"
-                  >
-                    <div className="aspect-video overflow-hidden">
-                      <img
-                        src={project.image}
-                        alt={project.title}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                      />
+          <div className="mb-16">
+            <h3 className="text-3xl font-bold text-center mb-12">Featured Work</h3>
+            <div className="grid md:grid-cols-2 gap-8">
+              {featuredProjects.map((project, index) => (
+                <Card 
+                  key={index}
+                  className="overflow-hidden bg-card hover:bg-card/80 border-border hover:border-primary/50 transition-all duration-300 hover:shadow-card group"
+                >
+                  <div className="aspect-video overflow-hidden">
+                    <img 
+                      src={project.image} 
+                      alt={project.title}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                    />
+                  </div>
+                  <div className="p-6">
+                    <div className="flex items-center justify-between mb-4">
+                      <h4 className="text-xl font-bold text-primary">{project.title}</h4>
+                      <Badge variant="secondary" className="bg-primary/10 text-primary border-primary/30">
+                        {project.category}
+                      </Badge>
                     </div>
-                    <div className="p-8">
-                      <div className="flex items-start justify-between mb-4">
-                        <h4 className="text-2xl font-bold group-hover:text-primary transition-colors duration-300">
-                          {project.title}
-                        </h4>
-                        <Badge variant="secondary" className="bg-primary/10 text-primary border-primary/20">
-                          {project.category}
+                    <p className="text-foreground/80 mb-4 leading-relaxed">{project.description}</p>
+                    
+                    <div className="flex flex-wrap gap-2 mb-4">
+                      {project.technologies.map((tech, techIndex) => (
+                        <Badge
+                          key={techIndex}
+                          variant="outline"
+                          className="text-xs border-border hover:border-primary/50 hover:text-primary transition-colors"
+                        >
+                          {tech}
                         </Badge>
-                      </div>
-                      
-                      <p className="text-foreground/80 leading-relaxed mb-6">
-                        {project.description}
-                      </p>
-                      
-                      <div className="flex flex-wrap gap-2 mb-6">
-                        {project.technologies.map((tech, techIndex) => (
-                          <Badge
-                            key={techIndex}
-                            variant="outline"
-                            className="text-xs border-border/50 hover:border-primary/50 transition-colors"
-                          >
-                            {tech}
-                          </Badge>
-                        ))}
-                      </div>
-                      
-                      <div className="flex gap-3">
-                        <Button size="sm" className="bg-gradient-primary hover:shadow-glow transition-all duration-300">
+                      ))}
+                    </div>
+                    
+                    <div className="flex gap-3">
+                      <Button 
+                        size="sm" 
+                        className="bg-gradient-primary hover:shadow-glow flex-1"
+                        asChild
+                      >
+                        <a href={project.demoUrl} target="_blank" rel="noopener noreferrer">
                           <ExternalLink className="w-4 h-4 mr-2" />
                           Live Demo
-                        </Button>
-                        <Button variant="outline" size="sm" className="border-border/50 hover:border-primary/50">
+                        </a>
+                      </Button>
+                      <Button 
+                        size="sm" 
+                        variant="outline" 
+                        className="border-border hover:border-primary/50 hover:text-primary flex-1"
+                        asChild
+                      >
+                        <a href={project.githubUrl} target="_blank" rel="noopener noreferrer">
                           <Github className="w-4 h-4 mr-2" />
                           Code
-                        </Button>
-                      </div>
+                        </a>
+                      </Button>
                     </div>
-                  </Card>
+                  </div>
+                </Card>
+              ))}
+            </div>
+          </div>
+
+          {/* All Projects */}
+          <div>
+            <div className="flex items-center justify-between mb-8">
+              <h3 className="text-3xl font-bold">All Projects</h3>
+              
+              {/* Filter Buttons */}
+              <div className="flex gap-2 flex-wrap">
+                {categories.map((category) => (
+                  <Button
+                    key={category}
+                    variant={selectedFilter === category ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => setSelectedFilter(category)}
+                    className={selectedFilter === category 
+                      ? "bg-gradient-primary hover:shadow-glow" 
+                      : "border-border hover:border-primary/50 hover:text-primary"
+                    }
+                  >
+                    <Filter className="w-4 h-4 mr-2" />
+                    {category}
+                  </Button>
                 ))}
               </div>
             </div>
-          )}
-
-          {/* Filter Buttons */}
-          <div className="flex flex-wrap justify-center gap-3 mb-12">
-            <div className="flex items-center gap-2 text-foreground/70 mr-4">
-              <Filter className="w-4 h-4" />
-              <span className="text-sm font-medium">Filter by:</span>
-            </div>
-            {categories.map((category) => (
-              <Button
-                key={category}
-                variant={selectedFilter === category ? "default" : "outline"}
-                size="sm"
-                onClick={() => setSelectedFilter(category)}
-                className={`transition-all duration-300 ${
-                  selectedFilter === category
-                    ? 'bg-gradient-primary shadow-glow'
-                    : 'border-border/50 hover:border-primary/50'
-                }`}
-              >
-                {category}
-              </Button>
-            ))}
-          </div>
-
-          {/* All Projects Grid */}
-          <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-8">
-            {filteredProjects.map((project, index) => (
-              <Card
-                key={index}
-                className="group overflow-hidden bg-card border-border hover:border-primary/50 transition-all duration-500 hover:shadow-card h-full flex flex-col"
-              >
-                <div className="aspect-video overflow-hidden">
-                  <img
-                    src={project.image}
-                    alt={project.title}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                  />
-                </div>
-                <div className="p-6 flex flex-col flex-grow">
-                  <div className="flex items-start justify-between mb-3">
-                    <h4 className="text-xl font-bold group-hover:text-primary transition-colors duration-300">
-                      {project.title}
-                    </h4>
-                    <Badge variant="secondary" className="bg-primary/10 text-primary border-primary/20 text-xs">
-                      {project.category}
-                    </Badge>
+            
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {filteredProjects.map((project, index) => (
+                <Card 
+                  key={index}
+                  className="overflow-hidden bg-card hover:bg-card/80 border-border hover:border-primary/50 transition-all duration-300 hover:shadow-card group"
+                >
+                  <div className="aspect-video overflow-hidden">
+                    <img 
+                      src={project.image} 
+                      alt={project.title}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                    />
                   </div>
-                  
-                  <p className="text-foreground/80 text-sm leading-relaxed mb-4 flex-grow">
-                    {project.description}
-                  </p>
-                  
-                  <div className="flex flex-wrap gap-1 mb-4">
-                    {project.technologies.slice(0, 3).map((tech, techIndex) => (
-                      <Badge
-                        key={techIndex}
-                        variant="outline"
-                        className="text-xs border-border/50"
+                  <div className="p-4">
+                    <div className="flex items-center justify-between mb-3">
+                      <h4 className="text-lg font-bold text-primary">{project.title}</h4>
+                      <Badge variant="secondary" className="bg-primary/10 text-primary border-primary/30 text-xs">
+                        {project.category}
+                      </Badge>
+                    </div>
+                    <p className="text-foreground/80 text-sm mb-3 leading-relaxed line-clamp-2">{project.description}</p>
+                    
+                    <div className="flex flex-wrap gap-1 mb-3">
+                      {project.technologies.slice(0, 3).map((tech, techIndex) => (
+                        <Badge
+                          key={techIndex}
+                          variant="outline"
+                          className="text-xs border-border hover:border-primary/50 hover:text-primary transition-colors"
+                        >
+                          {tech}
+                        </Badge>
+                      ))}
+                      {project.technologies.length > 3 && (
+                        <Badge variant="outline" className="text-xs border-border">
+                          +{project.technologies.length - 3}
+                        </Badge>
+                      )}
+                    </div>
+                    
+                    <div className="flex gap-2">
+                      <Button 
+                        size="sm" 
+                        className="bg-gradient-primary hover:shadow-glow flex-1 text-xs"
+                        asChild
                       >
-                        {tech}
-                      </Badge>
-                    ))}
-                    {project.technologies.length > 3 && (
-                      <Badge variant="outline" className="text-xs border-border/50">
-                        +{project.technologies.length - 3}
-                      </Badge>
-                    )}
+                        <a href={project.demoUrl} target="_blank" rel="noopener noreferrer">
+                          <ExternalLink className="w-3 h-3 mr-1" />
+                          Demo
+                        </a>
+                      </Button>
+                      <Button 
+                        size="sm" 
+                        variant="outline" 
+                        className="border-border hover:border-primary/50 hover:text-primary flex-1 text-xs"
+                        asChild
+                      >
+                        <a href={project.githubUrl} target="_blank" rel="noopener noreferrer">
+                          <Github className="w-3 h-3 mr-1" />
+                          Code
+                        </a>
+                      </Button>
+                    </div>
                   </div>
-                  
-                  <div className="flex gap-2">
-                    <Button size="sm" className="flex-1 bg-gradient-primary hover:shadow-glow transition-all duration-300">
-                      <ExternalLink className="w-3 h-3 mr-1" />
-                      Demo
-                    </Button>
-                    <Button variant="outline" size="sm" className="border-border/50 hover:border-primary/50">
-                      <Github className="w-3 h-3" />
-                    </Button>
-                  </div>
-                </div>
-              </Card>
-            ))}
+                </Card>
+              ))}
+            </div>
           </div>
 
-          {filteredProjects.length === 0 && (
-            <div className="text-center py-16">
-              <p className="text-foreground/60 text-lg">No projects found in this category.</p>
-            </div>
-          )}
+          <div className="text-center mt-12">
+            <Link to="/projects">
+              <Button 
+                size="lg" 
+                variant="outline"
+                className="border-border hover:border-primary/50 hover:text-primary group"
+              >
+                View All Projects
+                <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
+              </Button>
+            </Link>
+          </div>
         </div>
       </section>
 
-      {/* Blog Preview Section */}
-      <section className="py-24 bg-gradient-secondary">
+      {/* Blog Section */}
+      <section id="blog" className="py-24 bg-background">
         <div className="container mx-auto px-6 max-w-6xl">
           <div className="text-center mb-16">
-            <h2 className="text-4xl md:text-5xl font-bold mb-6 bg-gradient-primary bg-clip-text text-transparent">
-              My Blogs
+            <h2 className="text-5xl md:text-6xl font-bold mb-6 bg-gradient-primary bg-clip-text text-transparent">
+              Blog
             </h2>
             <p className="text-xl text-foreground/70 max-w-2xl mx-auto leading-relaxed">
-              My thoughts on my journey as a developer, lessons learned, and stories from my own life in tech and beyond.
+              Sharing insights, tutorials, and thoughts on software development and technology
             </p>
           </div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
+          <div className="grid md:grid-cols-3 gap-8 mb-12">
             {recentBlogs.map((post, index) => (
               <Card 
-                key={post.id}
-                className="group bg-card hover:bg-card/80 border-border hover:border-primary/50 transition-all duration-300 hover:shadow-card animate-fade-in overflow-hidden"
-                style={{ animationDelay: `${index * 100}ms` }}
+                key={index}
+                className="overflow-hidden bg-card hover:bg-card/80 border-border hover:border-primary/50 transition-all duration-300 hover:shadow-card group cursor-pointer"
               >
-                {/* Post Image */}
-                <div className="aspect-video overflow-hidden">
-                  <img 
-                    src={post.image} 
-                    alt={post.title}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                  />
-                </div>
-
-                <div className="p-6">
-                  {/* Category Badge */}
-                  <Badge 
-                    variant="secondary" 
-                    className="w-fit mb-3 bg-primary/10 text-primary border-primary/20 text-xs"
-                  >
-                    {post.category}
-                  </Badge>
-
-                  {/* Post Title */}
-                  <h3 className="text-xl font-semibold leading-tight mb-3 group-hover:text-primary transition-colors duration-300">
-                    {post.title}
-                  </h3>
-
-                  {/* Post Description */}
-                  <p className="text-foreground/70 text-sm leading-relaxed mb-4 line-clamp-3">
-                    {post.description}
-                  </p>
-
-                  {/* Post Meta */}
-                  <div className="flex items-center justify-between text-xs text-muted-foreground mb-4">
-                    <div className="flex items-center gap-1">
-                      <Calendar className="w-3 h-3" />
-                      {formatDate(post.date)}
+                <Link to={`/blog/${post.id}`}>
+                  <div className="aspect-video overflow-hidden">
+                    <img 
+                      src={post.image} 
+                      alt={post.title}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                    />
+                  </div>
+                  <div className="p-6">
+                    <div className="flex items-center gap-2 text-sm text-foreground/60 mb-3">
+                      <Calendar className="w-4 h-4" />
+                      <span>{formatDate(post.date)}</span>
+                      <span>•</span>
+                      <span>{post.readTime}</span>
                     </div>
-                    <div className="flex items-center gap-1">
-                      <Clock className="w-3 h-3" />
-                      {post.readTime} min read
+                    <h4 className="text-lg font-bold text-primary mb-3 group-hover:text-primary/80 transition-colors">
+                      {post.title}
+                    </h4>
+                    <p className="text-foreground/80 text-sm leading-relaxed line-clamp-3 mb-4">
+                      {post.description}
+                    </p>
+                    <div className="flex items-center text-primary text-sm font-medium group-hover:translate-x-1 transition-transform">
+                      Read More
+                      <ArrowRight className="w-4 h-4 ml-1" />
                     </div>
                   </div>
-
-                  {/* Read More Link */}
-                  <Link to={`/blog/${post.id}`}>
-                    <Button 
-                      variant="ghost" 
-                      size="sm"
-                      className="w-full group-hover:text-primary group-hover:bg-primary/10 transition-colors duration-300"
-                    >
-                      Read More
-                      <ArrowRight className="w-3 h-3 ml-1 group-hover:translate-x-1 transition-transform duration-300" />
-                    </Button>
-                  </Link>
-                </div>
+                </Link>
               </Card>
             ))}
           </div>
 
-          {/* View All Blog Button */}
           <div className="text-center">
             <Link to="/blog">
               <Button 
                 size="lg" 
-                className="bg-gradient-primary hover:shadow-glow transition-all duration-300"
+                variant="outline"
+                className="border-border hover:border-primary/50 hover:text-primary group"
               >
-                <BookOpen className="w-5 h-5 mr-2" />
+                <BookOpen className="w-4 h-4 mr-2" />
                 View All Posts
+                <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
               </Button>
             </Link>
           </div>
@@ -866,208 +804,162 @@ const Index = () => {
       </section>
 
       {/* Contact Section */}
-      <section id="contact" className="py-24 bg-background">
-        <div className="container mx-auto px-6 max-w-6xl">
+      <section id="contact" className="py-24 bg-gradient-secondary">
+        <div className="container mx-auto px-6 max-w-4xl">
           <div className="text-center mb-16">
             <h2 className="text-5xl md:text-6xl font-bold mb-6 bg-gradient-primary bg-clip-text text-transparent">
-              Get In Touch
+              Let's Connect
             </h2>
             <p className="text-xl text-foreground/70 max-w-2xl mx-auto leading-relaxed">
-              Let's collaborate and bring your ideas to life
+              Ready to bring your ideas to life? Let's discuss how we can work together to create something amazing.
             </p>
           </div>
 
           <div className="grid lg:grid-cols-2 gap-12">
             {/* Contact Form */}
-            <Card className="p-8 bg-card border-border hover:border-primary/50 transition-all duration-300 hover:shadow-card">
-              <h3 className="text-2xl font-bold mb-6">Send a Message</h3>
-              <form onSubmit={handleSubmit} className="space-y-6">
-                <div className="grid md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="firstName">First Name</Label>
-                    <Input
-                      id="firstName"
-                      placeholder="Your first name"
-                      required
-                      className="bg-background border-border focus:border-primary/50"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="lastName">Last Name</Label>
-                    <Input
-                      id="lastName"
-                      placeholder="Your last name"
-                      required
-                      className="bg-background border-border focus:border-primary/50"
-                    />
-                  </div>
-                </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="email">Email</Label>
-                  <Input
-                    id="email"
-                    type="email"
-                    placeholder="your.email@example.com"
-                    required
-                    className="bg-background border-border focus:border-primary/50"
-                  />
-                </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="subject">Subject</Label>
-                  <Input
-                    id="subject"
-                    placeholder="What's this about?"
-                    required
-                    className="bg-background border-border focus:border-primary/50"
-                  />
-                </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="message">Message</Label>
-                  <Textarea
-                    id="message"
-                    placeholder="Tell me about your project or idea..."
-                    required
-                    rows={6}
-                    className="bg-background border-border focus:border-primary/50 resize-none"
-                  />
-                </div>
-                
-                <Button
-                  type="submit"
-                  disabled={isSubmitting}
-                  className="w-full bg-gradient-primary hover:shadow-glow transition-all duration-300"
-                >
-                  {isSubmitting ? (
-                    <div className="flex items-center">
-                      <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin mr-2"></div>
-                      Sending...
+            <div>
+              <Card className="p-8 bg-card border-border">
+                <h3 className="text-2xl font-bold mb-6">Send me a message</h3>
+                <form onSubmit={handleSubmit} className="space-y-6">
+                  <div className="grid md:grid-cols-2 gap-4">
+                    <div>
+                      <Label htmlFor="name">Name</Label>
+                      <Input
+                        id="name"
+                        type="text"
+                        placeholder="Your name"
+                        required
+                        className="mt-2"
+                      />
                     </div>
-                  ) : (
-                    <>
-                      <Send className="w-4 h-4 mr-2" />
-                      Send Message
-                    </>
-                  )}
-                </Button>
-              </form>
-            </Card>
+                    <div>
+                      <Label htmlFor="email">Email</Label>
+                      <Input
+                        id="email"
+                        type="email"
+                        placeholder="your.email@example.com"
+                        required
+                        className="mt-2"
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <Label htmlFor="subject">Subject</Label>
+                    <Input
+                      id="subject"
+                      type="text"
+                      placeholder="What's this about?"
+                      required
+                      className="mt-2"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="message">Message</Label>
+                    <Textarea
+                      id="message"
+                      placeholder="Tell me about your project..."
+                      required
+                      rows={6}
+                      className="mt-2"
+                    />
+                  </div>
+                  <Button 
+                    type="submit" 
+                    size="lg" 
+                    className="w-full bg-gradient-primary hover:shadow-glow"
+                    disabled={isSubmitting}
+                  >
+                    {isSubmitting ? (
+                      <>
+                        <Clock className="w-4 h-4 mr-2 animate-spin" />
+                        Sending...
+                      </>
+                    ) : (
+                      <>
+                        <Send className="w-4 h-4 mr-2" />
+                        Send Message
+                      </>
+                    )}
+                  </Button>
+                </form>
+              </Card>
+            </div>
 
-            {/* Contact Information */}
+            {/* Contact Info */}
             <div className="space-y-8">
-              {/* Contact Details */}
-              <Card className="p-8 bg-gradient-secondary border-border/50">
-                <h3 className="text-2xl font-bold mb-6">Contact Information</h3>
-                <div className="space-y-6">
-                  {contactInfo.map((info, index) => (
-                    <div key={index} className="flex items-center space-x-4">
-                      <div className="text-primary">{info.icon}</div>
+              <div>
+                <h3 className="text-2xl font-bold mb-6">Get in touch</h3>
+                <p className="text-foreground/80 leading-relaxed mb-8">
+                  I'm always excited to hear about new opportunities and interesting projects. 
+                  Whether you're looking for a developer, have a question, or just want to say hello, 
+                  don't hesitate to reach out!
+                </p>
+              </div>
+
+              <div className="space-y-6">
+                {contactInfo.map((info, index) => (
+                  <Card key={index} className="p-4 bg-card border-border hover:border-primary/50 transition-colors">
+                    <a 
+                      href={info.href}
+                      className="flex items-center space-x-4 text-foreground hover:text-primary transition-colors"
+                    >
+                      <div className="text-primary">
+                        {info.icon}
+                      </div>
                       <div>
                         <p className="font-medium">{info.label}</p>
-                        <a
-                          href={info.href}
-                          className="text-foreground/80 hover:text-primary transition-colors"
-                        >
-                          {info.value}
-                        </a>
+                        <p className="text-sm text-foreground/70">{info.value}</p>
                       </div>
-                    </div>
-                  ))}
-                </div>
-              </Card>
+                    </a>
+                  </Card>
+                ))}
+              </div>
 
-              {/* Social Links */}
-              <Card className="p-8 bg-card border-border hover:border-primary/50 transition-all duration-300">
-                <h3 className="text-2xl font-bold mb-6">Follow Me</h3>
-                <div className="flex space-x-6">
+              <div>
+                <h4 className="text-lg font-semibold mb-4">Follow me</h4>
+                <div className="flex space-x-4">
                   {socialLinks.map((social, index) => (
                     <a
                       key={index}
                       href={social.href}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className={`p-3 rounded-lg bg-background border border-border hover:border-primary/50 transition-all duration-300 hover:scale-110 ${social.color}`}
-                      title={social.label}
+                      className={`p-3 rounded-full bg-card border border-border hover:border-primary/50 transition-all duration-300 hover:shadow-card ${social.color}`}
+                      aria-label={social.label}
                     >
                       {social.icon}
                     </a>
                   ))}
                 </div>
-              </Card>
-
-              {/* Availability */}
-              <Card className="p-8 bg-card border-border">
-                <h3 className="text-2xl font-bold mb-4">Availability</h3>
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between">
-                    <span>Freelance Projects</span>
-                    <span className="px-3 py-1 rounded-full bg-green-500/20 text-green-400 text-sm font-medium">
-                      Available
-                    </span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span>Full-time Positions</span>
-                    <span className="px-3 py-1 rounded-full bg-green-500/20 text-green-400 text-sm font-medium">
-                      Open to offers
-                    </span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span>Consultation</span>
-                    <span className="px-3 py-1 rounded-full bg-green-500/20 text-green-400 text-sm font-medium">
-                      Available
-                    </span>
-                  </div>
-                </div>
-              </Card>
+              </div>
             </div>
-          </div>
-
-          {/* Call to Action */}
-          <div className="text-center mt-16">
-            <Card className="p-8 bg-gradient-secondary border-border/50 max-w-2xl mx-auto">
-              <h3 className="text-2xl font-bold mb-4">Ready to Start a Project?</h3>
-              <p className="text-foreground/80 mb-6 leading-relaxed">
-                Whether you have a clear vision or just an idea, I'm here to help bring it to life. 
-                Let's discuss how we can work together to create something amazing!
-              </p>
-              <Button size="lg" className="bg-gradient-primary hover:shadow-glow transition-all duration-300">
-                <Mail className="w-5 h-5 mr-2" />
-                Start a Conversation
-              </Button>
-            </Card>
           </div>
         </div>
       </section>
 
       {/* Footer */}
-      <footer className="py-8 bg-muted border-t border-border">
+      <footer className="py-8 bg-card border-t border-border">
         <div className="container mx-auto px-6 text-center">
-          <div className="space-y-2 text-sm text-muted-foreground">
-            <p>&copy; 2025 Antonia Mugisa</p>
-            <p>
-              Built using{' '}
-              <a 
-                href="https://lovable.dev" 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="text-primary hover:text-primary/80 transition-colors"
-              >
-                Lovable
-              </a>
-              .{' '}
-              <a 
-                href="https://github.com/antoniamugisa" 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="text-primary hover:text-primary/80 transition-colors inline-flex items-center gap-1"
-              >
-                <Github className="w-4 h-4" />
-                Check out my Github
-              </a>
-            </p>
-          </div>
+          <p className="text-foreground/70 text-sm">
+            © 2025 Antonia Mugisa. Built using{' '}
+            <a 
+              href="https://lovable.dev" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="text-primary hover:text-primary/80 transition-colors"
+            >
+              Lovable
+            </a>
+            . Check out my{' '}
+            <a 
+              href="https://github.com/antoniamugisa" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="text-primary hover:text-primary/80 transition-colors"
+            >
+              Github
+            </a>
+          </p>
         </div>
       </footer>
     </div>
