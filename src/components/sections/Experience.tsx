@@ -9,12 +9,11 @@ const Experience: React.FC = () => {
     <section id="experience" className="py-24 bg-background">
       <div className="container mx-auto px-6 max-w-5xl">
         <div className="text-center mb-16">
-          <h2 className="text-5xl md:text-6xl font-bold mb-6 bg-gradient-primary bg-clip-text text-transparent">Experience</h2>
-          <p className="text-xl text-foreground/70 max-w-2xl mx-auto leading-relaxed">My professional journey through the world of software development</p>
+          <h2 className="text-5xl md:text-6xl font-bold mb-6 bg-gradient-primary bg-clip-text text-transparent">experience</h2>
+          <p className="text-xl text-foreground/70 max-w-2xl mx-auto leading-relaxed">my professional journey through the world of software development</p>
         </div>
 
         <div className="space-y-8 mb-16">
-          <h3 className="text-3xl font-bold text-center mb-12">Professional Experience</h3>
           <div className="relative">
             <div className="absolute left-4 md:left-1/2 top-0 bottom-0 w-0.5 bg-gradient-primary transform md:-translate-x-1/2"></div>
             <div className="space-y-12">
@@ -65,7 +64,7 @@ const Experience: React.FC = () => {
         </div>
 
         <div className="space-y-8">
-          <h3 className="text-3xl font-bold text-center mb-12">Education</h3>
+          <h3 className="text-3xl font-bold text-center mb-12">education</h3>
           {education.map((edu, index) => (
             <Card key={index} className="p-8 bg-card hover:bg-card/80 border-border hover:border-primary/50 transition-all duration-300 hover:shadow-card">
               <div className="flex items-start justify-between mb-4">

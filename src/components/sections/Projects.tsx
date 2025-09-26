@@ -19,12 +19,12 @@ const Projects: React.FC<ProjectsProps> = ({ selectedFilter, onSelectFilter }) =
     <section id="projects" className="py-24 bg-gradient-secondary">
       <div className="container mx-auto px-6 max-w-6xl">
         <div className="text-center mb-16">
-          <h2 className="text-5xl md:text-6xl font-bold mb-6 bg-gradient-primary bg-clip-text text-transparent">Projects</h2>
-          <p className="text-xl text-foreground/70 max-w-2xl mx-auto leading-relaxed">A showcase of applications that demonstrate my technical skills and creative approach to problem-solving</p>
+          <h2 className="text-5xl md:text-6xl font-bold mb-6 bg-gradient-primary bg-clip-text text-transparent">projects</h2>
+          <p className="text-xl text-foreground/70 max-w-2xl mx-auto leading-relaxed">a few things i've built</p>
         </div>
 
         <div className="mb-16">
-          <h3 className="text-3xl font-bold text-center mb-12">Featured Work</h3>
+          <h3 className="text-3xl font-bold text-center mb-12">highlighted work</h3>
           <div className="grid md:grid-cols-2 gap-8">
             {featuredProjects.map((project, index) => (
               <Card key={index} className="overflow-hidden bg-card hover:bg-card/80 border-border hover:border-primary/50 transition-all duration-300 hover:shadow-card group">
@@ -58,7 +58,7 @@ const Projects: React.FC<ProjectsProps> = ({ selectedFilter, onSelectFilter }) =
 
         <div>
           <div className="flex items-center justify-between mb-8">
-            <h3 className="text-3xl font-bold">All Projects</h3>
+            <h3 className="text-3xl font-bold">all projects</h3>
             <div className="flex gap-2 flex-wrap">
               {categories.map((category) => (
                 <Button key={category} variant={selectedFilter === category ? 'default' : 'outline'} size="sm" onClick={() => onSelectFilter(category)} className={selectedFilter === category ? 'bg-gradient-primary hover:shadow-glow' : 'border-border hover:border-primary/50 hover:text-primary'}>

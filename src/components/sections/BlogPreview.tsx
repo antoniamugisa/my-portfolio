@@ -13,8 +13,8 @@ const BlogPreview: React.FC = () => {
     <section id="blog" className="py-24 bg-background">
       <div className="container mx-auto px-6 max-w-6xl">
         <div className="text-center mb-16">
-          <h2 className="text-5xl md:text-6xl font-bold mb-6 bg-gradient-primary bg-clip-text text-transparent">Blog</h2>
-          <p className="text-xl text-foreground/70 max-w-2xl mx-auto leading-relaxed">Sharing insights, tutorials, and thoughts on software development and technology</p>
+          <h2 className="text-5xl md:text-6xl font-bold mb-6 bg-gradient-primary bg-clip-text text-transparent">thoughts</h2>
+          <p className="text-xl text-foreground/70 max-w-2xl mx-auto leading-relaxed">sharing my thoughts and experiences navigating tech and life</p>
         </div>
         <div className="grid md:grid-cols-3 gap-8 mb-12">
           {recentBlogs.map((post, index) => (
@@ -33,7 +33,7 @@ const BlogPreview: React.FC = () => {
                   <h4 className="text-lg font-bold text-primary mb-3 group-hover:text-primary/80 transition-colors">{post.title}</h4>
                   <p className="text-foreground/80 text-sm leading-relaxed line-clamp-3 mb-4">{post.description}</p>
                   <div className="flex items-center text-primary text-sm font-medium group-hover:translate-x-1 transition-transform">
-                    Read More
+                    read more
                     <ArrowRight className="w-4 h-4 ml-1" />
                   </div>
                 </div>
@@ -45,7 +45,7 @@ const BlogPreview: React.FC = () => {
           <Link to="/blog">
             <Button size="lg" variant="outline" className="border-border hover:border-primary/50 hover:text-primary group">
               <BookOpen className="w-4 h-4 mr-2" />
-              View All Posts
+              view all posts
               <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
             </Button>
           </Link>

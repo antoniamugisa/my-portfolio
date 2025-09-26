@@ -9,13 +9,13 @@ const About: React.FC = () => {
     <section id="about" className="py-24 bg-gradient-secondary">
       <div className="container mx-auto px-6 max-w-4xl">
         <div className="text-center mb-16">
-          <h2 className="text-5xl md:text-6xl font-bold mb-6 bg-gradient-primary bg-clip-text text-transparent">About Me</h2>
+          <h2 className="text-5xl md:text-6xl font-bold mb-6 bg-gradient-primary bg-clip-text text-transparent">about me</h2>
           <p className="text-xl text-foreground/70 max-w-2xl mx-auto leading-relaxed">A passionate developer who bridges the gap between technical excellence and creative expression</p>
         </div>
 
         <div className="space-y-16">
           <div className="space-y-8">
-            <h3 className="text-3xl font-bold text-center mb-8">My Journey</h3>
+            <h3 className="text-3xl font-bold text-center mb-8">my journey</h3>
             <div className="space-y-6 text-lg text-foreground/80 leading-relaxed">
               <p>
                 Hi! I'm Antonia, a software developer who thrives at the intersection of thoughtful engineering and creative problem-solving. My journey began in highschool when I joined my school's robotics team and learnt how to make a robot move forward and backwards. I decided then and there I want to do more of this, and my interest grew into a career where I get to design, build, and optimize full-stack applications that make a real impact.
@@ -31,7 +31,7 @@ const About: React.FC = () => {
 
 
           <div>
-            <h3 className="text-3xl font-bold text-center mb-8">Technical Arsenal</h3>
+            <h3 className="text-3xl font-bold text-center mb-8">i know these pretty well</h3>
             <Card className="p-8 bg-gradient-secondary border-border/50">
               <div className="flex flex-wrap gap-3 justify-center">
                 {skills.map((skill, index) => (
@@ -42,7 +42,7 @@ const About: React.FC = () => {
           </div>
 
           <div>
-            <h3 className="text-3xl font-bold text-center mb-8">Certifications</h3>
+            <h3 className="text-3xl font-bold text-center mb-8">my certs</h3>
             <div className="grid md:grid-cols-2 gap-4">
               {certifications.map((cert, index) => (
                 <Card key={index} className="p-6 bg-card hover:bg-card/80 border-border hover:border-primary/50 transition-all duration-300">
@@ -57,7 +57,7 @@ const About: React.FC = () => {
           </div>
           
           <div>
-            <h3 className="text-3xl font-bold text-center mb-8">Beyond the Code</h3>
+            <h3 className="text-3xl font-bold text-center mb-8">when not coding</h3>
             <div className="grid md:grid-cols-2 gap-6">
               {interests.map((interest, index) => (
                 <Card key={index} className="p-6 bg-card hover:bg-card/80 border-border hover:border-primary/50 transition-all duration-300 group">
@@ -74,7 +74,7 @@ const About: React.FC = () => {
           </div>
 
           <div className="text-center">
-            <h3 className="text-3xl font-bold mb-8">Development Philosophy</h3>
+            <h3 className="text-3xl font-bold mb-8">what i believe</h3>
             <Card className="p-8 bg-gradient-secondary border-border/50">
               <blockquote className="text-xl italic text-foreground/80 leading-relaxed">
                 "Code is poetry written in logic. Every function, every component, every algorithm should not only solve a problem but tell a story. Great software weaves together technical precision with emotional resonance."

@@ -14,20 +14,20 @@ const Hero: React.FC<HeroProps> = ({ onScrollTo }) => {
         <div className="grid lg:grid-cols-2 gap-12 items-center animate-fade-in">
           <div className="space-y-8">
             <h1 className="text-6xl md:text-8xl font-bold leading-tight">
-              <span className="block text-foreground">Antonia Mugisa</span>
+              <span className="block text-foreground">antonia mugisa</span>
             </h1>
             <div className="space-y-4">
-              <h2 className="text-2xl md:text-3xl font-semibold text-foreground">Software Engineer</h2>
+              <h2 className="text-2xl md:text-3xl font-semibold text-foreground">software engineer</h2>
               <p className="text-lg md:text-xl text-muted-foreground max-w-2xl leading-relaxed">
-                Building functional, scalable and aesthetic software with cutting-edge technology.
+                building functional, scalable and aesthetic software with cutting-edge technology.
               </p>
             </div>
             <div className="flex flex-col sm:flex-row gap-4 pt-8">
               <Button size="lg" className="bg-gradient-primary hover:shadow-glow transition-all duration-300" onClick={() => onScrollTo('projects')}>
-                View My Work
+                view my work
               </Button>
               <Button size="lg" variant="outline" className="border-border text-foreground hover:bg-muted" onClick={() => onScrollTo('contact')}>
-                Get In Touch
+                get in touch
               </Button>
             </div>
           </div>
