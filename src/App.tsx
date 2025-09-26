@@ -8,6 +8,8 @@ import Navigation from "./components/Navigation";
 import Index from "./pages/Index";
 import Blog from "./pages/Blog";
 import BlogPost from "./pages/BlogPost";
+import Projects from "./pages/Projects";
+import Experience from "./pages/Experience";
 import Preloader from "./components/Preloader";
 
 const queryClient = new QueryClient();
@@ -53,6 +55,8 @@ const App = () => {
               <Route path="/" element={<Index />} />
               <Route path="/blog" element={<Blog />} />
               <Route path="/blog/:id" element={<BlogPost />} />
+              <Route path="/projects" element={<Projects />} />
+              <Route path="/experience" element={<Experience />} />
             </Routes>
           </div>
         </Router>
