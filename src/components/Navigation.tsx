@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Menu, X } from 'lucide-react';
+import { Menu, X, Home, User, Briefcase, FolderOpen, BookOpen, Phone } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 const Navigation = () => {
@@ -34,12 +34,12 @@ const Navigation = () => {
   }, []);
 
   const navItems = [
-    { name: 'Home', id: 'home', path: '/' },
-    { name: 'About', id: 'about', path: '/' },
-    { name: 'Experience', id: 'experience', path: '/' },
-    { name: 'Projects', id: 'projects', path: '/' },
-    { name: 'Blog', id: 'blog', path: '/blog' },
-    { name: 'Contact', id: 'contact', path: '/' }
+    { name: 'Home', id: 'home', path: '/', icon: Home },
+    { name: 'About', id: 'about', path: '/', icon: User },
+    { name: 'Experience', id: 'experience', path: '/', icon: Briefcase },
+    { name: 'Projects', id: 'projects', path: '/', icon: FolderOpen },
+    { name: 'Blog', id: 'blog', path: '/blog', icon: BookOpen },
+    { name: 'Contact', id: 'contact', path: '/', icon: Phone }
   ];
 
   const handleNavigation = (item: typeof navItems[0]) => {
@@ -73,16 +73,18 @@ const Navigation = () => {
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-8">
-            {navItems.map((item) => (
-              item.path === '/blog' ? (
+            {navItems.map((item) => {
+              const IconComponent = item.icon;
+              return item.path === '/blog' ? (
                 <Link
                   key={item.id}
                   to={item.path}
-                  className={`relative text-sm font-medium transition-colors hover:text-primary story-link ${
-                    location.pathname.startsWith('/blog') ? 'text-primary' : 'text-foreground'
+                  className={`relative p-2 transition-colors hover:text-primary ${
+                    location.pathname.startsWith('/blog') ? 'text-primary' : 'text-black'
                   }`}
+                  title={item.name}
                 >
-                  {item.name}
+                  <IconComponent size={20} />
                   {location.pathname.startsWith('/blog') && (
                     <span className="absolute -bottom-1 left-0 w-full h-0.5 bg-gradient-primary rounded-full" />
                   )}
@@ -91,17 +93,18 @@ const Navigation = () => {
                 <button
                   key={item.id}
                   onClick={() => handleNavigation(item)}
-                  className={`relative text-sm font-medium transition-colors hover:text-primary story-link ${
-                    activeSection === item.id && location.pathname === '/' ? 'text-primary' : 'text-foreground'
+                  className={`relative p-2 transition-colors hover:text-primary ${
+                    activeSection === item.id && location.pathname === '/' ? 'text-primary' : 'text-black'
                   }`}
+                  title={item.name}
                 >
-                  {item.name}
+                  <IconComponent size={20} />
                   {activeSection === item.id && location.pathname === '/' && (
                     <span className="absolute -bottom-1 left-0 w-full h-0.5 bg-gradient-primary rounded-full" />
                   )}
                 </button>
-              )
-            ))}
+              );
+            })}
           </div>
 
           {/* Mobile Menu Button */}
@@ -119,30 +122,33 @@ const Navigation = () => {
         {isMobileMenuOpen && (
           <div className="md:hidden mt-4 pb-4">
             <div className="flex flex-col space-y-4">
-              {navItems.map((item) => (
-                item.path === '/blog' ? (
+              {navItems.map((item) => {
+                const IconComponent = item.icon;
+                return item.path === '/blog' ? (
                   <Link
                     key={item.id}
                     to={item.path}
-                    className={`text-sm font-medium transition-colors hover:text-primary text-left ${
-                      location.pathname.startsWith('/blog') ? 'text-primary' : 'text-foreground'
+                    className={`flex items-center space-x-3 text-sm font-medium transition-colors hover:text-primary text-left ${
+                      location.pathname.startsWith('/blog') ? 'text-primary' : 'text-black'
                     }`}
                     onClick={() => setIsMobileMenuOpen(false)}
                   >
-                    {item.name}
+                    <IconComponent size={18} />
+                    <span>{item.name}</span>
                   </Link>
                 ) : (
                   <button
                     key={item.id}
                     onClick={() => handleNavigation(item)}
-                    className={`text-sm font-medium transition-colors hover:text-primary text-left ${
-                      activeSection === item.id && location.pathname === '/' ? 'text-primary' : 'text-foreground'
+                    className={`flex items-center space-x-3 text-sm font-medium transition-colors hover:text-primary text-left ${
+                      activeSection === item.id && location.pathname === '/' ? 'text-primary' : 'text-black'
                     }`}
                   >
-                    {item.name}
+                    <IconComponent size={18} />
+                    <span>{item.name}</span>
                   </button>
-                )
-              ))}
+                );
+              })}
             </div>
           </div>
         )}
