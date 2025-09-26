@@ -1,6 +1,6 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { ChevronDown } from 'lucide-react';
+import { ChevronDown, Github, Twitter, Linkedin, Mail } from 'lucide-react';
 import profile from '@/assets/image.png';
 
 type HeroProps = {
@@ -21,6 +21,20 @@ const Hero: React.FC<HeroProps> = ({ onScrollTo }) => {
               <p className="text-lg md:text-xl text-muted-foreground max-w-2xl leading-relaxed">
                 building functional, scalable and aesthetic software with cutting-edge technology.
               </p>
+              <div className="flex gap-4 pt-4">
+                <a href="https://github.com" target="_blank" rel="noopener noreferrer" className="p-2 rounded-full hover:bg-muted transition-colors duration-300">
+                  <Github className="w-6 h-6 text-foreground hover:text-primary transition-colors duration-300" />
+                </a>
+                <a href="https://twitter.com" target="_blank" rel="noopener noreferrer" className="p-2 rounded-full hover:bg-muted transition-colors duration-300">
+                  <Twitter className="w-6 h-6 text-foreground hover:text-primary transition-colors duration-300" />
+                </a>
+                <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer" className="p-2 rounded-full hover:bg-muted transition-colors duration-300">
+                  <Linkedin className="w-6 h-6 text-foreground hover:text-primary transition-colors duration-300" />
+                </a>
+                <a href="mailto:contact@example.com" className="p-2 rounded-full hover:bg-muted transition-colors duration-300">
+                  <Mail className="w-6 h-6 text-foreground hover:text-primary transition-colors duration-300" />
+                </a>
+              </div>
             </div>
             <div className="flex flex-col sm:flex-row gap-4 pt-8">
               <Button size="lg" className="bg-gradient-primary hover:shadow-glow transition-all duration-300" onClick={() => onScrollTo('projects')}>
