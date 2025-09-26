@@ -188,7 +188,7 @@ const Index = () => {
     {
       icon: <MapPin className="w-5 h-5" />,
       label: "Location",
-      value: "Halifax, Nova Scotia, Canada",
+      value: "Toronto, Canada",
       href: "#"
     }
   ];
@@ -204,6 +204,11 @@ const Index = () => {
       icon: <Linkedin className="w-5 h-5" />,
       label: "LinkedIn",
       href: "https://www.linkedin.com/in/antoniamugisa/",
+      color: "hover:text-blue-400"
+    },
+    { icon: <Twitter className="w-5 h-5" />,
+      label: "Twitter",
+      href: "https://twitter.com/antmugisa",
       color: "hover:text-blue-400"
     }
 
@@ -228,7 +233,7 @@ const Index = () => {
                   Software Engineer
                 </h2>
                 <p className="text-lg md:text-xl text-muted-foreground max-w-2xl leading-relaxed">
-                  Creating functional aestheic and applications with cutting-edge technology.
+                  Building functional, scalable and aesthetic software with cutting-edge technology.
                 </p>
               </div>
               
@@ -292,7 +297,8 @@ const Index = () => {
               <div className="space-y-6 text-lg text-foreground/80 leading-relaxed">
                 <p>
                   Hi! I'm Antonia, a software developer who thrives at the intersection of thoughtful engineering and 
-                  creative problem-solving. My journey began with a curiosity about how things work, and grew into a 
+                  creative problem-solving. My journey began in highschool when I joined my school's robotics team and learnt how to make 
+                  a robot move forward and backwards. I decided then and there I want to do more of this, and my interest grew into a 
                   career where I get to design, build, and optimize full-stack applications that make a real impact.
                 </p>
                 <p>
@@ -888,7 +894,7 @@ const Index = () => {
             {/* Contact Info */}
             <div className="space-y-8">
               <div>
-                <h3 className="text-2xl font-bold mb-6">Get in touch</h3>
+                <h3 className="text-2xl font-bold mb-4">Get in touch!</h3>
                 <p className="text-foreground/80 leading-relaxed mb-8">
                   I'm always excited to hear about new opportunities and interesting projects. 
                   Whether you're looking for a developer, have a question, or just want to say hello, 
