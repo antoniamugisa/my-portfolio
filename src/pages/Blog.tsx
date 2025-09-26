@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { Card, CardHeader, CardContent, CardFooter } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
@@ -11,7 +11,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 const Blog = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
-  const location = useLocation();
 
   // Filter and search logic
   const filteredPosts = useMemo(() => {
@@ -36,52 +35,24 @@ const Blog = () => {
     });
   };
 
-  const navItems = [
-    { name: 'about', path: '/#about' },
-    { name: 'experience', path: '/#experience' },
-    { name: 'projects', path: '/#projects' },
-    { name: 'blog', path: '/blog' },
-    { name: 'interests', path: '/interests' },
-    { name: 'contact', path: '/#contact' }
-  ];
-
   return (
-    <div className="min-h-screen bg-background flex">
-      {/* Sidebar Navigation */}
-      <div className="w-64 bg-background border-r border-border/50 p-8 pt-24 fixed left-0 top-0 h-full overflow-y-auto">
-        <nav className="space-y-2">
-          {navItems.map((item) => (
-            <Link
-              key={item.name}
-              to={item.path}
-              className={`block py-2 text-sm font-medium transition-colors ${
-                location.pathname === item.path || 
-                (item.path === '/#about' && location.pathname === '/')
-                  ? 'text-foreground font-semibold'
-                  : 'text-muted-foreground hover:text-foreground'
-              }`}
-            >
-              {item.name}
-            </Link>
-          ))}
-        </nav>
-      </div>
-
-      {/* Main Content */}
-      <div className="flex-1 p-8 ml-64">
-        {/* Header */}
-        <div className="mb-12">
-          <h1 className="text-4xl font-bold text-foreground mb-4">
+    <div className="min-h-screen bg-background pt-24">
+      {/* Hero Section */}
+      <section className="py-16 bg-gradient-secondary">
+        <div className="container mx-auto px-6 max-w-4xl text-center">
+          <h1 className="text-5xl md:text-6xl font-bold mb-8 bg-gradient-primary bg-clip-text text-transparent">
             thoughts & stories
           </h1>
-          <p className="text-lg text-muted-foreground">
+          <p className="text-xl text-foreground/70 max-w-2xl mx-auto leading-relaxed">
             my thoughts, findings and observations on this journey
           </p>
         </div>
+      </section>
 
-        {/* Search and Filter Section */}
-        <div className="mb-8">
-          <div className="flex flex-col md:flex-row gap-4 items-center justify-between mb-4">
+      {/* Search and Filter Section */}
+      <section className="py-8 bg-background border-b border-border">
+        <div className="container mx-auto px-6 max-w-6xl">
+          <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
             {/* Search Bar */}
             <div className="relative flex-1 max-w-md">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
@@ -112,13 +83,15 @@ const Blog = () => {
           </div>
 
           {/* Results count */}
-          <div className="text-sm text-muted-foreground">
+          <div className="mt-4 text-sm text-muted-foreground">
             {filteredPosts.length} {filteredPosts.length === 1 ? 'post' : 'posts'} found
           </div>
         </div>
+      </section>
 
-        {/* Blog Posts Grid */}
-        <div>
+      {/* Blog Posts Grid */}
+      <section className="py-16">
+        <div className="container mx-auto px-6 max-w-6xl">
           {filteredPosts.length === 0 ? (
             <div className="text-center py-16">
               <h3 className="text-2xl font-semibold mb-4">no posts found</h3>
@@ -136,13 +109,14 @@ const Blog = () => {
               </Button>
             </div>
           ) : (
-            <div className="space-y-16 max-w-4xl">
+            <div className="space-y-8 max-w-4xl mx-auto">
               {filteredPosts.map((post, index) => (
-                <Link key={post.id} to={`/blog/${post.id}`}>
-                  <div 
-                    className="group relative h-48 rounded-lg overflow-hidden cursor-pointer transition-transform duration-300 hover:scale-[1.02]"
-                    style={{ animationDelay: `${index * 100}ms` }}
-                  >
+                <div key={post.id} className="py-px">
+                  <Link to={`/blog/${post.id}`}>
+                    <div 
+                      className="group relative h-48 rounded-lg overflow-hidden cursor-pointer transition-transform duration-300 hover:scale-[1.02]"
+                      style={{ animationDelay: `${index * 100}ms` }}
+                    >
                     {/* Background Image */}
                     <div className="absolute inset-0">
                       <img 
@@ -188,13 +162,14 @@ const Blog = () => {
                         </div>
                       </div>
                     </div>
-                  </div>
-                </Link>
+                    </div>
+                  </Link>
+                </div>
               ))}
             </div>
           )}
         </div>
-      </div>
+      </section>
     </div>
   );
 };

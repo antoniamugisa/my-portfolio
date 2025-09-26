@@ -42,9 +42,6 @@ const AppContent = () => {
     };
   }, []);
 
-  // Hide navigation on blog and interests pages
-  const hideNavigation = location.pathname === '/blog' || location.pathname === '/interests';
-
   return (
     <>
       <Toaster />
@@ -53,7 +50,7 @@ const AppContent = () => {
       <div className={`min-h-screen bg-background text-foreground transition-opacity duration-500 ${
         isLoading ? 'opacity-0' : 'opacity-100'
       }`}>
-        {!hideNavigation && <Navigation />}
+        <Navigation />
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/blog" element={<Blog />} />

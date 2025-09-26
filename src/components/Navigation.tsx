@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Menu, X, Home, User, Briefcase, FolderOpen, BookOpen, Phone, Heart } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
@@ -8,6 +8,7 @@ const Navigation = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [activeSection, setActiveSection] = useState('home');
   const location = useLocation();
+  const navigate = useNavigate();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -33,6 +34,20 @@ const Navigation = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  // Handle hash navigation when component mounts or location changes
+  useEffect(() => {
+    if (location.pathname === '/' && location.hash) {
+      const sectionId = location.hash.substring(1); // Remove the # symbol
+      const element = document.getElementById(sectionId);
+      if (element) {
+        // Small delay to ensure the page is fully loaded
+        setTimeout(() => {
+          element.scrollIntoView({ behavior: 'smooth' });
+        }, 100);
+      }
+    }
+  }, [location]);
+
   const navItems = [
     { name: 'Home', id: 'home', path: '/', icon: Home },
     { name: 'About', id: 'about', path: '/', icon: User },
@@ -50,8 +65,8 @@ const Navigation = () => {
       // Handle blog and interests navigation - let React Router handle it
       return;
     } else if (item.path === '/' && location.pathname !== '/') {
-      // If we're not on home page, navigate to home first
-      window.location.href = `/#${item.id}`;
+      // If we're not on home page, navigate to home first with hash
+      navigate(`/#${item.id}`);
     } else {
       // We're on home page, scroll to section
       document.getElementById(item.id)?.scrollIntoView({ behavior: 'smooth' });

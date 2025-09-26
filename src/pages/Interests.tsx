@@ -1,10 +1,8 @@
 import React from 'react';
-import { Link, useLocation } from 'react-router-dom';
 import { interestsData, type MediaItem } from '@/data/interests';
 
 const Interests = () => {
   const allItems = interestsData.flatMap(category => category.items);
-  const location = useLocation();
 
   const getTypeHighlight = (type: MediaItem['type']) => {
     switch (type) {
@@ -25,48 +23,23 @@ const Interests = () => {
     }
   };
 
-  const navItems = [
-    { name: 'about', path: '/#about' },
-    { name: 'experience', path: '/#experience' },
-    { name: 'projects', path: '/#projects' },
-    { name: 'blog', path: '/blog' },
-    { name: 'interests', path: '/interests' },
-    { name: 'contact', path: '/#contact' }
-  ];
-
   return (
-    <div className="min-h-screen bg-background flex">
-      {/* Sidebar Navigation */}
-      <div className="w-64 bg-background border-r border-border/50 p-8 pt-24 fixed left-0 top-0 h-full overflow-y-auto">
-        <nav className="space-y-2">
-          {navItems.map((item) => (
-            <Link
-              key={item.name}
-              to={item.path}
-              className={`block py-2 text-sm font-medium transition-colors ${
-                location.pathname === item.path || 
-                (item.path === '/#about' && location.pathname === '/')
-                  ? 'text-foreground font-semibold'
-                  : 'text-muted-foreground hover:text-foreground'
-              }`}
-            >
-              {item.name}
-            </Link>
-          ))}
-        </nav>
-      </div>
-
-      {/* Main Content */}
-      <div className="flex-1 p-8 ml-64">
-        {/* Header */}
-        <div className="mb-12">
-          <h1 className="text-4xl font-bold text-foreground mb-4">
+    <div className="min-h-screen bg-background pt-24">
+      {/* Hero Section */}
+      <section className="py-16 bg-gradient-secondary">
+        <div className="container mx-auto px-6 max-w-4xl text-center">
+          <h1 className="text-5xl md:text-6xl font-bold mb-8 bg-gradient-primary bg-clip-text text-transparent">
             content worth consuming
           </h1>
+          <p className="text-xl text-foreground/70 max-w-2xl mx-auto leading-relaxed">
+            What I'm currently consuming and thinking about.
+          </p>
         </div>
+      </section>
 
-        {/* Simple List */}
-        <div className="max-w-4xl">
+      {/* Content Section */}
+      <section className="py-16">
+        <div className="container mx-auto px-6 max-w-4xl">
           <ul className="space-y-3">
             {allItems.map((item) => (
               <li key={item.id} className="flex items-center justify-between py-2">
@@ -85,7 +58,7 @@ const Interests = () => {
             ))}
           </ul>
         </div>
-      </div>
+      </section>
     </div>
   );
 };
