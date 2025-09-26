@@ -1,7 +1,7 @@
 import React from 'react';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Code2, Zap, Palette } from 'lucide-react';
+
 import { certifications, interests, skills } from '@/data/portfolio';
 
 const About: React.FC = () => {
@@ -29,23 +29,6 @@ const About: React.FC = () => {
             </div>
           </div>
 
-          <div>
-            <h3 className="text-3xl font-bold text-center mb-8">What I Do</h3>
-            <p className="text-xl text-foreground/70 max-w-2xl mx-auto text-center mb-8">Merging backend expertise with AI-driven solutions to build efficient, scalable, and user-focused digital systems.</p>
-            <div className="grid md:grid-cols-3 gap-8">
-              {[
-                { icon: <Code2 className="w-8 h-8" />, title: 'Full-Stack Development', description: 'Engineering robust web applications from frontend interfaces to backend APIs using technologies like React, Node.js, and MongoDB. Prioritize clean architecture, security, and cloud deployment.' },
-                { icon: <Zap className="w-8 h-8" />, title: 'Performance Optimization', description: 'Improving system responsiveness and scalability through CI/CD automation, containerization (Docker, Kubernetes), and cloud services (Azure). Monitor and fine-tune performance to ensure seamless experiences.' },
-                { icon: <Palette className="w-8 h-8" />, title: 'Creative Solutions', description: 'Integrating large language models and NLP into real-world applications like chatbots, document readers, and mood-based tools, to solve complex problems with intelligence and empathy.' }
-              ].map((feature, index) => (
-                <Card key={index} className="p-8 text-center bg-card hover:bg-card/80 border-border hover:border-primary/50 transition-all duration-300 hover:shadow-card group">
-                  <div className="text-primary mb-4 flex justify-center group-hover:scale-110 transition-transform duration-300">{feature.icon}</div>
-                  <h3 className="text-xl font-semibold mb-3">{feature.title}</h3>
-                  <p className="text-foreground/70 leading-relaxed">{feature.description}</p>
-                </Card>
-              ))}
-            </div>
-          </div>
 
           <div>
             <h3 className="text-3xl font-bold text-center mb-8">Technical Arsenal</h3>
