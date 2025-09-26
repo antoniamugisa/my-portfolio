@@ -41,10 +41,10 @@ const Blog = () => {
       <section className="py-16 bg-gradient-secondary">
         <div className="container mx-auto px-6 max-w-4xl text-center">
           <h1 className="text-5xl md:text-6xl font-bold mb-8 bg-gradient-primary bg-clip-text text-transparent">
-            Antonia's Blog
+            thoughts & stories
           </h1>
           <p className="text-xl text-foreground/70 max-w-2xl mx-auto leading-relaxed">
-            My thoughts on my journey as a developer, lessons learned, and stories from my own life in tech and beyond.
+            my thoughts, findings and observations on this journey
           </p>
         </div>
       </section>
@@ -94,9 +94,9 @@ const Blog = () => {
         <div className="container mx-auto px-6 max-w-6xl">
           {filteredPosts.length === 0 ? (
             <div className="text-center py-16">
-              <h3 className="text-2xl font-semibold mb-4">No posts found</h3>
+              <h3 className="text-2xl font-semibold mb-4">no posts found</h3>
               <p className="text-muted-foreground mb-6">
-                Try adjusting your search terms or category filter
+                try adjusting your search terms or category filter
               </p>
               <Button 
                 variant="outline" 
@@ -105,7 +105,7 @@ const Blog = () => {
                   setSelectedCategory('All');
                 }}
               >
-                Clear Filters
+                clear Filters
               </Button>
             </div>
           ) : (
@@ -180,7 +180,7 @@ const Blog = () => {
                         size="sm"
                         className="group-hover:text-primary group-hover:bg-primary/10 transition-colors duration-300"
                       >
-                        Read More
+                        read more
                         <ArrowRight className="w-3 h-3 ml-1 group-hover:translate-x-1 transition-transform duration-300" />
                       </Button>
                     </Link>
