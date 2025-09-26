@@ -31,7 +31,7 @@ const Hero: React.FC<HeroProps> = ({ onScrollTo }) => {
                 <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer" className="p-2 rounded-full hover:bg-muted transition-colors duration-300">
                   <Linkedin className="w-6 h-6 text-foreground hover:text-primary transition-colors duration-300" />
                 </a>
-                <a href="mailto:contact@example.com" className="p-2 rounded-full hover:bg-muted transition-colors duration-300">
+                <a href="mailto:antoniamugisa@gmail.com" className="p-2 rounded-full hover:bg-muted transition-colors duration-300">
                   <Mail className="w-6 h-6 text-foreground hover:text-primary transition-colors duration-300" />
                 </a>
               </div>
