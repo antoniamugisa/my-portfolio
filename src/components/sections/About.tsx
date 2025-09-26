@@ -73,14 +73,6 @@ const About: React.FC = () => {
             </div>
           </div>
 
-          <div className="text-center">
-            <h3 className="text-3xl font-bold mb-8">what i believe</h3>
-            <Card className="p-8 bg-gradient-secondary border-border/50">
-              <blockquote className="text-xl italic text-foreground/80 leading-relaxed">
-                "Code is poetry written in logic. Every function, every component, every algorithm should not only solve a problem but tell a story. Great software weaves together technical precision with emotional resonance."
-              </blockquote>
-            </Card>
-          </div>
         </div>
       </div>
     </section>

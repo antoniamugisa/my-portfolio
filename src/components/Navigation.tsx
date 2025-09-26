@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Menu, X, Home, User, Briefcase, FolderOpen, BookOpen, Phone } from 'lucide-react';
+import { Menu, X, Home, User, Briefcase, FolderOpen, BookOpen, Phone, Heart } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 const Navigation = () => {
@@ -39,14 +39,15 @@ const Navigation = () => {
     { name: 'Experience', id: 'experience', path: '/', icon: Briefcase },
     { name: 'Projects', id: 'projects', path: '/', icon: FolderOpen },
     { name: 'Blog', id: 'blog', path: '/blog', icon: BookOpen },
+    { name: 'Interests', id: 'interests', path: '/interests', icon: Heart },
     { name: 'Contact', id: 'contact', path: '/', icon: Phone }
   ];
 
   const handleNavigation = (item: typeof navItems[0]) => {
     setIsMobileMenuOpen(false);
     
-    if (item.path === '/blog') {
-      // Handle blog navigation - let React Router handle it
+    if (item.path === '/blog' || item.path === '/interests') {
+      // Handle blog and interests navigation - let React Router handle it
       return;
     } else if (item.path === '/' && location.pathname !== '/') {
       // If we're not on home page, navigate to home first
@@ -75,17 +76,17 @@ const Navigation = () => {
           <div className="hidden md:flex items-center space-x-8">
             {navItems.map((item) => {
               const IconComponent = item.icon;
-              return item.path === '/blog' ? (
+              return (item.path === '/blog' || item.path === '/interests') ? (
                 <Link
                   key={item.id}
                   to={item.path}
                   className={`relative p-2 transition-colors hover:text-primary ${
-                    location.pathname.startsWith('/blog') ? 'text-primary' : 'text-black'
+                    location.pathname.startsWith(item.path) ? 'text-primary' : 'text-black'
                   }`}
                   title={item.name}
                 >
                   <IconComponent size={20} />
-                  {location.pathname.startsWith('/blog') && (
+                  {location.pathname.startsWith(item.path) && (
                     <span className="absolute -bottom-1 left-0 w-full h-0.5 bg-gradient-primary rounded-full" />
                   )}
                 </Link>
@@ -124,12 +125,12 @@ const Navigation = () => {
             <div className="flex flex-col space-y-4">
               {navItems.map((item) => {
                 const IconComponent = item.icon;
-                return item.path === '/blog' ? (
+                return (item.path === '/blog' || item.path === '/interests') ? (
                   <Link
                     key={item.id}
                     to={item.path}
                     className={`flex items-center space-x-3 text-sm font-medium transition-colors hover:text-primary text-left ${
-                      location.pathname.startsWith('/blog') ? 'text-primary' : 'text-black'
+                      location.pathname.startsWith(item.path) ? 'text-primary' : 'text-black'
                     }`}
                     onClick={() => setIsMobileMenuOpen(false)}
                   >

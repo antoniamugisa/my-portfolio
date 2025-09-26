@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { Card, CardHeader, CardContent, CardFooter } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
@@ -11,6 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 const Blog = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
+  const location = useLocation();
 
   // Filter and search logic
   const filteredPosts = useMemo(() => {
@@ -35,24 +36,52 @@ const Blog = () => {
     });
   };
 
+  const navItems = [
+    { name: 'about', path: '/#about' },
+    { name: 'experience', path: '/#experience' },
+    { name: 'projects', path: '/#projects' },
+    { name: 'blog', path: '/blog' },
+    { name: 'interests', path: '/interests' },
+    { name: 'contact', path: '/#contact' }
+  ];
+
   return (
-    <div className="min-h-screen bg-background pt-24">
-      {/* Hero Section */}
-      <section className="py-16 bg-gradient-secondary">
-        <div className="container mx-auto px-6 max-w-4xl text-center">
-          <h1 className="text-5xl md:text-6xl font-bold mb-8 bg-gradient-primary bg-clip-text text-transparent">
+    <div className="min-h-screen bg-background flex">
+      {/* Sidebar Navigation */}
+      <div className="w-64 bg-background border-r border-border/50 p-8 pt-24 fixed left-0 top-0 h-full overflow-y-auto">
+        <nav className="space-y-2">
+          {navItems.map((item) => (
+            <Link
+              key={item.name}
+              to={item.path}
+              className={`block py-2 text-sm font-medium transition-colors ${
+                location.pathname === item.path || 
+                (item.path === '/#about' && location.pathname === '/')
+                  ? 'text-foreground font-semibold'
+                  : 'text-muted-foreground hover:text-foreground'
+              }`}
+            >
+              {item.name}
+            </Link>
+          ))}
+        </nav>
+      </div>
+
+      {/* Main Content */}
+      <div className="flex-1 p-8 ml-64">
+        {/* Header */}
+        <div className="mb-12">
+          <h1 className="text-4xl font-bold text-foreground mb-4">
             thoughts & stories
           </h1>
-          <p className="text-xl text-foreground/70 max-w-2xl mx-auto leading-relaxed">
+          <p className="text-lg text-muted-foreground">
             my thoughts, findings and observations on this journey
           </p>
         </div>
-      </section>
 
-      {/* Search and Filter Section */}
-      <section className="py-8 bg-background border-b border-border">
-        <div className="container mx-auto px-6 max-w-6xl">
-          <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
+        {/* Search and Filter Section */}
+        <div className="mb-8">
+          <div className="flex flex-col md:flex-row gap-4 items-center justify-between mb-4">
             {/* Search Bar */}
             <div className="relative flex-1 max-w-md">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
@@ -83,15 +112,13 @@ const Blog = () => {
           </div>
 
           {/* Results count */}
-          <div className="mt-4 text-sm text-muted-foreground">
+          <div className="text-sm text-muted-foreground">
             {filteredPosts.length} {filteredPosts.length === 1 ? 'post' : 'posts'} found
           </div>
         </div>
-      </section>
 
-      {/* Blog Posts Grid */}
-      <section className="py-16">
-        <div className="container mx-auto px-6 max-w-6xl">
+        {/* Blog Posts Grid */}
+        <div>
           {filteredPosts.length === 0 ? (
             <div className="text-center py-16">
               <h3 className="text-2xl font-semibold mb-4">no posts found</h3>
@@ -109,88 +136,65 @@ const Blog = () => {
               </Button>
             </div>
           ) : (
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div className="space-y-16 max-w-4xl">
               {filteredPosts.map((post, index) => (
-                <Card 
-                  key={post.id}
-                  className="group bg-card hover:bg-card/80 border-border hover:border-primary/50 transition-all duration-300 hover:shadow-card animate-fade-in overflow-hidden"
-                  style={{ animationDelay: `${index * 100}ms` }}
-                >
-                  {/* Post Image */}
-                  <div className="aspect-video overflow-hidden">
-                    <img 
-                      src={post.image} 
-                      alt={post.title}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                    />
+                <Link key={post.id} to={`/blog/${post.id}`}>
+                  <div 
+                    className="group relative h-48 rounded-lg overflow-hidden cursor-pointer transition-transform duration-300 hover:scale-[1.02]"
+                    style={{ animationDelay: `${index * 100}ms` }}
+                  >
+                    {/* Background Image */}
+                    <div className="absolute inset-0">
+                      <img 
+                        src={post.image} 
+                        alt={post.title}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                      />
+                      {/* Dark overlay for better text readability */}
+                      <div className="absolute inset-0 bg-black/40 group-hover:bg-black/30 transition-colors duration-300" />
+                    </div>
+
+                    {/* Content Overlay */}
+                    <div className="absolute inset-0 p-6 flex flex-col justify-between">
+                      {/* Top content */}
+                      <div className="flex-1">
+                        <h3 className="text-2xl font-bold text-white mb-2 leading-tight">
+                          {post.title}
+                        </h3>
+                        <p className="text-white/90 text-base leading-relaxed">
+                          {post.description}
+                        </p>
+                      </div>
+
+                      {/* Bottom content */}
+                      <div className="flex items-end justify-between">
+                        <div className="text-white/80 text-sm">
+                          {formatDate(post.date)}
+                        </div>
+                        <div className="flex gap-2">
+                          {post.tags.slice(0, 2).map((tag) => (
+                            <span 
+                              key={tag}
+                              className="px-3 py-1 bg-white/20 backdrop-blur-sm rounded-full text-white text-sm font-medium"
+                            >
+                              {tag}
+                            </span>
+                          ))}
+                          {post.tags.length > 2 && (
+                            <span className="px-3 py-1 bg-white/20 backdrop-blur-sm rounded-full text-white text-sm font-medium">
+                              +{post.tags.length - 2}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    </div>
                   </div>
-
-                  <CardHeader className="pb-3">
-                    {/* Category Badge */}
-                    <Badge 
-                      variant="secondary" 
-                      className="w-fit mb-3 bg-primary/10 text-primary border-primary/20"
-                    >
-                      {post.category}
-                    </Badge>
-
-                    {/* Post Title */}
-                    <h3 className="text-xl font-semibold leading-tight group-hover:text-primary transition-colors duration-300">
-                      {post.title}
-                    </h3>
-                  </CardHeader>
-
-                  <CardContent className="pb-3">
-                    {/* Post Description */}
-                    <p className="text-foreground/70 text-sm leading-relaxed mb-4 line-clamp-3">
-                      {post.description}
-                    </p>
-
-                    {/* Tags */}
-                    <div className="flex flex-wrap gap-2">
-                      {post.tags.slice(0, 3).map((tag) => (
-                        <Badge key={tag} variant="outline" className="text-xs">
-                          {tag}
-                        </Badge>
-                      ))}
-                      {post.tags.length > 3 && (
-                        <Badge variant="outline" className="text-xs">
-                          +{post.tags.length - 3}
-                        </Badge>
-                      )}
-                    </div>
-                  </CardContent>
-
-                  <CardFooter className="pt-0 flex items-center justify-between">
-                    <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                      <div className="flex items-center gap-1">
-                        <Calendar className="w-3 h-3" />
-                        {formatDate(post.date)}
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <Clock className="w-3 h-3" />
-                        {post.readTime} min read
-                      </div>
-                    </div>
-
-                    {/* Read More Link */}
-                    <Link to={`/blog/${post.id}`}>
-                      <Button 
-                        variant="ghost" 
-                        size="sm"
-                        className="group-hover:text-primary group-hover:bg-primary/10 transition-colors duration-300"
-                      >
-                        read more
-                        <ArrowRight className="w-3 h-3 ml-1 group-hover:translate-x-1 transition-transform duration-300" />
-                      </Button>
-                    </Link>
-                  </CardFooter>
-                </Card>
+                </Link>
               ))}
             </div>
           )}
         </div>
-      </section>
+      </div>
     </div>
   );
 };
