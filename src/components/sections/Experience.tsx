@@ -66,18 +66,16 @@ const Experience: React.FC = () => {
         <div className="space-y-8">
           <h3 className="text-3xl font-bold text-center mb-12">education</h3>
           {education.map((edu, index) => (
-            <Card key={index} className="p-8 bg-card hover:bg-card/80 border-border hover:border-primary/50 transition-all duration-300 hover:shadow-card">
-              <div className="flex items-start justify-between mb-4">
-                <div>
-                  <h4 className="text-xl font-bold text-primary">{edu.degree}</h4>
-                  <h5 className="text-lg font-semibold text-foreground/90">{edu.institution}</h5>
-                </div>
-                <div className="text-sm text-foreground/70 flex items-center"><Calendar className="w-4 h-4 mr-1" />{edu.duration}</div>
+            <Card key={index} className="p-8 bg-card hover:bg-card/80 border-border hover:border-primary/50 transition-all duration-300 hover:shadow-card flex flex-col items-center justify-center text-center">
+              <div className="mb-4">
+                <h4 className="text-xl font-bold text-primary mb-2">{edu.degree}</h4>
+                <h5 className="text-lg font-semibold text-foreground/90 mb-2">{edu.institution}</h5>
+                <div className="text-sm text-foreground/70 flex items-center justify-center"><Calendar className="w-4 h-4 mr-1" />{edu.duration}</div>
               </div>
               <p className="text-foreground/80 mb-4 leading-relaxed">{edu.description}</p>
               <div>
                 <h6 className="font-semibold mb-2">Involvement:</h6>
-                <div className="flex flex-wrap gap-2">
+                <div className="flex flex-wrap gap-2 justify-center">
                   {edu.highlights.map((highlight: string, hIndex: number) => (
                     <Badge key={hIndex} variant="secondary" className="text-xs bg-primary/10 text-primary border-primary/30">{highlight}</Badge>
                   ))}
