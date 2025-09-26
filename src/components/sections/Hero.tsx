@@ -64,3 +64,4 @@ const Hero: React.FC<HeroProps> = ({ onScrollTo }) => {
 export default Hero;
 
 
+
