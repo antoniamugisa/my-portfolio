@@ -1,7 +1,7 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { ChevronDown, Github, Twitter, Linkedin, Mail } from 'lucide-react';
-import profile from '@/assets/image.png';
+import profile from '@/assets/profile.jpeg';
 
 type HeroProps = {
   onScrollTo: (id: string) => void;
@@ -46,7 +46,7 @@ const Hero: React.FC<HeroProps> = ({ onScrollTo }) => {
             </div>
           </div>
           <div className="flex justify-center lg:justify-end">
-            <div className="p-4 rounded-full bg-primary/10 border border-primary/20">
+            <div className="rounded-full">
               <img src={profile} alt="Profile photo" className="w-[20rem] h-[20rem] lg:w-[25rem] lg:h-[25rem] rounded-full object-cover" />
             </div>
           </div>
