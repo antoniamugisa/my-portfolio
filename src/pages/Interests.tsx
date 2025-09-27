@@ -12,12 +12,12 @@ const Interests = () => {
         return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200';
       case 'tv':
         return 'bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200';
-      case 'essay':
-        return 'bg-pink-100 text-pink-800 dark:bg-pink-900 dark:text-pink-200';
       case 'anime':
-        return 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200';
+        return 'bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200';
       case 'game':
         return 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200';
+      case 'music':
+        return 'bg-indigo-100 text-indigo-800 dark:bg-indigo-900 dark:text-indigo-200';
       default:
         return 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200';
     }
@@ -65,6 +65,15 @@ const Interests = () => {
           </div>
         </div>
       </div>
+
+      {/* Footer */}
+      <footer className="py-8 bg-card border-t border-border pb-24 md:pb-8">
+        <div className="container mx-auto px-6 text-center">
+          <p className="text-foreground/70 text-sm">
+            © 2025 Antonia Mugisa. Built with React, TypeScript & Tailwind CSS.
+          </p>
+        </div>
+      </footer>
     </div>
   );
 };

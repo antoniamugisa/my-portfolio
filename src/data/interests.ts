@@ -1,7 +1,7 @@
 export interface MediaItem {
   id: string;
   title: string;
-  type: 'book' | 'film' | 'tv' | 'essay' | 'anime' | 'game';
+  type: 'book' | 'film' | 'tv' | 'anime' | 'game' | 'music';
   status: 'currently-consuming' | 'completed' | 'planning-to-consume';
   description: string;
   image?: string;
@@ -54,19 +54,6 @@ export const interestsData: InterestCategory[] = [
         image: ''
       },
       {
-        id: 'do-hard-things',
-        title: 'Do Hard Things',
-        type: 'essay',
-        status: 'completed',
-        description: 'Video',
-        author: 'Casey Neistat',
-        year: 2023,
-        rating: 0,
-        notes: '',
-        genre: [],
-        image: ''
-      },
-      {
         id: 'interstellar',
         title: 'Interstellar',
         type: 'film',
@@ -93,19 +80,6 @@ export const interestsData: InterestCategory[] = [
         image: ''
       },
       {
-        id: 'how-to-do-philosophy',
-        title: 'How to Do Philosophy',
-        type: 'essay',
-        status: 'completed',
-        description: 'Essay',
-        author: 'Paul Graham',
-        year: 2023,
-        rating: 0,
-        notes: '',
-        genre: [],
-        image: ''
-      },
-      {
         id: 'pursuit-of-happyness',
         title: 'The Pursuit of Happyness',
         type: 'film',
@@ -113,19 +87,6 @@ export const interestsData: InterestCategory[] = [
         description: 'Movie',
         author: 'Gabriele Muccino',
         year: 2006,
-        rating: 0,
-        notes: '',
-        genre: [],
-        image: ''
-      },
-      {
-        id: 'common-toad',
-        title: 'Some Thoughts on the Common Toad',
-        type: 'essay',
-        status: 'completed',
-        description: 'Essay',
-        author: 'George Orwell',
-        year: 1946,
         rating: 0,
         notes: '',
         genre: [],
@@ -156,6 +117,32 @@ export const interestsData: InterestCategory[] = [
         notes: '',
         genre: [],
         image: ''
+      },
+      {
+        id: 'blonde',
+        title: 'Blonde',
+        type: 'music',
+        status: 'completed',
+        description: 'Album',
+        author: 'Frank Ocean',
+        year: 2016,
+        rating: 0,
+        notes: '',
+        genre: ['R&B', 'Alternative R&B'],
+        image: ''
+      },
+      {
+        id: 'currents',
+        title: 'Currents',
+        type: 'music',
+        status: 'currently-consuming',
+        description: 'Album',
+        author: 'Tame Impala',
+        year: 2015,
+        rating: 0,
+        notes: '',
+        genre: ['Psychedelic Pop', 'Indie Rock'],
+        image: ''
       }
     ]
   }
@@ -182,12 +169,12 @@ export const getTypeIcon = (type: MediaItem['type']) => {
       return '🎬';
     case 'tv':
       return '📺';
-    case 'essay':
-      return '📝';
     case 'anime':
       return '🎌';
     case 'game':
       return '🎮';
+    case 'music':
+      return '🎵';
     default:
       return '📄';
   }

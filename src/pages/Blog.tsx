@@ -98,6 +98,15 @@ const Blog = () => {
           </div>
         </div>
       </div>
+
+      {/* Footer */}
+      <footer className="py-8 bg-card border-t border-border pb-24 md:pb-8">
+        <div className="container mx-auto px-6 text-center">
+          <p className="text-foreground/70 text-sm">
+            © 2025 Antonia Mugisa. Built with React, TypeScript & Tailwind CSS.
+          </p>
+        </div>
+      </footer>
     </div>
   );
 };
