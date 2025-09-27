@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Menu, X, Home, User, Briefcase, FolderOpen, BookOpen, Phone, Heart } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { ThemeToggle } from '@/components/ui/theme-toggle';
 
 const Navigation = () => {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -96,7 +97,7 @@ const Navigation = () => {
                   key={item.id}
                   to={item.path}
                   className={`relative p-2 transition-colors hover:text-primary ${
-                    location.pathname.startsWith(item.path) ? 'text-primary' : 'text-black'
+                    location.pathname.startsWith(item.path) ? 'text-primary' : 'text-foreground'
                   }`}
                   title={item.name}
                 >
@@ -110,7 +111,7 @@ const Navigation = () => {
                   key={item.id}
                   onClick={() => handleNavigation(item)}
                   className={`relative p-2 transition-colors hover:text-primary ${
-                    activeSection === item.id && location.pathname === '/' ? 'text-primary' : 'text-black'
+                    activeSection === item.id && location.pathname === '/' ? 'text-primary' : 'text-foreground'
                   }`}
                   title={item.name}
                 >
@@ -121,6 +122,8 @@ const Navigation = () => {
                 </button>
               );
             })}
+            {/* Theme Toggle Button */}
+            <ThemeToggle />
           </div>
 
           {/* Mobile Menu Button */}
@@ -145,7 +148,7 @@ const Navigation = () => {
                     key={item.id}
                     to={item.path}
                     className={`flex items-center space-x-3 text-sm font-medium transition-colors hover:text-primary text-left ${
-                      location.pathname.startsWith(item.path) ? 'text-primary' : 'text-black'
+                      location.pathname.startsWith(item.path) ? 'text-primary' : 'text-foreground'
                     }`}
                     onClick={() => setIsMobileMenuOpen(false)}
                   >
@@ -157,7 +160,7 @@ const Navigation = () => {
                     key={item.id}
                     onClick={() => handleNavigation(item)}
                     className={`flex items-center space-x-3 text-sm font-medium transition-colors hover:text-primary text-left ${
-                      activeSection === item.id && location.pathname === '/' ? 'text-primary' : 'text-black'
+                      activeSection === item.id && location.pathname === '/' ? 'text-primary' : 'text-foreground'
                     }`}
                   >
                     <IconComponent size={18} />
@@ -165,6 +168,11 @@ const Navigation = () => {
                   </button>
                 );
               })}
+              {/* Theme Toggle in Mobile Menu */}
+              <div className="flex items-center space-x-3 text-sm font-medium text-foreground">
+                <ThemeToggle />
+                <span>Theme</span>
+              </div>
             </div>
           </div>
         )}

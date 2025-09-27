@@ -2,9 +2,7 @@ import React from 'react';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { ExternalLink, Github, Filter, ArrowRight } from 'lucide-react';
-import { categories, projects as allProjects } from '@/data/portfolio';
-import { Link } from 'react-router-dom';
+import { ExternalLink, Github, ChevronLeft, ChevronRight } from 'lucide-react';
 
 type ProjectsProps = {
   selectedFilter: string;
@@ -12,8 +10,43 @@ type ProjectsProps = {
 };
 
 const Projects: React.FC<ProjectsProps> = ({ selectedFilter, onSelectFilter }) => {
-  const filteredProjects = selectedFilter === 'All' ? allProjects : allProjects.filter((p) => p.category === selectedFilter);
-  const featuredProjects = allProjects.filter((p) => p.featured);
+  const allProjects = [
+    {
+      title: "Portfolio Website",
+      description: "A modern, responsive portfolio website showcasing my development journey with an anime-inspired design. Features include dynamic project showcases, blog integration, and a sleek UI built with React and TypeScript.",
+      image: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=600",
+      technologies: ["React", "TypeScript", "Vite", "Tailwind CSS", "shadcn/ui", "React Router"],
+      category: "Frontend",
+      demoUrl: "#",
+      githubUrl: "https://github.com/antoniamugisa/anime-dev-space",
+      featured: true
+    },
+    {
+      title: "Anime Recommendation Engine",
+      description: "Machine learning-powered recommendation system that suggests anime based on user preferences and viewing history. Built with Python and React with a sleek anime-inspired interface.",
+      image: "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=600",
+      technologies: ["Python", "React", "TensorFlow", "MongoDB", "Docker"],
+      category: "Machine Learning",
+      demoUrl: "#",
+      githubUrl: "#",
+      featured: true
+    },
+    
+  ];
+
+  const scrollLeft = () => {
+    const container = document.getElementById('projects-scroll');
+    if (container) {
+      container.scrollBy({ left: -400, behavior: 'smooth' });
+    }
+  };
+
+  const scrollRight = () => {
+    const container = document.getElementById('projects-scroll');
+    if (container) {
+      container.scrollBy({ left: 400, behavior: 'smooth' });
+    }
+  };
 
   return (
     <section id="projects" className="py-24 bg-gradient-secondary">
@@ -23,11 +56,30 @@ const Projects: React.FC<ProjectsProps> = ({ selectedFilter, onSelectFilter }) =
           <p className="text-xl text-foreground/70 max-w-2xl mx-auto leading-relaxed">a few things i've built</p>
         </div>
 
-        <div className="mb-16">
-          <h3 className="text-3xl font-bold text-center mb-12">highlighted work</h3>
-          <div className="grid md:grid-cols-2 gap-8">
-            {featuredProjects.map((project, index) => (
-              <Card key={index} className="overflow-hidden bg-card hover:bg-card/80 border-border hover:border-primary/50 transition-all duration-300 hover:shadow-card group">
+        {/* Horizontal Scrollable Projects */}
+        <div className="relative">
+          {/* Scroll Buttons */}
+          <button
+            onClick={scrollLeft}
+            className="absolute left-4 top-1/2 -translate-y-1/2 z-10 bg-background/80 backdrop-blur-sm border border-border rounded-full p-2 hover:bg-background transition-colors"
+          >
+            <ChevronLeft className="w-5 h-5" />
+          </button>
+          <button
+            onClick={scrollRight}
+            className="absolute right-4 top-1/2 -translate-y-1/2 z-10 bg-background/80 backdrop-blur-sm border border-border rounded-full p-2 hover:bg-background transition-colors"
+          >
+            <ChevronRight className="w-5 h-5" />
+          </button>
+
+          {/* Scrollable Container */}
+          <div
+            id="projects-scroll"
+            className="flex gap-6 overflow-x-auto scrollbar-hide pb-4 pl-16 pr-16"
+            style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+          >
+            {allProjects.map((project, index) => (
+              <Card key={index} className="flex-shrink-0 w-96 bg-card hover:bg-card/80 border-border hover:border-primary/50 transition-all duration-300 hover:shadow-card group">
                 <div className="aspect-video overflow-hidden">
                   <img src={project.image} alt={project.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
                 </div>
@@ -36,77 +88,33 @@ const Projects: React.FC<ProjectsProps> = ({ selectedFilter, onSelectFilter }) =
                     <h4 className="text-xl font-bold text-primary">{project.title}</h4>
                     <Badge variant="secondary" className="bg-primary/10 text-primary border-primary/30">{project.category}</Badge>
                   </div>
-                  <p className="text-foreground/80 mb-4 leading-relaxed">{project.description}</p>
+                  <p className="text-foreground/80 mb-4 leading-relaxed line-clamp-4">{project.description}</p>
                   <div className="flex flex-wrap gap-2 mb-4">
-                    {project.technologies.map((tech, techIndex) => (
+                    {project.technologies.slice(0, 4).map((tech, techIndex) => (
                       <Badge key={techIndex} variant="outline" className="text-xs border-border hover:border-primary/50 hover:text-primary transition-colors">{tech}</Badge>
                     ))}
+                    {project.technologies.length > 4 && (
+                      <Badge variant="outline" className="text-xs border-border">+{project.technologies.length - 4}</Badge>
+                    )}
                   </div>
                   <div className="flex gap-3">
                     <Button size="sm" className="bg-gradient-primary hover:shadow-glow flex-1" asChild>
-                      <a href={project.demoUrl} target="_blank" rel="noopener noreferrer"><ExternalLink className="w-4 h-4 mr-2" />Live Demo</a>
+                      <a href={project.demoUrl} target="_blank" rel="noopener noreferrer">
+                        <ExternalLink className="w-4 h-4 mr-2" />
+                        Demo
+                      </a>
                     </Button>
                     <Button size="sm" variant="outline" className="border-border hover:border-primary/50 hover:text-primary flex-1" asChild>
-                      <a href={project.githubUrl} target="_blank" rel="noopener noreferrer"><Github className="w-4 h-4 mr-2" />Code</a>
+                      <a href={project.githubUrl} target="_blank" rel="noopener noreferrer">
+                        <Github className="w-4 h-4 mr-2" />
+                        Code
+                      </a>
                     </Button>
                   </div>
                 </div>
               </Card>
             ))}
           </div>
-        </div>
-
-        <div>
-          <div className="flex items-center justify-between mb-8">
-            <h3 className="text-3xl font-bold">all projects</h3>
-            <div className="flex gap-2 flex-wrap">
-              {categories.map((category) => (
-                <Button key={category} variant={selectedFilter === category ? 'default' : 'outline'} size="sm" onClick={() => onSelectFilter(category)} className={selectedFilter === category ? 'bg-gradient-primary hover:shadow-glow' : 'border-border hover:border-primary/50 hover:text-primary'}>
-                  <Filter className="w-4 h-4 mr-2" />
-                  {category}
-                </Button>
-              ))}
-            </div>
-          </div>
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredProjects.map((project, index) => (
-              <Card key={index} className="overflow-hidden bg-card hover:bg-card/80 border-border hover:border-primary/50 transition-all duration-300 hover:shadow-card group">
-                <div className="aspect-video overflow-hidden">
-                  <img src={project.image} alt={project.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
-                </div>
-                <div className="p-4">
-                  <div className="flex items-center justify-between mb-3">
-                    <h4 className="text-lg font-bold text-primary">{project.title}</h4>
-                    <Badge variant="secondary" className="bg-primary/10 text-primary border-primary/30 text-xs">{project.category}</Badge>
-                  </div>
-                  <p className="text-foreground/80 text-sm mb-3 leading-relaxed line-clamp-2">{project.description}</p>
-                  <div className="flex flex-wrap gap-1 mb-3">
-                    {project.technologies.slice(0, 3).map((tech, techIndex) => (
-                      <Badge key={techIndex} variant="outline" className="text-xs border-border hover:border-primary/50 hover:text-primary transition-colors">{tech}</Badge>
-                    ))}
-                    {project.technologies.length > 3 && <Badge variant="outline" className="text-xs border-border">+{project.technologies.length - 3}</Badge>}
-                  </div>
-                  <div className="flex gap-2">
-                    <Button size="sm" className="bg-gradient-primary hover:shadow-glow flex-1 text-xs" asChild>
-                      <a href={project.demoUrl} target="_blank" rel="noopener noreferrer"><ExternalLink className="w-3 h-3 mr-1" />Demo</a>
-                    </Button>
-                    <Button size="sm" variant="outline" className="border-border hover:border-primary/50 hover:text-primary flex-1 text-xs" asChild>
-                      <a href={project.githubUrl} target="_blank" rel="noopener noreferrer"><Github className="w-3 h-3 mr-1" />Code</a>
-                    </Button>
-                  </div>
-                </div>
-              </Card>
-            ))}
-          </div>
-        </div>
-
-        <div className="text-center mt-12">
-          <Link to="/projects">
-            <Button size="lg" variant="outline" className="border-border hover:border-primary/50 hover:text-primary group">
-              View All Projects
-              <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
-            </Button>
-          </Link>
         </div>
       </div>
     </section>

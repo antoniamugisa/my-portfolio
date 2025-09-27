@@ -9,7 +9,7 @@ type HeroProps = {
 
 const Hero: React.FC<HeroProps> = ({ onScrollTo }) => {
   return (
-    <section id="home" className="relative min-h-screen flex items-center justify-center overflow-hidden bg-white">
+    <section id="home" className="relative min-h-screen flex items-center justify-center overflow-hidden bg-background">
       <div className="relative z-10 px-6 max-w-6xl mx-auto">
         <div className="grid lg:grid-cols-2 gap-12 items-center animate-fade-in">
           <div className="space-y-8">

@@ -9,6 +9,16 @@ const Projects = () => {
 
   const projects = [
     {
+      title: "Anime Dev Space Portfolio",
+      description: "A modern, responsive portfolio website showcasing my development journey with an anime-inspired design. Features include dynamic project showcases, blog integration, and a sleek UI built with React and TypeScript.",
+      image: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=600",
+      technologies: ["React", "TypeScript", "Vite", "Tailwind CSS", "shadcn/ui", "React Router"],
+      category: "Frontend",
+      demoUrl: "#",
+      githubUrl: "https://github.com/antoniamugisa/anime-dev-space",
+      featured: true
+    },
+    {
       title: "E-Commerce Platform",
       description: "A full-stack e-commerce solution with React frontend, Node.js backend, and Stripe integration. Features include user authentication, product management, shopping cart, and payment processing.",
       image: "https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=600",
