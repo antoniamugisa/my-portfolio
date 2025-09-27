@@ -26,6 +26,7 @@ export const experiences = [
     position: "Software Engineer Intern",
     duration: "May 2024 - Aug 2024",
     location: "Halifax, NS",
+    description: "Designed and deployed high-accuracy AI solutions by integrating Azure Cognitive Search, OpenAI LLMs, and Azure Form Recognizer into a Retrieval-Augmented Generation pipeline, reducing search time to under 10 seconds and achieving up to 95% QA accuracy.",
     achievements: [
       "Achieved 95% QA accuracy by optimizing a RAG pipeline with OpenAI LLMs and Azure Cognitive Search.",
       "Cut search time to under 10 seconds using an AI-powered lease document reader.",
@@ -38,6 +39,7 @@ export const experiences = [
     position: "Software Engineer Intern",
     duration: "May 2023 - Aug 2023",
     location: "Halifax, NS",
+    description: "Supported the migration of legacy services to Azure, optimized infrastructure for performance, and automated deployments to enhance scalability and security.",
     achievements: [
       "Successfully migrated large-scale legal document processing workloads from on-premises to Azure, improving performance and resilience.",
       "Automated CI/CD pipelines with PowerShell, Kubernetes, Docker, and Terraform, significantly reducing deployment times.",
@@ -59,8 +61,8 @@ export const education = [
 
 export const projects = [
   {
-    title: "Portfolio Website",
-    description: "A modern, responsive portfolio website showcasing my development journey with an anime-inspired design. Features include dynamic project showcases, blog integration, and a sleek UI built with React and TypeScript.",
+    title: "portfolio website",
+    description: "A modern, responsive portfolio website built with dynamic project showcases, blog integration, and a sleek UI built with React and TypeScript.",
     image: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=600",
     technologies: ["React", "TypeScript", "Vite", "Tailwind CSS", "shadcn/ui", "React Router"],
     category: "Frontend",
@@ -69,8 +71,8 @@ export const projects = [
     featured: true
   },
   {
-    title: "Anime Recommendation Engine",
-    description: "Machine learning-powered recommendation system that suggests anime based on user preferences and viewing history. Built with Python and React with a sleek anime-inspired interface.",
+    title: "anidojo",
+    description: "Machine learning-powered recommendation system that suggests anime based on user preferences and viewing history. Built with Python and React.",
     image: "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=600",
     technologies: ["Python", "React", "TensorFlow", "MongoDB", "Docker"],
     category: "Machine Learning",

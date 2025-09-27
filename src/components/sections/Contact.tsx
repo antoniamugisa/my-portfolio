@@ -27,15 +27,22 @@ const Contact: React.FC<ContactProps> = ({ isSubmitting, onSubmit }) => {
   
   return (
     <section id="contact" className="py-24 bg-gradient-secondary">
-      <div className="container mx-auto px-6 max-w-4xl">
-        <div className="text-center mb-16">
-          <h2 className="text-5xl md:text-6xl font-bold mb-6 bg-gradient-primary bg-clip-text text-transparent font-heading">let's connect</h2>
-          <p className="text-xl text-foreground/70 max-w-2xl mx-auto leading-relaxed">ready to bring your ideas to life? let's discuss how we can work together to create something amazing.</p>
-        </div>
-        <div className="grid lg:grid-cols-2 gap-12">
-          <div>
-            <Card className="p-8 bg-card border-border">
-              <h3 className="text-2xl font-bold font-heading mb-6">send me a message</h3>
+      <div className="container mx-auto px-6 max-w-6xl">
+        <div className="grid grid-cols-12 gap-8">
+          {/* Left side - Title */}
+          <div className="col-span-12 lg:col-span-3">
+            <div className="sticky top-24 pb-8">
+              <h2 className="text-4xl lg:text-5xl xl:text-6xl font-bold font-heading mb-6 bg-gradient-primary bg-clip-text text-transparent leading-[1.2] pb-2">let's connect</h2>
+              <p className="text-lg text-foreground/70 leading-relaxed">ready to bring your ideas to life? let's discuss how we can work together to create something amazing.</p>
+            </div>
+          </div>
+
+          {/* Right side - Contact content */}
+          <div className="col-span-12 lg:col-span-9">
+            <div className="grid lg:grid-cols-2 gap-12">
+              <div>
+            <Card className="p-8 bg-card border-border h-full">
+              <h3 className="text-2xl font-bold mb-6">send me a message</h3>
               <form onSubmit={onSubmit} className="space-y-6">
                 <div className="grid md:grid-cols-2 gap-4">
                   <div>
@@ -60,10 +67,10 @@ const Contact: React.FC<ContactProps> = ({ isSubmitting, onSubmit }) => {
                 </Button>
               </form>
             </Card>
-          </div>
-          <div className="space-y-8">
+              </div>
+              <div className="space-y-8">
             <div>
-              <h3 className="text-2xl font-bold font-heading mb-4">get in touch!</h3>
+              <h3 className="text-2xl font-bold mb-4">get in touch!</h3>
               <p className="text-foreground/80 leading-relaxed mb-8">i'm always excited to hear about new opportunities and interesting projects. Whether you're looking for a developer, have a question, or just want to say hello, don't hesitate to reach out!</p>
             </div>
             <div className="space-y-6">
@@ -89,6 +96,8 @@ const Contact: React.FC<ContactProps> = ({ isSubmitting, onSubmit }) => {
                 ))}
               </div>
             </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -97,6 +106,3 @@ const Contact: React.FC<ContactProps> = ({ isSubmitting, onSubmit }) => {
 };
 
 export default Contact;
-
-
-

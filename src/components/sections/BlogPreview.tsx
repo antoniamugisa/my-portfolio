@@ -8,12 +8,10 @@ const BlogPreview: React.FC = () => {
   return (
     <section id="blog" className="py-24 bg-background">
       <div className="container mx-auto px-6 max-w-6xl">
-        <div className="text-center mb-16">
-          <h2 className="text-5xl md:text-6xl font-bold font-heading mb-6 bg-gradient-primary bg-clip-text text-transparent leading-[1.2] pb-2">explore more</h2>
-          <p className="text-xl text-foreground/70 max-w-2xl mx-auto leading-relaxed">dive deeper into my thoughts, experiences, and interests</p>
-        </div>
-        
-        <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+        <div className="grid grid-cols-12 gap-8">
+          {/* Left side - Cards */}
+          <div className="col-span-12 lg:col-span-9">
+            <div className="grid md:grid-cols-2 gap-8">
           {/* Blog Link */}
           <Card className="group bg-card hover:bg-card/80 border-border hover:border-primary/50 transition-all duration-300 hover:shadow-card cursor-pointer">
             <Link to="/blog" className="block p-8 text-center">
@@ -42,11 +40,21 @@ const BlogPreview: React.FC = () => {
                 what i'm watching, reading, and playing right now
               </p>
               <div className="flex items-center justify-center text-primary font-medium group-hover:translate-x-1 transition-transform">
-                explore interests
+                explore media
                 <ArrowRight className="w-4 h-4 ml-2" />
               </div>
             </Link>
           </Card>
+            </div>
+          </div>
+
+          {/* Right side - Title */}
+          <div className="col-span-12 lg:col-span-3">
+            <div className="sticky top-24 pb-8">
+              <h2 className="text-4xl lg:text-5xl xl:text-6xl font-bold font-heading mb-6 bg-gradient-primary bg-clip-text text-transparent leading-[1.2] pb-2">explore more</h2>
+              <p className="text-lg text-foreground/70 leading-relaxed">a bit more info on me</p>
+            </div>
+          </div>
         </div>
       </div>
     </section>

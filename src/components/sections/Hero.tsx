@@ -17,7 +17,7 @@ const Hero: React.FC<HeroProps> = ({ onScrollTo }) => {
               <span className="block text-foreground">antonia mugisa</span>
             </h1>
             <div className="space-y-4">
-              <h2 className="text-2xl md:text-3xl font-semibold font-heading text-foreground">software engineer</h2>
+              <h2 className="text-2xl md:text-3xl font-semibold text-foreground">software engineer</h2>
               <p className="text-lg md:text-xl text-muted-foreground max-w-2xl leading-relaxed">
                 building functional, scalable and aesthetic software with cutting-edge technology.
               </p>
