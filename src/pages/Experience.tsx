@@ -1,7 +1,7 @@
 import React from 'react';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Calendar, MapPin, Briefcase } from 'lucide-react';
+import { Calendar, MapPin } from 'lucide-react';
 
 const Experience = () => {
   const experiences = [
@@ -61,7 +61,7 @@ const Experience = () => {
       <div className="container mx-auto px-6 py-16 max-w-5xl">
         {/* Header */}
         <div className="text-center mb-16">
-          <h1 className="text-5xl md:text-6xl font-bold mb-6 bg-gradient-primary bg-clip-text text-transparent">
+          <h1 className="text-5xl md:text-6xl font-bold font-heading mb-6 bg-gradient-primary bg-clip-text text-transparent leading-[1.2] pb-2">
             Experience
           </h1>
           <p className="text-xl text-foreground/70 max-w-2xl mx-auto leading-relaxed">
@@ -71,7 +71,7 @@ const Experience = () => {
 
         {/* Experience Timeline */}
         <div className="space-y-8 mb-16">
-          <h2 className="text-3xl font-bold text-center mb-12">Professional Experience</h2>
+          <h2 className="text-3xl font-bold font-heading text-center mb-12">Professional Experience</h2>
           
           <div className="relative">
             {/* Timeline line */}
@@ -96,7 +96,7 @@ const Experience = () => {
                           <h3 className="text-xl font-bold text-primary">{exp.position}</h3>
                           <h4 className="text-lg font-semibold text-foreground/90">{exp.company}</h4>
                         </div>
-                        <Briefcase className="text-primary w-5 h-5 mt-1" />
+                        <img src="/matlab-logo.svg" alt="MATLAB" className="w-8 h-8 mt-1" />
                       </div>
                       
                       <div className="flex items-center space-x-4 text-sm text-foreground/70 mb-4">
@@ -150,7 +150,7 @@ const Experience = () => {
 
         {/* Education Section */}
         <div className="space-y-8">
-          <h2 className="text-3xl font-bold text-center mb-12">Education</h2>
+          <h2 className="text-3xl font-bold font-heading text-center mb-12">Education</h2>
           
           {education.map((edu, index) => (
             <Card

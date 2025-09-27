@@ -2,14 +2,14 @@ import React from 'react';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 
-import { certifications, interests, skills } from '@/data/portfolio';
+import { certifications, skills } from '@/data/portfolio';
 
 const About: React.FC = () => {
   return (
     <section id="about" className="py-24 bg-gradient-secondary">
       <div className="container mx-auto px-6 max-w-4xl">
         <div className="text-center mb-16">
-          <h2 className="text-5xl md:text-6xl font-bold mb-6 bg-gradient-primary bg-clip-text text-transparent">about me</h2>
+          <h2 className="text-5xl md:text-6xl font-bold font-heading mb-6 bg-gradient-primary bg-clip-text text-transparent">about me</h2>
           <p className="text-xl text-foreground/70 max-w-2xl mx-auto leading-relaxed">a passionate developer who bridges the gap between technical excellence and creative expression</p>
         </div>
 
@@ -56,22 +56,6 @@ const About: React.FC = () => {
             </div>
           </div>
           
-          <div>
-            <h3 className="text-3xl font-bold text-center mb-8">when not coding</h3>
-            <div className="grid md:grid-cols-2 gap-6">
-              {interests.map((interest, index) => (
-                <Card key={index} className="p-6 bg-card hover:bg-card/80 border-border hover:border-primary/50 transition-all duration-300 group">
-                  <div className="flex items-start space-x-4">
-                    <div className="text-primary group-hover:scale-110 transition-transform duration-300">{interest.icon}</div>
-                    <div>
-                      <h4 className="font-semibold text-lg mb-2">{interest.title}</h4>
-                      <p className="text-foreground/70">{interest.desc}</p>
-                    </div>
-                  </div>
-                </Card>
-              ))}
-            </div>
-          </div>
 
         </div>
       </div>

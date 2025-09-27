@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
+import { sendEmail, EmailData } from '@/lib/emailService';
 import Hero from '@/components/sections/Hero';
 import About from '@/components/sections/About';
 import Experience from '@/components/sections/Experience';
@@ -16,15 +17,42 @@ const Index = () => {
     e.preventDefault();
     setIsSubmitting(true);
     
-    // Simulate form submission
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    toast({
-      title: "Message sent!",
-      description: "Thank you for reaching out. I'll get back to you soon!",
-    });
-    
-    setIsSubmitting(false);
+    try {
+      // Get form data
+      const form = e.target as HTMLFormElement;
+      const formData = new FormData(form);
+      
+      const emailData: EmailData = {
+        name: formData.get('name') as string,
+        email: formData.get('email') as string,
+        subject: formData.get('subject') as string,
+        message: formData.get('message') as string,
+      };
+
+      // Send email
+      const success = await sendEmail(emailData);
+      
+      if (success) {
+        toast({
+          title: "Message sent!",
+          description: "Thank you for reaching out. I'll get back to you soon!",
+        });
+        
+        // Reset form
+        form.reset();
+      } else {
+        throw new Error('Failed to send email');
+      }
+    } catch (error) {
+      console.error('Error sending email:', error);
+      toast({
+        title: "Error",
+        description: "Sorry, there was an error sending your message. Please try again or contact me directly.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const scrollToSection = (id: string) => {

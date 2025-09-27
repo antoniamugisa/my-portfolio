@@ -40,20 +40,20 @@ const Contact: React.FC<ContactProps> = ({ isSubmitting, onSubmit }) => {
                 <div className="grid md:grid-cols-2 gap-4">
                   <div>
                     <Label htmlFor="name">name</Label>
-                    <Input id="name" type="text" placeholder="Your name" required className="mt-2" />
+                    <Input id="name" name="name" type="text" placeholder="Your name" required className="mt-2" />
                   </div>
                   <div>
                     <Label htmlFor="email">email</Label>
-                    <Input id="email" type="email" placeholder="your.email@example.com" required className="mt-2" />
+                    <Input id="email" name="email" type="email" placeholder="your.email@example.com" required className="mt-2" />
                   </div>
                 </div>
                 <div>
                   <Label htmlFor="subject">Subject</Label>
-                  <Input id="subject" type="text" placeholder="What's this about?" required className="mt-2" />
+                  <Input id="subject" name="subject" type="text" placeholder="What's this about?" required className="mt-2" />
                 </div>
                 <div>
                   <Label htmlFor="message">message</Label>
-                  <Textarea id="message" placeholder="Tell me about your project..." required rows={6} className="mt-2" />
+                  <Textarea id="message" name="message" placeholder="Tell me about your project..." required rows={6} className="mt-2" />
                 </div>
                 <Button type="submit" size="lg" className="w-full bg-gradient-primary hover:shadow-glow" disabled={isSubmitting}>
                   {isSubmitting ? (<><Clock className="w-4 h-4 mr-2 animate-spin" />sending...</>) : (<><Send className="w-4 h-4 mr-2" />Send Message</>)}

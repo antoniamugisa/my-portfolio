@@ -144,3 +144,10 @@ All colors MUST be HSL.
     @apply bg-background text-foreground;
   }
 }
+
+@layer utilities {
+  /* Times New Roman for big headings */
+  .font-heading {
+    font-family: 'Times New Roman', Times, serif;
+  }
+}

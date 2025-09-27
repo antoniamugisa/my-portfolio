@@ -13,7 +13,7 @@ const Hero: React.FC<HeroProps> = ({ onScrollTo }) => {
       <div className="relative z-10 px-6 max-w-6xl mx-auto">
         <div className="grid lg:grid-cols-2 gap-12 items-center animate-fade-in">
           <div className="space-y-8">
-            <h1 className="text-6xl md:text-8xl font-bold leading-tight">
+            <h1 className="text-6xl md:text-8xl font-bold font-heading leading-tight">
               <span className="block text-foreground">antonia mugisa</span>
             </h1>
             <div className="space-y-4">

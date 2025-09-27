@@ -25,40 +25,46 @@ const Interests = () => {
 
   return (
     <div className="min-h-screen bg-background pt-24">
-      {/* Hero Section */}
-      <section className="py-16 bg-gradient-secondary">
-        <div className="container mx-auto px-6 max-w-4xl text-center">
-          <h1 className="text-5xl md:text-6xl font-bold mb-8 bg-gradient-primary bg-clip-text text-transparent">
-            content worth consuming
-          </h1>
-          <p className="text-xl text-foreground/70 max-w-2xl mx-auto leading-relaxed">
-            What I'm currently consuming and thinking about.
-          </p>
-        </div>
-      </section>
+      {/* Main Layout */}
+      <div className="container mx-auto px-6 max-w-7xl">
+        <div className="grid lg:grid-cols-12 gap-8">
+          {/* Left Side - Title Section */}
+          <div className="lg:col-span-3 py-16">
+            <div className="sticky top-32 pb-16">
+              <h1 className="text-4xl lg:text-5xl xl:text-6xl font-bold font-heading mb-6 bg-gradient-primary bg-clip-text text-transparent leading-[1.2] pb-2">
+                media worth your time
+              </h1>
+              <p className="text-lg text-foreground/70 leading-relaxed">
+                what i'm watching and reading right now
+              </p>
+            </div>
+          </div>
 
-      {/* Content Section */}
-      <section className="py-16">
-        <div className="container mx-auto px-6 max-w-4xl">
-          <ul className="space-y-3">
-            {allItems.map((item) => (
-              <li key={item.id} className="flex items-center justify-between py-2">
-                <div className="flex-1">
-                  <div className="flex items-center space-x-3">
-                    <span className={`font-medium px-2 py-1 rounded text-sm ${getTypeHighlight(item.type)}`}>
-                      {item.title}
-                      {item.author && ` – ${item.author}`}
+          {/* Right Side - Content Section */}
+          <div className="lg:col-span-9">
+            {/* Content Section */}
+            <section className="py-16">
+              <ul className="space-y-3">
+                {allItems.map((item) => (
+                  <li key={item.id} className="flex items-center justify-between py-2">
+                    <div className="flex-1">
+                      <div className="flex items-center space-x-3">
+                        <span className={`font-medium px-2 py-1 rounded text-sm ${getTypeHighlight(item.type)}`}>
+                          {item.title}
+                          {item.author && ` – ${item.author}`}
+                        </span>
+                      </div>
+                    </div>
+                    <span className="text-sm italic text-foreground">
+                      – {item.description}
                     </span>
-                  </div>
-                </div>
-                <span className="text-sm italic text-foreground">
-                  – {item.description}
-                </span>
-              </li>
-            ))}
-          </ul>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          </div>
         </div>
-      </section>
+      </div>
     </div>
   );
 };

@@ -52,7 +52,7 @@ const Projects: React.FC<ProjectsProps> = ({ selectedFilter, onSelectFilter }) =
     <section id="projects" className="py-24 bg-gradient-secondary">
       <div className="container mx-auto px-6 max-w-6xl">
         <div className="text-center mb-16">
-          <h2 className="text-5xl md:text-6xl font-bold mb-6 bg-gradient-primary bg-clip-text text-transparent">projects</h2>
+          <h2 className="text-5xl md:text-6xl font-bold font-heading mb-6 bg-gradient-primary bg-clip-text text-transparent leading-[1.2] pb-2">projects</h2>
           <p className="text-xl text-foreground/70 max-w-2xl mx-auto leading-relaxed">a few things i've built</p>
         </div>
 
