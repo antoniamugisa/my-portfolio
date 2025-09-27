@@ -96,7 +96,7 @@ const BlogPost = () => {
       // Handle headings
       if (line.startsWith('# ')) {
         elements.push(
-          <h1 key={i} className="text-4xl font-bold mt-8 mb-4 text-foreground">
+          <h1 key={i} className="text-4xl font-bold font-heading mt-8 mb-4 text-foreground">
             {line.substring(2)}
           </h1>
         );
@@ -164,7 +164,7 @@ const BlogPost = () => {
             {post.category}
           </Badge>
           
-          <h1 className="text-4xl md:text-5xl font-bold mb-6 text-foreground leading-tight">
+          <h1 className="text-4xl md:text-5xl font-bold font-heading mb-6 text-foreground leading-tight">
             {post.title}
           </h1>
 

@@ -61,7 +61,7 @@ const Experience = () => {
       <div className="container mx-auto px-6 py-16 max-w-5xl">
         {/* Header */}
         <div className="text-center mb-16">
-          <h1 className="text-5xl md:text-6xl font-bold font-heading mb-6 bg-gradient-primary bg-clip-text text-transparent leading-[1.2] pb-2">
+          <h1 className="text-5xl md:text-6xl font-bold mb-6 leading-[1.2] pb-2 experience-title">
             Experience
           </h1>
           <p className="text-xl text-foreground/70 max-w-2xl mx-auto leading-relaxed">

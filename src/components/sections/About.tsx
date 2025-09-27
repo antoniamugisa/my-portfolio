@@ -15,7 +15,7 @@ const About: React.FC = () => {
 
         <div className="space-y-16">
           <div className="space-y-8">
-            <h3 className="text-3xl font-bold text-center mb-8">my journey</h3>
+            <h3 className="text-3xl font-bold font-heading text-center mb-8">my journey</h3>
             <div className="space-y-6 text-lg text-foreground/80 leading-relaxed">
               <p>
                 hello! i'm Antonia, a software developer who thrives at the intersection of thoughtful engineering and creative problem-solving. my journey began in highschool when I joined my school's robotics team and learnt how to make a robot move forward and backwards. I decided then and there I want to do more of this, and my interest grew into a career where I get to design, build, and optimize full-stack applications that make a real impact.
@@ -31,7 +31,7 @@ const About: React.FC = () => {
 
 
           <div>
-            <h3 className="text-3xl font-bold text-center mb-8">i know these pretty well</h3>
+            <h3 className="text-3xl font-bold font-heading text-center mb-8">i know these pretty well</h3>
             <Card className="p-8 bg-gradient-secondary border-border/50">
               <div className="flex flex-wrap gap-3 justify-center">
                 {skills.map((skill, index) => (
@@ -42,7 +42,7 @@ const About: React.FC = () => {
           </div>
 
           <div>
-            <h3 className="text-3xl font-bold text-center mb-8">my certs</h3>
+            <h3 className="text-3xl font-bold font-heading text-center mb-8">my certs</h3>
             <div className="grid md:grid-cols-2 gap-4">
               {certifications.map((cert, index) => (
                 <Card key={index} className="p-6 bg-card hover:bg-card/80 border-border hover:border-primary/50 transition-all duration-300">

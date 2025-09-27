@@ -29,13 +29,13 @@ const Contact: React.FC<ContactProps> = ({ isSubmitting, onSubmit }) => {
     <section id="contact" className="py-24 bg-gradient-secondary">
       <div className="container mx-auto px-6 max-w-4xl">
         <div className="text-center mb-16">
-          <h2 className="text-5xl md:text-6xl font-bold mb-6 bg-gradient-primary bg-clip-text text-transparent">let's connect</h2>
+          <h2 className="text-5xl md:text-6xl font-bold mb-6 bg-gradient-primary bg-clip-text text-transparent font-heading">let's connect</h2>
           <p className="text-xl text-foreground/70 max-w-2xl mx-auto leading-relaxed">ready to bring your ideas to life? let's discuss how we can work together to create something amazing.</p>
         </div>
         <div className="grid lg:grid-cols-2 gap-12">
           <div>
             <Card className="p-8 bg-card border-border">
-              <h3 className="text-2xl font-bold mb-6">send me a message</h3>
+              <h3 className="text-2xl font-bold font-heading mb-6">send me a message</h3>
               <form onSubmit={onSubmit} className="space-y-6">
                 <div className="grid md:grid-cols-2 gap-4">
                   <div>
@@ -63,7 +63,7 @@ const Contact: React.FC<ContactProps> = ({ isSubmitting, onSubmit }) => {
           </div>
           <div className="space-y-8">
             <div>
-              <h3 className="text-2xl font-bold mb-4">get in touch!</h3>
+              <h3 className="text-2xl font-bold font-heading mb-4">get in touch!</h3>
               <p className="text-foreground/80 leading-relaxed mb-8">i'm always excited to hear about new opportunities and interesting projects. Whether you're looking for a developer, have a question, or just want to say hello, don't hesitate to reach out!</p>
             </div>
             <div className="space-y-6">

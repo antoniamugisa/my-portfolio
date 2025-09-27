@@ -26,7 +26,6 @@ export const experiences = [
     position: "Software Engineer Intern",
     duration: "May 2024 - Aug 2024",
     location: "Halifax, NS",
-    description: "Designed and deployed high-accuracy AI solutions by integrating Azure Cognitive Search, OpenAI LLMs, and Azure Form Recognizer into a Retrieval-Augmented Generation pipeline, reducing search time to under 10 seconds and achieving up to 95% QA accuracy.",
     achievements: [
       "Achieved 95% QA accuracy by optimizing a RAG pipeline with OpenAI LLMs and Azure Cognitive Search.",
       "Cut search time to under 10 seconds using an AI-powered lease document reader.",
@@ -39,7 +38,6 @@ export const experiences = [
     position: "Software Engineer Intern",
     duration: "May 2023 - Aug 2023",
     location: "Halifax, NS",
-    description: "Supported the migration of legacy services to Azure, optimized infrastructure for performance, and automated deployments to enhance scalability and security.",
     achievements: [
       "Successfully migrated large-scale legal document processing workloads from on-premises to Azure, improving performance and resilience.",
       "Automated CI/CD pipelines with PowerShell, Kubernetes, Docker, and Terraform, significantly reducing deployment times.",
@@ -71,16 +69,6 @@ export const projects = [
     featured: true
   },
   {
-    title: "E-Commerce Platform",
-    description: "A full-stack e-commerce solution with React frontend, Node.js backend, and Stripe integration. Features include user authentication, product management, shopping cart, and payment processing.",
-    image: "https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=600",
-    technologies: ["React", "Node.js", "PostgreSQL", "Stripe", "AWS"],
-    category: "Full-Stack",
-    demoUrl: "#",
-    githubUrl: "#",
-    featured: true
-  },
-  {
     title: "Anime Recommendation Engine",
     description: "Machine learning-powered recommendation system that suggests anime based on user preferences and viewing history. Built with Python and React with a sleek anime-inspired interface.",
     image: "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=600",
@@ -89,16 +77,6 @@ export const projects = [
     demoUrl: "#",
     githubUrl: "#",
     featured: true
-  },
-  {
-    title: "Task Management API",
-    description: "RESTful API for task management with user authentication, role-based permissions, and comprehensive documentation. Includes automated testing and CI/CD pipeline.",
-    image: "https://images.unsplash.com/photo-1611224923853-80b023f02d71?w=600",
-    technologies: ["Node.js", "Express", "MongoDB", "JWT", "Jest"],
-    category: "Backend",
-    demoUrl: "#",
-    githubUrl: "#",
-    featured: false
   }
 ];
 

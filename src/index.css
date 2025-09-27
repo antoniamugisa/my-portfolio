@@ -148,6 +148,12 @@ All colors MUST be HSL.
 @layer utilities {
   /* Times New Roman for big headings */
   .font-heading {
-    font-family: 'Times New Roman', Times, serif;
+    font-family: 'Times New Roman', Times, serif !important;
+  }
+  
+  /* Force Times New Roman for experience heading */
+  .experience-title {
+    font-family: 'Times New Roman', 'Times', 'Liberation Serif', 'DejaVu Serif', serif !important;
+    color: hsl(222 100% 65%) !important;
   }
 }
