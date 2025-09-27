@@ -16,7 +16,7 @@ const Blog = () => {
   };
 
   return (
-        <div className="min-h-screen bg-background pt-4 md:pt-24 pb-24 md:pb-0">
+        <div className="min-h-screen bg-background pt-4 md:pt-24">
       {/* Main Layout */}
       <div className="container mx-auto px-4 md:px-6 max-w-7xl">
         <div className="grid lg:grid-cols-12 gap-4 md:gap-8">
