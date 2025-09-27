@@ -1,19 +1,17 @@
-# 🌟 Anime Dev Space - Portfolio Website
+# 2nd iteration of my portfolio website
 
-A modern, responsive portfolio website showcasing my development journey with an anime-inspired design. Built with cutting-edge technologies and featuring a sleek, interactive user experience.
+a modern, responsive portfolio website showcasing my development journey. 
 
-![Portfolio Preview](https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=1200)
+## Features
 
-## ✨ Features
+###  **Design & User Experience**
 
-### 🎨 **Design & User Experience**
-- **Anime-Inspired Aesthetic**: Clean, modern design with anime-inspired color palette
 - **Dark/Light Mode Toggle**: Seamless theme switching with persistent user preferences
 - **Responsive Design**: Optimized for all devices (desktop, tablet, mobile)
 - **Smooth Animations**: Elegant transitions and hover effects throughout
 - **Interactive Navigation**: Smart scroll-based navigation with active section highlighting
 
-### 📱 **Core Sections**
+###  **Core Sections**
 - **Hero Section**: Eye-catching introduction with profile image and social links
 - **About**: Personal story and professional background
 - **Experience**: Detailed work history with achievements and technologies
@@ -22,7 +20,7 @@ A modern, responsive portfolio website showcasing my development journey with an
 - **Interests**: Personal interests and hobbies
 - **Contact**: Professional contact form with validation
 
-### 🚀 **Technical Features**
+###  **Technical Features**
 - **Client-Side Routing**: Fast navigation with React Router
 - **Type Safety**: Full TypeScript implementation
 - **Component Architecture**: Modular, reusable React components
@@ -30,7 +28,7 @@ A modern, responsive portfolio website showcasing my development journey with an
 - **Performance Optimized**: Lazy loading and optimized assets
 - **SEO Ready**: Meta tags and structured data
 
-## 🛠️ Tech Stack
+##  Tech Stack
 
 ### **Frontend Framework**
 - **React 18.3.1** - Modern React with hooks and functional components
@@ -60,7 +58,7 @@ A modern, responsive portfolio website showcasing my development journey with an
 - **Sonner 1.5.0** - Toast notifications
 - **Embla Carousel 8.3.0** - Touch-friendly carousels
 
-## 🎯 Project Structure
+## Project Structure
 
 ```
 src/
@@ -74,7 +72,7 @@ src/
 └── assets/              # Images and static files
 ```
 
-## 🚀 Getting Started
+##  Getting Started
 
 ### Prerequisites
 - **Node.js** (v18 or higher)
@@ -114,7 +112,7 @@ npm run lint         # Run ESLint
 npm run build:dev    # Build in development mode
 ```
 
-## 🎨 Customization
+## Customization
 
 ### **Theme Customization**
 The site uses CSS custom properties for theming. Modify colors in `src/index.css`:
@@ -139,7 +137,7 @@ The site uses CSS custom properties for theming. Modify colors in `src/index.css
 2. Add route in `src/pages/`
 3. Update navigation in `src/components/Navigation.tsx`
 
-## 🌐 Deployment
+## Deployment
 
 ### **Vercel (Recommended)**
 ```bash
@@ -167,19 +165,11 @@ npm run build
 - **Edge** (latest)
 - **Mobile browsers** (iOS Safari, Chrome Mobile)
 
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
-
-## 📄 License
+## License
 
 This project is open source and available under the [MIT License](LICENSE).
 
-## 👨‍💻 Author
+## Author
 
 **Antonia Mugisa**
 - GitHub: [@antoniamugisa](https://github.com/antoniamugisa)
@@ -193,10 +183,4 @@ This project is open source and available under the [MIT License](LICENSE).
 - **Tailwind CSS** for the utility-first CSS framework
 - **Vite** for the lightning-fast development experience
 - **React** team for the amazing framework
-- **Anime community** for design inspiration
 
----
-
-⭐ **Star this repository if you found it helpful!**
-
-*Built with ❤️ and lots of ☕*
