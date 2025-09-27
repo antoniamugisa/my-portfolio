@@ -119,13 +119,19 @@ export default {
 					'0%': { transform: 'translateX(-100%)' },
 					'50%': { transform: 'translateX(0%)' },
 					'100%': { transform: 'translateX(100%)' }
+				},
+				'circular-progress': {
+					'0%': { strokeDashoffset: '62.83' },
+					'50%': { strokeDashoffset: '0' },
+					'100%': { strokeDashoffset: '62.83' }
 				}
 			},
 			animation: {
 				'accordion-down': 'accordion-down 0.2s ease-out',
 				'accordion-up': 'accordion-up 0.2s ease-out',
 				'fade-in': 'fade-in 0.3s ease-out',
-				'loading-bar': 'loading-bar 2s ease-in-out infinite'
+				'loading-bar': 'loading-bar 2s ease-in-out infinite',
+				'circular-progress': 'circular-progress 2s ease-in-out infinite'
 			}
 		}
 	},

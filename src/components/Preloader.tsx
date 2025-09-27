@@ -6,6 +6,7 @@ const Preloader = () => {
       <div className="relative w-24 h-24">
         {/* Loading circle with progress */}
         <svg className="w-24 h-24 -rotate-90" viewBox="0 0 24 24">
+          {/* Background circle */}
           <circle
             cx="12"
             cy="12"
@@ -14,6 +15,7 @@ const Preloader = () => {
             strokeWidth="2"
             fill="none"
           />
+          {/* Progress circle */}
           <circle
             cx="12"
             cy="12"
@@ -24,7 +26,7 @@ const Preloader = () => {
             strokeDasharray="62.83"
             strokeDashoffset="62.83"
             strokeLinecap="round"
-            className="animate-[loading-bar_2s_ease-in-out_infinite]"
+            className="animate-circular-progress"
           />
         </svg>
         {/* Center text */}
