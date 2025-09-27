@@ -1,6 +1,6 @@
-# 2nd iteration of my portfolio website
+# My Portfolio
 
-a modern, responsive portfolio website showcasing my development journey. 
+A modern, responsive portfolio website showcasing my development journey. 
 
 ## Features
 
@@ -82,8 +82,8 @@ src/
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/antoniamugisa/anime-dev-space.git
-   cd anime-dev-space
+   git clone https://github.com/antoniamugisa/my-portfolio.git
+   cd my-portfolio
    ```
 
 2. **Install dependencies**
