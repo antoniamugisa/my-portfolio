@@ -6,16 +6,16 @@ import { experiences } from '@/data/portfolio';
 
 const Experience: React.FC = () => {
   return (
-    <section id="experience" className="py-24 bg-background">
-      <div className="container mx-auto px-6 max-w-6xl">
-        <div className="grid grid-cols-12 gap-8">
+    <section id="experience" className="py-16 md:py-24 pb-24 md:pb-24 bg-background">
+      <div className="container mx-auto px-4 md:px-6 max-w-6xl">
+        <div className="grid grid-cols-12 gap-4 md:gap-8">
           {/* Left side - Timeline and Experience cards */}
-          <div className="col-span-12 lg:col-span-9">
+          <div className="col-span-12 lg:col-span-9 order-2 lg:order-1">
             <div className="relative">
               {/* Timeline */}
               <div className="absolute left-4 top-0 bottom-0 w-0.5 bg-primary/30"></div>
               
-              <div className="space-y-6">
+                  <div className="space-y-4 md:space-y-6">
                 {experiences.map((exp, index) => (
                 <div key={index} className="relative">
                   {/* Timeline dot */}
@@ -54,9 +54,9 @@ const Experience: React.FC = () => {
           </div>
 
           {/* Right side - Title */}
-          <div className="col-span-12 lg:col-span-3">
-            <div className="sticky top-24 pb-8">
-              <h2 className="text-4xl lg:text-5xl xl:text-6xl font-bold font-heading mb-6 leading-[1.2] pb-2" style={{color: "hsl(222 100% 65%)"}}>experience</h2>
+          <div className="col-span-12 lg:col-span-3 order-1 lg:order-2">
+            <div className="sticky top-16 md:top-24 pb-4 md:pb-8">
+              <h2 className="text-4xl lg:text-5xl xl:text-6xl font-bold font-heading mb-6 text-primary leading-[1.2] pb-2">experience</h2>
               <p className="text-lg text-foreground/70 leading-relaxed">my professional journey through the world of software development</p>
             </div>
           </div>

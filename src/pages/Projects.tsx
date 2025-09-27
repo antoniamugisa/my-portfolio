@@ -89,11 +89,11 @@ const Projects = () => {
   const featuredProjects = projects.filter(project => project.featured);
 
   return (
-    <div className="min-h-screen pt-20">
-      <div className="container mx-auto px-6 py-16 max-w-7xl">
+    <div className="min-h-screen pt-8 md:pt-20 pb-24 md:pb-0">
+      <div className="container mx-auto px-4 md:px-6 py-16 max-w-7xl">
         {/* Header */}
         <div className="text-center mb-16">
-          <h1 className="text-5xl md:text-6xl font-bold font-heading mb-6 bg-gradient-primary bg-clip-text text-transparent leading-[1.2] pb-2">
+          <h1 className="text-5xl md:text-6xl font-bold font-heading mb-6 bg-primary bg-clip-text text-transparent leading-[1.2] pb-2">
             Projects
           </h1>
           <p className="text-xl text-foreground/70 max-w-2xl mx-auto leading-relaxed">
@@ -145,7 +145,7 @@ const Projects = () => {
                     </div>
                     
                     <div className="flex gap-3">
-                      <Button size="sm" className="bg-gradient-primary hover:shadow-glow transition-all duration-300">
+                      <Button size="sm" className="bg-primary hover:shadow-glow transition-all duration-300">
                         <ExternalLink className="w-4 h-4 mr-2" />
                         Live Demo
                       </Button>
@@ -175,7 +175,7 @@ const Projects = () => {
               onClick={() => setSelectedFilter(category)}
               className={`transition-all duration-300 ${
                 selectedFilter === category
-                  ? 'bg-gradient-primary shadow-glow'
+                  ? 'bg-primary shadow-glow'
                   : 'border-border/50 hover:border-primary/50'
               }`}
             >
@@ -230,7 +230,7 @@ const Projects = () => {
                 </div>
                 
                 <div className="flex gap-2">
-                  <Button size="sm" className="flex-1 bg-gradient-primary hover:shadow-glow transition-all duration-300">
+                  <Button size="sm" className="flex-1 bg-primary hover:shadow-glow transition-all duration-300">
                     <ExternalLink className="w-3 h-3 mr-1" />
                     Demo
                   </Button>

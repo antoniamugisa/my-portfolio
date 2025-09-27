@@ -120,8 +120,8 @@ export const socialLinks = [
   },
   {
     icon: 'Twitter',
-    label: 'Twitter',
-    href: 'https://twitter.com/antmugisa',
+    label: 'X',
+    href: 'https://x.com/antmugisa',
     color: 'hover:text-blue-400'
   }
 ];

@@ -8,54 +8,54 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    /* Anime-inspired color palette with clean white background */
-    --background: 0 0% 100%;
-    --foreground: 222 84% 4%;
+    /* Custom color palette */
+    --background: 0 0% 100%; /* #f2efe9 - warm off-white */
+    --foreground: 0 0% 15%; /* #262626 - dark gray */
 
-    --card: 0 0% 100%;
-    --card-foreground: 222 84% 4%;
+    --card: 0 0% 100%; /* #f2efe9 - warm off-white */
+    --card-foreground: 0 0% 15%; /* #262626 - dark gray */
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 222 84% 4%;
+    --popover: 0 0% 100%; /* #f2efe9 - warm off-white */
+    --popover-foreground: 0 0% 15%; /* #262626 - dark gray */
 
-    /* Deep anime blue as primary */
-    --primary: 222 100% 65%;
-    --primary-foreground: 0 0% 100%;
-    --primary-glow: 222 100% 75%;
+    /* Primary color - dark gray */
+    --primary: 0 0% 15%; /* #262626 */
+    --primary-foreground: 0 0% 100%; /* white */
+    --primary-glow: 0 0% 25%;
 
-    --secondary: 210 40% 96%;
-    --secondary-foreground: 222 84% 4%;
+    --secondary: 0 0% 90%; /* #e9e5dc - light warm gray */
+    --secondary-foreground: 0 0% 15%; /* #262626 - dark gray */
 
-    --muted: 210 40% 96%;
-    --muted-foreground: 215 16% 47%;
+    --muted: 0 0% 90%; /* #e9e5dc - light warm gray */
+    --muted-foreground: 0 0% 55%; /* #8c8c8c - medium gray */
 
-    /* Anime accent colors */
-    --accent: 280 100% 70%;
-    --accent-foreground: 0 0% 100%;
+    /* Accent colors */
+    --accent: 0 0% 75%; /* #bfbfbd - light gray */
+    --accent-foreground: 0 0% 15%; /* #262626 - dark gray */
 
-    /* Anime pink for highlights */
-    --anime-pink: 330 100% 70%;
-    --anime-cyan: 180 100% 60%;
-    --anime-purple: 280 100% 65%;
+    /* Custom colors */
+    --anime-pink: 0 0% 75%; /* #bfbfbd - light gray */
+    --anime-cyan: 0 0% 55%; /* #8c8c8c - medium gray */
+    --anime-purple: 0 0% 15%; /* #262626 - dark gray */
 
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 214 32% 91%;
-    --input: 214 32% 91%;
-    --ring: 222 100% 65%;
+    --border: 0 0% 85%; /* #bfbfbd - light gray */
+    --input: 0 0% 85%; /* #bfbfbd - light gray */
+    --ring: 0 0% 15%; /* #262626 - dark gray */
 
     --radius: 0.75rem;
 
-    /* Gradients for sleek effects */
-    --gradient-primary: linear-gradient(135deg, hsl(222 100% 65%), hsl(280 100% 70%));
-    --gradient-secondary: linear-gradient(135deg, hsl(0 0% 100%), hsl(210 40% 96%));
-    --gradient-hero: linear-gradient(135deg, hsl(0 0% 100%) 0%, hsl(210 40% 98%) 50%, hsl(222 100% 65% / 0.05) 100%);
+    /* Solid colors instead of gradients */
+    --gradient-primary: #262626; /* #262626 - dark gray */
+    --gradient-secondary: #f2efe9; /* #f2efe9 - warm off-white */
+    --gradient-hero: #f2efe9; /* #f2efe9 - warm off-white */
     
     /* Shadows for depth */
-    --shadow-glow: 0 0 40px hsl(222 100% 65% / 0.2);
-    --shadow-subtle: 0 4px 12px hsl(222 84% 4% / 0.08);
-    --shadow-card: 0 8px 32px hsl(222 84% 4% / 0.12);
+    --shadow-glow: 0 0 40px hsl(0 0% 15% / 0.2);
+    --shadow-subtle: 0 4px 12px hsl(0 0% 15% / 0.08);
+    --shadow-card: 0 8px 32px hsl(0 0% 15% / 0.12);
 
     /* Animations */
     --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -72,51 +72,51 @@ All colors MUST be HSL.
   }
 
   .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
+    --background: 0 0% 15%; /* #262626 - dark gray */
+    --foreground: 0 0% 95%; /* #f2efe9 - warm off-white */
 
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
+    --card: 0 0% 15%; /* #262626 - dark gray */
+    --card-foreground: 0 0% 95%; /* #f2efe9 - warm off-white */
 
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
+    --popover: 0 0% 15%; /* #262626 - dark gray */
+    --popover-foreground: 0 0% 95%; /* #f2efe9 - warm off-white */
 
-    /* Dark mode primary with anime-inspired colors */
-    --primary: 222 100% 65%;
-    --primary-foreground: 0 0% 100%;
-    --primary-glow: 222 100% 75%;
+    /* Dark mode primary */
+    --primary: 0 0% 75%; /* #bfbfbd - light gray */
+    --primary-foreground: 0 0% 15%; /* #262626 - dark gray */
+    --primary-glow: 0 0% 85%;
 
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
+    --secondary: 0 0% 20%; /* slightly lighter than background */
+    --secondary-foreground: 0 0% 95%; /* #f2efe9 - warm off-white */
 
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
+    --muted: 0 0% 20%; /* slightly lighter than background */
+    --muted-foreground: 0 0% 55%; /* #8c8c8c - medium gray */
 
-    /* Anime accent colors for dark mode */
-    --accent: 280 100% 70%;
-    --accent-foreground: 0 0% 100%;
+    /* Accent colors for dark mode */
+    --accent: 0 0% 55%; /* #8c8c8c - medium gray */
+    --accent-foreground: 0 0% 95%; /* #f2efe9 - warm off-white */
 
-    /* Anime colors for dark mode */
-    --anime-pink: 330 100% 70%;
-    --anime-cyan: 180 100% 60%;
-    --anime-purple: 280 100% 65%;
+    /* Custom colors for dark mode */
+    --anime-pink: 0 0% 55%; /* #8c8c8c - medium gray */
+    --anime-cyan: 0 0% 75%; /* #bfbfbd - light gray */
+    --anime-purple: 0 0% 95%; /* #f2efe9 - warm off-white */
 
     --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive-foreground: 0 0% 95%;
 
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9%;
+    --border: 0 0% 25%; /* slightly lighter than background */
+    --input: 0 0% 25%; /* slightly lighter than background */
+    --ring: 0 0% 75%; /* #bfbfbd - light gray */
 
     --radius: 0.75rem;
 
-    /* Dark mode gradients */
-    --gradient-primary: linear-gradient(135deg, hsl(222 100% 65%), hsl(280 100% 70%));
-    --gradient-secondary: linear-gradient(135deg, hsl(222.2 84% 4.9%), hsl(217.2 32.6% 17.5%));
-    --gradient-hero: linear-gradient(135deg, hsl(222.2 84% 4.9%) 0%, hsl(217.2 32.6% 17.5%) 50%, hsl(222 100% 65% / 0.1) 100%);
+    /* Dark mode solid colors */
+    --gradient-primary: #bfbfbd; /* #bfbfbd - light gray */
+    --gradient-secondary: #262626; /* #262626 - dark gray */
+    --gradient-hero: #262626; /* #262626 - dark gray */
     
     /* Dark mode shadows */
-    --shadow-glow: 0 0 40px hsl(222 100% 65% / 0.3);
+    --shadow-glow: 0 0 40px hsl(0 0% 75% / 0.3);
     --shadow-subtle: 0 4px 12px hsl(0 0% 0% / 0.3);
     --shadow-card: 0 8px 32px hsl(0 0% 0% / 0.4);
 
@@ -155,5 +155,10 @@ All colors MUST be HSL.
   .experience-title {
     font-family: 'Times New Roman', 'Times', 'Liberation Serif', 'DejaVu Serif', serif !important;
     color: hsl(222 100% 65%) !important;
+  }
+  
+  /* Safe area support for mobile devices */
+  .pb-safe {
+    padding-bottom: env(safe-area-inset-bottom);
   }
 }

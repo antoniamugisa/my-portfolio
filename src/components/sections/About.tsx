@@ -6,19 +6,19 @@ import { certifications, skills, education } from '@/data/portfolio';
 
 const About: React.FC = () => {
   return (
-    <section id="about" className="py-24 bg-gradient-secondary">
-      <div className="container mx-auto px-6 max-w-6xl">
-        <div className="grid grid-cols-12 gap-8">
+    <section id="about" className="py-16 md:py-24 pb-24 md:pb-24 bg-secondary">
+      <div className="container mx-auto px-4 md:px-6 max-w-6xl">
+        <div className="grid grid-cols-12 gap-4 md:gap-8">
           {/* Left side - Title */}
-          <div className="col-span-12 lg:col-span-3">
-            <div className="sticky top-24 pb-8">
-              <h2 className="text-4xl lg:text-5xl xl:text-6xl font-bold font-heading mb-6 bg-gradient-primary bg-clip-text text-transparent leading-[1.2] pb-2">about me</h2>
+          <div className="col-span-12 lg:col-span-3 order-1 lg:order-1">
+            <div className="sticky top-16 md:top-24 pb-4 md:pb-8">
+              <h2 className="text-4xl lg:text-5xl xl:text-6xl font-bold font-heading mb-6 bg-primary bg-clip-text text-transparent leading-[1.2] pb-2">about me</h2>
               <p className="text-lg text-foreground/70 leading-relaxed">a passionate developer who bridges the gap between technical excellence and creative expression</p>
             </div>
           </div>
 
           {/* Right side - Content */}
-          <div className="col-span-12 lg:col-span-9">
+          <div className="col-span-12 lg:col-span-9 order-2 lg:order-2">
             <div className="space-y-16">
               <div className="space-y-8">
                 <h3 className="text-3xl font-bold text-center mb-8">my journey</h3>
@@ -53,7 +53,7 @@ const About: React.FC = () => {
 
               <div>
                 <h3 className="text-3xl font-bold text-center mb-8">i know these pretty well</h3>
-                <Card className="p-8 bg-gradient-secondary border-border/50">
+                <Card className="p-8 bg-secondary border-border/50">
                   <div className="flex flex-wrap gap-3 justify-center">
                     {skills.map((skill, index) => (
                       <Badge key={index} variant="secondary" className="px-4 py-2 text-sm font-medium bg-card hover:bg-primary/20 hover:text-primary hover:border-primary/50 transition-all duration-300 cursor-default">{skill}</Badge>

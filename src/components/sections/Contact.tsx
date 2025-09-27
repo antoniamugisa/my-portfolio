@@ -4,7 +4,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
-import { Mail, Phone, MapPin, Send, Clock, Github, Linkedin, Twitter } from 'lucide-react';
+import { Mail, Phone, MapPin, Send, Clock, Github, Linkedin } from 'lucide-react';
+import { XLogo } from '@/components/ui/x-logo';
 import { contactInfo as rawContactInfo, socialLinks as rawSocialLinks } from '@/data/portfolio';
 
 type ContactProps = {
@@ -18,7 +19,7 @@ const iconMap: Record<string, React.ReactNode> = {
   MapPin: <MapPin className="w-5 h-5" />,
   Github: <Github className="w-5 h-5" />,
   Linkedin: <Linkedin className="w-5 h-5" />,
-  Twitter: <Twitter className="w-5 h-5" />,
+  Twitter: <XLogo className="w-5 h-5" />,
 };
 
 const Contact: React.FC<ContactProps> = ({ isSubmitting, onSubmit }) => {
@@ -26,19 +27,19 @@ const Contact: React.FC<ContactProps> = ({ isSubmitting, onSubmit }) => {
   const socialLinks = rawSocialLinks.map((s) => ({ ...s, icon: iconMap[s.icon] }));
   
   return (
-    <section id="contact" className="py-24 bg-gradient-secondary">
-      <div className="container mx-auto px-6 max-w-6xl">
-        <div className="grid grid-cols-12 gap-8">
+    <section id="contact" className="py-16 md:py-24 pb-24 md:pb-24 bg-secondary">
+      <div className="container mx-auto px-4 md:px-6 max-w-6xl">
+        <div className="grid grid-cols-12 gap-4 md:gap-8">
           {/* Left side - Title */}
-          <div className="col-span-12 lg:col-span-3">
-            <div className="sticky top-24 pb-8">
-              <h2 className="text-4xl lg:text-5xl xl:text-6xl font-bold font-heading mb-6 bg-gradient-primary bg-clip-text text-transparent leading-[1.2] pb-2">let's connect</h2>
+          <div className="col-span-12 lg:col-span-3 order-1 lg:order-1">
+            <div className="sticky top-16 md:top-24 pb-4 md:pb-8">
+              <h2 className="text-4xl lg:text-5xl xl:text-6xl font-bold font-heading mb-6 bg-primary bg-clip-text text-transparent leading-[1.2] pb-2">let's connect</h2>
               <p className="text-lg text-foreground/70 leading-relaxed">ready to bring your ideas to life? let's discuss how we can work together to create something amazing.</p>
             </div>
           </div>
 
           {/* Right side - Contact content */}
-          <div className="col-span-12 lg:col-span-9">
+          <div className="col-span-12 lg:col-span-9 order-2 lg:order-2">
             <div className="grid lg:grid-cols-2 gap-12">
               <div>
             <Card className="p-8 bg-card border-border h-full">
@@ -62,7 +63,7 @@ const Contact: React.FC<ContactProps> = ({ isSubmitting, onSubmit }) => {
                   <Label htmlFor="message">message</Label>
                   <Textarea id="message" name="message" placeholder="Tell me about your project..." required rows={6} className="mt-2" />
                 </div>
-                <Button type="submit" size="lg" className="w-full bg-gradient-primary hover:shadow-glow" disabled={isSubmitting}>
+                <Button type="submit" size="lg" className="w-full bg-primary hover:shadow-glow" disabled={isSubmitting}>
                   {isSubmitting ? (<><Clock className="w-4 h-4 mr-2 animate-spin" />sending...</>) : (<><Send className="w-4 h-4 mr-2" />Send Message</>)}
                 </Button>
               </form>

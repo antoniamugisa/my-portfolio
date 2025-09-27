@@ -57,8 +57,8 @@ const Experience = () => {
   ];
 
   return (
-    <div className="min-h-screen pt-20">
-      <div className="container mx-auto px-6 py-16 max-w-5xl">
+    <div className="min-h-screen pt-8 md:pt-20 pb-24 md:pb-0">
+      <div className="container mx-auto px-4 md:px-6 py-16 max-w-5xl">
         {/* Header */}
         <div className="text-center mb-16">
           <h1 className="text-5xl md:text-6xl font-bold mb-6 leading-[1.2] pb-2 experience-title">
@@ -75,7 +75,7 @@ const Experience = () => {
           
           <div className="relative">
             {/* Timeline line */}
-            <div className="absolute left-4 md:left-1/2 top-0 bottom-0 w-0.5 bg-gradient-primary transform md:-translate-x-1/2"></div>
+            <div className="absolute left-4 md:left-1/2 top-0 bottom-0 w-0.5 bg-primary transform md:-translate-x-1/2"></div>
             
             <div className="space-y-12">
               {experiences.map((exp, index) => (
@@ -155,7 +155,7 @@ const Experience = () => {
           {education.map((edu, index) => (
             <Card
               key={index}
-              className="p-8 bg-gradient-secondary border-border/50 hover:border-primary/50 transition-all duration-300"
+              className="p-8 bg-secondary border-border/50 hover:border-primary/50 transition-all duration-300"
             >
               <div className="text-center space-y-4">
                 <h3 className="text-2xl font-bold text-primary">{edu.degree}</h3>

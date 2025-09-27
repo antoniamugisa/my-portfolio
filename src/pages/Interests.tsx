@@ -24,14 +24,14 @@ const Interests = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background pt-24">
+        <div className="min-h-screen bg-background pt-4 md:pt-24 pb-24 md:pb-0">
       {/* Main Layout */}
-      <div className="container mx-auto px-6 max-w-7xl">
-        <div className="grid lg:grid-cols-12 gap-8">
+      <div className="container mx-auto px-4 md:px-6 max-w-7xl">
+        <div className="grid lg:grid-cols-12 gap-4 md:gap-8">
           {/* Left Side - Title Section */}
-          <div className="lg:col-span-3 py-16">
-            <div className="sticky top-32 pb-16">
-              <h1 className="text-4xl lg:text-5xl xl:text-6xl font-bold font-heading mb-6 bg-gradient-primary bg-clip-text text-transparent leading-[1.2] pb-2">
+          <div className="lg:col-span-3 py-4 md:py-16">
+            <div className="sticky top-16 md:top-32 pb-4 md:pb-16">
+              <h1 className="text-4xl lg:text-5xl xl:text-6xl font-bold font-heading mb-4 md:mb-6 bg-primary bg-clip-text text-transparent leading-[1.2] pb-2">
                 media worth your time
               </h1>
               <p className="text-lg text-foreground/70 leading-relaxed">
@@ -43,21 +43,21 @@ const Interests = () => {
           {/* Right Side - Content Section */}
           <div className="lg:col-span-9">
             {/* Content Section */}
-            <section className="py-16">
-              <ul className="space-y-3">
+            <section className="py-4 md:py-16">
+              <ul className="space-y-2 md:space-y-3">
                 {allItems.map((item) => (
-                  <li key={item.id} className="flex items-center justify-between py-2">
-                    <div className="flex-1">
-                      <div className="flex items-center space-x-3">
+                  <li key={item.id} className="py-3 md:py-2">
+                    <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2 md:gap-0">
+                      <div className="flex-1">
                         <span className={`font-medium px-2 py-1 rounded text-sm ${getTypeHighlight(item.type)}`}>
                           {item.title}
                           {item.author && ` – ${item.author}`}
                         </span>
                       </div>
+                      <span className="text-sm italic text-foreground md:text-right">
+                        – {item.description}
+                      </span>
                     </div>
-                    <span className="text-sm italic text-foreground">
-                      – {item.description}
-                    </span>
                   </li>
                 ))}
               </ul>

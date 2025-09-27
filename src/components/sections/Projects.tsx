@@ -14,21 +14,21 @@ const Projects: React.FC<ProjectsProps> = ({ selectedFilter, onSelectFilter }) =
   const allProjects = projects;
 
   return (
-    <section id="projects" className="py-24 bg-gradient-secondary">
-      <div className="container mx-auto px-6 max-w-6xl">
-        <div className="grid grid-cols-12 gap-8">
+    <section id="projects" className="py-16 md:py-24 pb-24 md:pb-24 bg-secondary">
+      <div className="container mx-auto px-4 md:px-6 max-w-6xl">
+        <div className="grid grid-cols-12 gap-4 md:gap-8">
           {/* Left side - Title */}
-          <div className="col-span-12 lg:col-span-3">
-            <div className="sticky top-24 pb-8">
-              <h2 className="text-4xl lg:text-5xl xl:text-6xl font-bold font-heading mb-6 bg-gradient-primary bg-clip-text text-transparent leading-[1.2] pb-2">projects</h2>
+          <div className="col-span-12 lg:col-span-3 order-1 lg:order-1">
+            <div className="sticky top-16 md:top-24 pb-4 md:pb-8">
+              <h2 className="text-4xl lg:text-5xl xl:text-6xl font-bold font-heading mb-6 bg-primary bg-clip-text text-transparent leading-[1.2] pb-2">projects</h2>
               <p className="text-lg text-foreground/70 leading-relaxed">a few things i've built</p>
             </div>
           </div>
 
           {/* Right side - Project cards */}
-          <div className="col-span-12 lg:col-span-9">
+          <div className="col-span-12 lg:col-span-9 order-2 lg:order-2">
             {/* Grid Layout */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
               {allProjects.map((project, index) => (
                 <Card key={index} className="rounded-xl bg-card hover:bg-card/80 border-border hover:border-primary/50 transition-all duration-300 hover:shadow-card group">
                   <div className="aspect-video overflow-hidden rounded-t-xl">
@@ -46,7 +46,7 @@ const Projects: React.FC<ProjectsProps> = ({ selectedFilter, onSelectFilter }) =
                       ))}
                     </div>
                     <div className="flex gap-3">
-                      <Button size="sm" className="bg-gradient-primary hover:shadow-glow flex-1" asChild>
+                      <Button size="sm" className="bg-primary hover:shadow-glow flex-1" asChild>
                         <a href={project.demoUrl} target="_blank" rel="noopener noreferrer">
                           <ExternalLink className="w-4 h-4 mr-2" />
                           Demo
