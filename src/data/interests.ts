@@ -2,14 +2,9 @@ export interface MediaItem {
   id: string;
   title: string;
   type: 'book' | 'film' | 'tv' | 'anime' | 'game' | 'music';
-  status: 'currently-consuming' | 'completed' | 'planning-to-consume';
   description: string;
   image?: string;
   author?: string;
-  year?: number;
-  rating?: number;
-  notes?: string;
-  genre?: string[];
   platform?: string;
   url?: string;
 }
@@ -28,154 +23,70 @@ export const interestsData: InterestCategory[] = [
     description: 'Everything I\'m currently consuming',
     items: [
       {
-        id: 'the-bear',
-        title: 'The Bear',
+        id: 'one-piece',
+        title: 'One Piece',
         type: 'tv',
-        status: 'currently-consuming',
-        description: 'TV Show',
+        description: 'Anime Series',
         author: '',
-        year: 2022,
-        rating: 0,
-        notes: '',
-        genre: [],
-        image: ''
       },
       {
-        id: 'atomic-habits',
-        title: 'Atomic Habits',
+        id: 'abundant-intelligence',
+        title: 'Abundant Intelligence',
         type: 'book',
-        status: 'completed',
         description: 'Book',
-        author: 'James Clear',
-        year: 2018,
-        rating: 0,
-        notes: '',
-        genre: [],
-        image: ''
+        author: 'Sam Altman',
       },
       {
-        id: 'interstellar',
-        title: 'Interstellar',
+        id: 'thunderbolts',
+        title: 'Thunderbolts',
         type: 'film',
-        status: 'completed',
         description: 'Movie',
-        author: 'Christopher Nolan',
-        year: 2014,
-        rating: 0,
-        notes: '',
-        genre: [],
-        image: ''
+        author: 'Jake Shreier',
       },
       {
-        id: 'meditations',
-        title: 'Meditations',
+        id: 'intimacy-of-inconvenience',
+        title: 'The Intimacy of Inconvenience',
         type: 'book',
-        status: 'currently-consuming',
-        description: 'Book',
-        author: 'Marcus Aurelius',
-        year: 180,
-        rating: 0,
-        notes: '',
-        genre: [],
-        image: ''
+        description: 'Essay',
+        author: 'Emilie Mendham',
       },
       {
-        id: 'pursuit-of-happyness',
-        title: 'The Pursuit of Happyness',
+        id: 'superman',
+        title: 'Superman',
         type: 'film',
-        status: 'completed',
         description: 'Movie',
-        author: 'Gabriele Muccino',
-        year: 2006,
-        rating: 0,
-        notes: '',
-        genre: [],
-        image: ''
+        author: 'James Gunn ',
       },
       {
         id: 'demon-slayer',
         title: 'Demon Slayer',
         type: 'anime',
-        status: 'completed',
         description: 'Anime Series',
         author: 'Koyoharu Gotouge',
-        year: 2019,
-        rating: 0,
-        notes: '',
-        genre: [],
-        image: ''
       },
       {
-        id: 'inception',
-        title: 'Inception',
+        id: 'infinity-castle',
+        title: 'Demon Slayer: Kimetsu no Yaiba Infinity Castle',
         type: 'film',
-        status: 'completed',
         description: 'Movie',
-        author: 'Christopher Nolan',
-        year: 2010,
-        rating: 0,
-        notes: '',
-        genre: [],
-        image: ''
+        author: 'Haruo Sotozaki',
       },
       {
-        id: 'blonde',
-        title: 'Blonde',
+        id: 'bite-me',
+        title: 'Bite Me',
         type: 'music',
-        status: 'completed',
         description: 'Album',
-        author: 'Frank Ocean',
-        year: 2016,
-        rating: 0,
-        notes: '',
-        genre: ['R&B', 'Alternative R&B'],
-        image: ''
+        author: 'Reneé Rapp',
       },
       {
-        id: 'currents',
-        title: 'Currents',
+        id: 'the-art-of-loving',
+        title: 'The Art of Loving',
         type: 'music',
-        status: 'currently-consuming',
         description: 'Album',
-        author: 'Tame Impala',
-        year: 2015,
-        rating: 0,
-        notes: '',
-        genre: ['Psychedelic Pop', 'Indie Rock'],
-        image: ''
+        author: 'Olivia Dean',
       }
     ]
   }
 ];
 
-export const getStatusColor = (status: MediaItem['status']) => {
-  switch (status) {
-    case 'currently-consuming':
-      return 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300';
-    case 'completed':
-      return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300';
-    case 'planning-to-consume':
-      return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300';
-    default:
-      return 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-300';
-  }
-};
 
-export const getTypeIcon = (type: MediaItem['type']) => {
-  switch (type) {
-    case 'book':
-      return '📚';
-    case 'film':
-      return '🎬';
-    case 'tv':
-      return '📺';
-    case 'anime':
-      return '🎌';
-    case 'game':
-      return '🎮';
-    case 'music':
-      return '🎵';
-    default:
-      return '📄';
-  }
-};

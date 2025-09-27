@@ -35,7 +35,7 @@ const Interests = () => {
                 media worth your time
               </h1>
               <p className="text-lg text-foreground/70 leading-relaxed">
-                what i'm watching and reading right now
+                what i'm watching and reading right now that i highly recommend you check out
               </p>
             </div>
           </div>
