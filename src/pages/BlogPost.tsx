@@ -4,7 +4,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { ArrowLeft, Calendar, Clock, Share2, User } from 'lucide-react';
-import { blogPosts } from '@/data/blogPosts';
+import { blogPosts } from '@/data/blog';
 import { useToast } from '@/hooks/use-toast';
 
 const BlogPost = () => {
@@ -40,7 +40,7 @@ const BlogPost = () => {
           url: url,
         });
       } catch (error) {
-        console.log('Error sharing:', error);
+        // Handle sharing error silently
       }
     } else {
       // Fallback: copy to clipboard
@@ -51,7 +51,7 @@ const BlogPost = () => {
           description: "The blog post link has been copied to your clipboard.",
         });
       } catch (error) {
-        console.log('Error copying to clipboard:', error);
+        // Handle clipboard error silently
       }
     }
   };
@@ -142,7 +142,7 @@ const BlogPost = () => {
         <Link to="/blog">
           <Button variant="ghost" className="group">
             <ArrowLeft className="w-4 h-4 mr-2 group-hover:-translate-x-1 transition-transform duration-300" />
-            Back to Blog
+            back to my thoughts
           </Button>
         </Link>
       </div>
@@ -208,43 +208,6 @@ const BlogPost = () => {
         <div className="prose prose-lg max-w-none mb-16">
           {renderContent(post.content)}
         </div>
-
-        {/* Related Posts Section */}
-        <Card className="p-8 bg-gradient-secondary border-border/50 mb-16">
-          <h3 className="text-2xl font-semibold mb-6 text-center">Read More</h3>
-          <div className="grid md:grid-cols-2 gap-6">
-            {blogPosts
-              .filter(p => p.id !== post.id && p.category === post.category)
-              .slice(0, 2)
-              .map((relatedPost) => (
-                <Link key={relatedPost.id} to={`/blog/${relatedPost.id}`} className="group">
-                  <Card className="p-6 bg-card hover:bg-card/80 border-border hover:border-primary/50 transition-all duration-300 h-full">
-                    <div className="aspect-video overflow-hidden rounded-lg mb-4">
-                      <img 
-                        src={relatedPost.image} 
-                        alt={relatedPost.title}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                      />
-                    </div>
-                    <h4 className="font-semibold mb-2 group-hover:text-primary transition-colors">
-                      {relatedPost.title}
-                    </h4>
-                    <p className="text-sm text-foreground/70 line-clamp-2">
-                      {relatedPost.description}
-                    </p>
-                  </Card>
-                </Link>
-              ))}
-          </div>
-          {blogPosts.filter(p => p.id !== post.id && p.category === post.category).length === 0 && (
-            <div className="text-center text-muted-foreground">
-              <p>No related posts found in this category.</p>
-              <Link to="/blog" className="text-primary hover:underline">
-                Browse all posts
-              </Link>
-            </div>
-          )}
-        </Card>
       </article>
     </div>
   );

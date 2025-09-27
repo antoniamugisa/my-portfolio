@@ -5,7 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Search, Calendar, Clock, ArrowRight, Filter } from 'lucide-react';
-import { blogPosts, blogCategories } from '@/data/blogPosts';
+import { blogPosts, blogCategories } from '@/data/blog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 const Blog = () => {
@@ -109,12 +109,12 @@ const Blog = () => {
               </Button>
             </div>
           ) : (
-            <div className="space-y-8 max-w-4xl mx-auto">
+            <div className="grid md:grid-cols-2 gap-8 max-w-5xl mx-auto">
               {filteredPosts.map((post, index) => (
                 <div key={post.id} className="py-px">
                   <Link to={`/blog/${post.id}`}>
                     <div 
-                      className="group relative h-48 rounded-lg overflow-hidden cursor-pointer transition-transform duration-300 hover:scale-[1.02]"
+                      className="group relative h-64 rounded-lg overflow-hidden cursor-pointer transition-transform duration-300 hover:scale-[1.02]"
                       style={{ animationDelay: `${index * 100}ms` }}
                     >
                     {/* Background Image */}
@@ -129,36 +129,31 @@ const Blog = () => {
                     </div>
 
                     {/* Content Overlay */}
-                    <div className="absolute inset-0 p-6 flex flex-col justify-between">
+                    <div className="absolute inset-0 p-5 flex flex-col justify-between">
                       {/* Top content */}
-                      <div className="flex-1">
-                        <h3 className="text-2xl font-bold text-white mb-2 leading-tight">
+                      <div className="flex-1 min-h-0">
+                        <h3 className="text-xl font-bold text-white mb-2 leading-tight line-clamp-2">
                           {post.title}
                         </h3>
-                        <p className="text-white/90 text-base leading-relaxed">
+                        <p className="text-white/90 text-sm leading-relaxed line-clamp-3">
                           {post.description}
                         </p>
                       </div>
 
                       {/* Bottom content */}
-                      <div className="flex items-end justify-between">
-                        <div className="text-white/80 text-sm">
+                      <div className="space-y-2 mt-3">
+                        <div className="text-white/80 text-xs">
                           {formatDate(post.date)}
                         </div>
-                        <div className="flex gap-2">
-                          {post.tags.slice(0, 2).map((tag) => (
+                        <div className="flex flex-wrap gap-1">
+                          {post.tags.map((tag) => (
                             <span 
                               key={tag}
-                              className="px-3 py-1 bg-white/20 backdrop-blur-sm rounded-full text-white text-sm font-medium"
+                              className="px-2 py-1 bg-white/25 backdrop-blur-sm rounded-md text-white text-xs font-medium border border-white/20"
                             >
                               {tag}
                             </span>
                           ))}
-                          {post.tags.length > 2 && (
-                            <span className="px-3 py-1 bg-white/20 backdrop-blur-sm rounded-full text-white text-sm font-medium">
-                              +{post.tags.length - 2}
-                            </span>
-                          )}
                         </div>
                       </div>
                     </div>
