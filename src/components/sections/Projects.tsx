@@ -43,8 +43,14 @@ const Projects: React.FC<ProjectsProps> = ({ selectedFilter, onSelectFilter }) =
               {allProjects.filter(project => project.featured).map((project, index) => (
                 <Link key={index} to={`/projects/${project.id}`}>
                   <Card className="rounded-xl bg-card hover:bg-card/80 border-border hover:border-primary/50 transition-all duration-300 hover:shadow-card group cursor-pointer">
-                    <div className="aspect-video overflow-hidden rounded-t-xl">
-                      <img src={project.image} alt={project.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+                    <div className="aspect-video overflow-hidden rounded-t-xl bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-900">
+                      <img 
+                        src={project.image} 
+                        alt={project.title} 
+                        className={`w-full h-full transition-transform duration-300 group-hover:scale-105 ${
+                          project.id === 'dal gazette app' ? 'object-contain p-4' : 'object-cover'
+                        }`} 
+                      />
                     </div>
                     <div className="p-6">
                       <div className="flex items-center justify-between mb-4">

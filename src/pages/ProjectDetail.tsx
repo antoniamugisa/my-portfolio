@@ -40,11 +40,13 @@ const ProjectDetail = () => {
       {/* Project Header */}
       <article className="container mx-auto px-6 max-w-4xl">
         {/* Hero Image with Overlay */}
-        <div className="relative aspect-[4/3] md:aspect-[21/9] min-h-[250px] md:min-h-[400px] overflow-hidden rounded-lg mb-8 shadow-card">
+        <div className="relative aspect-[4/3] md:aspect-[21/9] min-h-[250px] md:min-h-[400px] overflow-hidden rounded-lg mb-8 shadow-card bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-900">
           <img 
             src={project.image} 
             alt={project.title}
-            className="w-full h-full object-cover"
+            className={`w-full h-full ${
+              project.id === 'dal gazette app' ? 'object-contain p-8' : 'object-cover'
+            }`}
           />
           {/* Dark overlay for better text readability */}
           <div className="absolute inset-0 bg-black/50" />

@@ -13,7 +13,7 @@ const About: React.FC = () => {
           <div className="col-span-12 lg:col-span-3 order-1 lg:order-1">
             <div className="sticky top-16 md:top-24 pb-4 md:pb-8">
               <h2 className="text-4xl lg:text-5xl xl:text-6xl font-bold font-heading mb-6 bg-primary bg-clip-text text-transparent leading-[1.2] pb-2">about me</h2>
-              <p className="text-lg text-foreground/70 leading-relaxed">a 25 year old software developer building a few fun things</p>
+              <p className="text-lg text-foreground/70 leading-relaxed">a 25 year old software developer always building something</p>
             </div>
           </div>
 

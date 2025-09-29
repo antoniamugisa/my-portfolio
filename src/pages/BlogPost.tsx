@@ -93,6 +93,34 @@ const BlogPost = () => {
         continue;
       }
 
+      // Handle iframe embeds (like Spotify)
+      if (line.trim().startsWith('<iframe')) {
+        // Extract iframe attributes
+        const srcMatch = line.match(/src="([^"]+)"/);
+        const widthMatch = line.match(/width="([^"]+)"/);
+        const heightMatch = line.match(/height="([^"]+)"/);
+        const frameborderMatch = line.match(/frameborder="([^"]+)"/);
+        const allowtransparencyMatch = line.match(/allowtransparency="([^"]+)"/);
+        const allowMatch = line.match(/allow="([^"]+)"/);
+        
+        if (srcMatch) {
+          elements.push(
+            <div key={i} className="my-6 rounded-lg overflow-hidden">
+              <iframe
+                src={srcMatch[1]}
+                width={widthMatch ? widthMatch[1] : "100%"}
+                height={heightMatch ? heightMatch[1] : "152"}
+                frameBorder={frameborderMatch ? frameborderMatch[1] : "0"}
+                allowTransparency={allowtransparencyMatch ? allowtransparencyMatch[1] === "true" : true}
+                allow={allowMatch ? allowMatch[1] : "encrypted-media"}
+                className="w-full"
+              />
+            </div>
+          );
+        }
+        continue;
+      }
+
       // Handle headings
       if (line.startsWith('# ')) {
         elements.push(
