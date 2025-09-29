@@ -10,9 +10,9 @@ const Blog = () => {
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-US', {
       year: 'numeric',
-      month: 'long',
+      month: 'short',
       day: 'numeric'
-    });
+    }).toUpperCase();
   };
 
   return (
@@ -56,37 +56,42 @@ const Blog = () => {
                         </div>
 
                         {/* Content Overlay */}
-                        <div className="absolute inset-0 p-3 md:p-5 flex flex-col justify-between">
-                          {/* Top content */}
-                          <div className="flex-1 min-h-0">
-                            <h3 className="text-lg md:text-xl font-bold text-white mb-2 leading-tight line-clamp-2">
-                              {post.title}
-                            </h3>
-                            <p className="text-white/90 text-sm leading-relaxed line-clamp-2 md:line-clamp-3">
-                              {post.description}
-                            </p>
-                          </div>
-
-                          {/* Bottom content */}
-                          <div className="space-y-2 mt-2 md:mt-3">
-                            <div className="text-white/80 text-xs">
-                              {formatDate(post.date)}
-                            </div>
-                            <div className="flex flex-wrap gap-1">
+                        <div className="absolute inset-0 p-4 md:p-6 flex flex-col justify-between">
+                          {/* Top Right - Tags */}
+                          <div className="flex justify-end">
+                            <div className="flex flex-wrap gap-2">
                               {post.tags.slice(0, 2).map((tag) => (
                                 <span 
                                   key={tag}
-                                  className="px-2 py-1 bg-white/25 backdrop-blur-sm rounded-md text-white text-xs font-medium border border-white/20"
+                                  className="px-3 py-1 bg-white/20 backdrop-blur-sm rounded-full text-white text-xs font-medium border border-white/30"
                                 >
                                   {tag}
                                 </span>
                               ))}
                               {post.tags.length > 2 && (
-                                <span className="px-2 py-1 bg-white/25 backdrop-blur-sm rounded-md text-white text-xs font-medium border border-white/20">
+                                <span className="px-3 py-1 bg-white/20 backdrop-blur-sm rounded-full text-white text-xs font-medium border border-white/30">
                                   +{post.tags.length - 2}
                                 </span>
                               )}
                             </div>
+                          </div>
+
+                          {/* Bottom Left - Date, Title, Subtitle */}
+                          <div className="space-y-2">
+                            {/* Date */}
+                            <div className="text-white/90 text-xs font-medium">
+                              {formatDate(post.date)}
+                            </div>
+                            
+                            {/* Title */}
+                            <h3 className="text-lg md:text-xl font-bold text-white leading-tight line-clamp-2">
+                              {post.title}
+                            </h3>
+                            
+                            {/* Subtitle/Description */}
+                            <p className="text-white/90 text-sm leading-relaxed line-clamp-2">
+                              {post.description}
+                            </p>
                           </div>
                         </div>
                         </div>

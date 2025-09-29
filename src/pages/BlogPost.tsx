@@ -23,9 +23,9 @@ const BlogPost = () => {
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-US', {
       year: 'numeric',
-      month: 'long', 
+      month: 'short',
       day: 'numeric'
-    });
+    }).toUpperCase();
   };
 
   // Share functionality
@@ -149,54 +149,75 @@ const BlogPost = () => {
 
       {/* Article Header */}
       <article className="container mx-auto px-6 max-w-4xl">
-        {/* Hero Image */}
-        <div className="aspect-video md:aspect-[21/9] overflow-hidden rounded-lg mb-8 shadow-card">
+        {/* Hero Image with Overlay */}
+        <div className="relative aspect-video md:aspect-[21/9] overflow-hidden rounded-lg mb-8 shadow-card">
           <img 
             src={post.image} 
             alt={post.title}
             className="w-full h-full object-cover"
           />
-        </div>
-
-        {/* Article Meta */}
-        <div className="mb-8">
-          <Badge variant="secondary" className="mb-4 bg-primary/10 text-primary border-primary/20">
-            {post.category}
-          </Badge>
+          {/* Dark overlay for better text readability */}
+          <div className="absolute inset-0 bg-black/50" />
           
-          <h1 className="text-4xl md:text-5xl font-bold font-heading mb-6 text-foreground leading-tight">
-            {post.title}
-          </h1>
+          {/* Content Overlay */}
+          <div className="absolute inset-0 p-6 md:p-8 flex flex-col justify-between">
+            {/* Top Right - Tags */}
+            <div className="flex justify-end">
+              <div className="flex flex-wrap gap-2">
+                {post.tags.slice(0, 2).map((tag) => (
+                  <span 
+                    key={tag}
+                    className="px-3 py-1 bg-white/20 backdrop-blur-sm rounded-full text-white text-sm font-medium border border-white/30"
+                  >
+                    {tag}
+                  </span>
+                ))}
+                {post.tags.length > 2 && (
+                  <span className="px-3 py-1 bg-white/20 backdrop-blur-sm rounded-full text-white text-sm font-medium border border-white/30">
+                    +{post.tags.length - 2}
+                  </span>
+                )}
+              </div>
+            </div>
 
-          <div className="flex flex-wrap items-center gap-6 text-muted-foreground mb-6">
-            <div className="flex items-center gap-2">
-              <User className="w-4 h-4" />
-              <span>{post.author}</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <Calendar className="w-4 h-4" />
-              <span>{formatDate(post.date)}</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <Clock className="w-4 h-4" />
-              <span>{post.readTime} min read</span>
+            {/* Bottom Left - Date, Title, Subtitle */}
+            <div className="space-y-3">
+              {/* Date */}
+              <div className="text-white/90 text-sm font-medium">
+                {formatDate(post.date)}
+              </div>
+              
+              {/* Title */}
+              <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white leading-tight">
+                {post.title}
+              </h1>
+              
+              {/* Subtitle/Description */}
+              <p className="text-white/90 text-lg md:text-xl leading-relaxed max-w-2xl">
+                {post.description}
+              </p>
             </div>
           </div>
+        </div>
 
+        {/* Article Meta - Moved below image */}
+        <div className="mb-8">
           <div className="flex items-center justify-between border-b border-border pb-6">
-            <div className="flex flex-wrap gap-2">
-              {post.tags.map((tag) => (
-                <Badge key={tag} variant="outline" className="text-xs">
-                  {tag}
-                </Badge>
-              ))}
+            <div className="flex flex-wrap items-center gap-6 text-muted-foreground">
+              <div className="flex items-center gap-2">
+                <User className="w-4 h-4" />
+                <span>{post.author}</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Clock className="w-4 h-4" />
+                <span>{post.readTime} min read</span>
+              </div>
             </div>
             
             <Button 
               variant="outline" 
               size="sm" 
               onClick={handleShare}
-              className="ml-4"
             >
               <Share2 className="w-4 h-4 mr-2" />
               Share
@@ -209,6 +230,15 @@ const BlogPost = () => {
           {renderContent(post.content)}
         </div>
       </article>
+
+      {/* Footer */}
+      <footer className="py-8 bg-card border-t border-border pb-24 md:pb-8">
+        <div className="container mx-auto px-6 text-center">
+          <p className="text-foreground/70 text-sm">
+            © 2025 Antonia Mugisa. Built with React, TypeScript & Tailwind CSS.
+          </p>
+        </div>
+      </footer>
     </div>
   );
 };

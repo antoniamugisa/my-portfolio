@@ -1,84 +1,22 @@
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { ExternalLink, Github, Filter } from 'lucide-react';
+import { ExternalLink, Github, Filter, ArrowLeft } from 'lucide-react';
+import { projects } from '@/data/portfolio';
 
 const Projects = () => {
   const [selectedFilter, setSelectedFilter] = useState('All');
 
-  const projects = [
-    {
-      title: "Anime Dev Space Portfolio",
-      description: "A modern, responsive portfolio website showcasing my development journey with an anime-inspired design. Features include dynamic project showcases, blog integration, and a sleek UI built with React and TypeScript.",
-      image: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=600",
-      technologies: ["React", "TypeScript", "Vite", "Tailwind CSS", "shadcn/ui", "React Router"],
-      category: "Frontend",
-      demoUrl: "#",
-      githubUrl: "https://github.com/antoniamugisa/anime-dev-space",
-      featured: true
-    },
-    {
-      title: "E-Commerce Platform",
-      description: "A full-stack e-commerce solution with React frontend, Node.js backend, and Stripe integration. Features include user authentication, product management, shopping cart, and payment processing.",
-      image: "https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=600",
-      technologies: ["React", "Node.js", "PostgreSQL", "Stripe", "AWS"],
-      category: "Full-Stack",
-      demoUrl: "#",
-      githubUrl: "#",
-      featured: true
-    },
-    {
-      title: "Anime Recommendation Engine",
-      description: "Machine learning-powered recommendation system that suggests anime based on user preferences and viewing history. Built with Python and React with a sleek anime-inspired interface.",
-      image: "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=600",
-      technologies: ["Python", "React", "TensorFlow", "MongoDB", "Docker"],
-      category: "Machine Learning",
-      demoUrl: "#",
-      githubUrl: "#",
-      featured: true
-    },
-    {
-      title: "Real-time Chat Application",
-      description: "Modern chat application with real-time messaging, file sharing, and video calls. Features include group chats, emoji reactions, and message encryption for secure communication.",
-      image: "https://images.unsplash.com/photo-1611224923853-80b023f02d71?w=600",
-      technologies: ["React", "Socket.io", "Node.js", "WebRTC", "Redis"],
-      category: "Frontend",
-      demoUrl: "#",
-      githubUrl: "#",
-      featured: false
-    },
-    {
-      title: "Task Management API",
-      description: "RESTful API for task management with user authentication, role-based permissions, and comprehensive documentation. Includes automated testing and CI/CD pipeline.",
-      image: "https://images.unsplash.com/photo-1611224923853-80b023f02d71?w=600",
-      technologies: ["Node.js", "Express", "MongoDB", "JWT", "Jest"],
-      category: "Backend",
-      demoUrl: "#",
-      githubUrl: "#",
-      featured: false
-    },
-    {
-      title: "Data Visualization Dashboard",
-      description: "Interactive dashboard for visualizing complex datasets with dynamic charts, filters, and real-time updates. Built for analyzing business metrics and KPIs.",
-      image: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=600",
-      technologies: ["React", "D3.js", "Python", "FastAPI", "PostgreSQL"],
-      category: "Frontend",
-      demoUrl: "#",
-      githubUrl: "#",
-      featured: false
-    },
-    {
-      title: "Microservices Architecture",
-      description: "Scalable microservices system with Docker containers, API gateway, and service discovery. Includes monitoring, logging, and automated deployment strategies.",
-      image: "https://images.unsplash.com/photo-1667372393119-3d4c48d07fc9?w=600",
-      technologies: ["Docker", "Kubernetes", "Node.js", "Redis", "NGINX"],
-      category: "Backend",
-      demoUrl: "#",
-      githubUrl: "#",
-      featured: false
-    }
-  ];
+  // Format date for display
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric'
+    }).toUpperCase();
+  };
 
   const categories = ['All', 'Full-Stack', 'Frontend', 'Backend', 'Machine Learning'];
 
@@ -89,166 +27,122 @@ const Projects = () => {
   const featuredProjects = projects.filter(project => project.featured);
 
   return (
-    <div className="min-h-screen pt-8 md:pt-20 pb-24 md:pb-0">
-      <div className="container mx-auto px-4 md:px-6 py-16 max-w-7xl">
-        {/* Header */}
-        <div className="text-center mb-16">
-          <h1 className="text-5xl md:text-6xl font-bold font-heading mb-6 bg-primary bg-clip-text text-transparent leading-[1.2] pb-2">
-            Projects
-          </h1>
-          <p className="text-xl text-foreground/70 max-w-2xl mx-auto leading-relaxed">
-            A showcase of my technical skills and creative solutions
+    <div className="min-h-screen bg-background pt-4 md:pt-24">
+      {/* Back Button */}
+      <div className="container mx-auto px-4 md:px-6 max-w-7xl mb-8">
+        <Link to="/">
+          <Button variant="ghost" className="group">
+            <ArrowLeft className="w-4 h-4 mr-2 group-hover:-translate-x-1 transition-transform duration-300" />
+            back to home
+          </Button>
+        </Link>
+      </div>
+
+      {/* Main Layout */}
+      <div className="container mx-auto px-4 md:px-6 max-w-7xl">
+        <div className="grid lg:grid-cols-12 gap-4 md:gap-8">
+          {/* Left Side - Title Section */}
+          <div className="lg:col-span-3 py-4 md:py-16">
+            <div className="sticky top-16 md:top-32 pb-4 md:pb-16">
+              <h1 className="text-4xl lg:text-5xl xl:text-6xl font-bold font-heading mb-4 md:mb-6 bg-primary bg-clip-text text-transparent leading-[1.2] pb-2">
+                projects
+              </h1>
+              <p className="text-lg text-foreground/70 leading-relaxed">
+                a showcase of my technical skills and creative solutions
+              </p>
+            </div>
+          </div>
+
+          {/* Right Side - Content Section */}
+          <div className="lg:col-span-9">
+
+
+
+            {/* Projects Grid with Card Design */}
+            <section className="py-4 md:py-16">
+              <div className="grid md:grid-cols-2 gap-6 md:gap-8">
+                {filteredProjects.map((project, index) => (
+                  <div key={project.id} className="py-px">
+                    <Link to={`/projects/${project.id}`}>
+                      <div 
+                        className="group bg-card border border-border rounded-lg overflow-hidden cursor-pointer transition-all duration-300 hover:border-primary/50 hover:shadow-card"
+                        style={{ animationDelay: `${index * 100}ms` }}
+                      >
+                        {/* Project Image */}
+                        <div className="aspect-video overflow-hidden">
+                          <img 
+                            src={project.image} 
+                            alt={project.title}
+                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                          />
+                        </div>
+
+                        {/* Project Content */}
+                        <div className="p-4 md:p-6">
+                          {/* Title with Action Icons */}
+                          <div className="flex items-start justify-between mb-3">
+                            <h3 className="text-lg md:text-xl font-bold text-foreground leading-tight flex-1 pr-2">
+                              {project.title}
+                            </h3>
+                            <div className="flex gap-2 flex-shrink-0">
+                              {project.demoUrl !== "#" && (
+                                <div className="w-4 h-4 text-muted-foreground">
+                                  <svg viewBox="0 0 24 24" fill="currentColor">
+                                    <path d="M14,3V5H17.59L7.76,14.83L9.17,16.24L19,6.41V10H21V3M19,19H5V5H12V3H5C3.89,3 3,3.9 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V12H19V19Z" />
+                                  </svg>
+                                </div>
+                              )}
+                              {project.githubUrl !== "#" && (
+                                <div className="w-4 h-4 text-muted-foreground">
+                                  <svg viewBox="0 0 24 24" fill="currentColor">
+                                    <path d="M12,2A10,10 0 0,0 2,12C2,16.42 4.87,20.17 8.84,21.5C9.34,21.58 9.5,21.27 9.5,21C9.5,20.77 9.5,20.14 9.5,19.31C6.73,19.91 6.14,17.97 6.14,17.97C5.68,16.81 5.03,16.5 5.03,16.5C4.12,15.88 5.1,15.9 5.1,15.9C6.1,15.97 6.63,16.93 6.63,16.93C7.5,18.45 8.97,18 9.54,17.76C9.63,17.11 9.89,16.67 10.17,16.42C7.95,16.17 5.62,15.31 5.62,11.5C5.62,10.39 6,9.5 6.65,8.79C6.55,8.54 6.2,7.5 6.75,6.15C6.75,6.15 7.59,5.88 9.5,7.17C10.29,6.95 11.15,6.84 12,6.84C12.85,6.84 13.71,6.95 14.5,7.17C16.41,5.88 17.25,6.15 17.25,6.15C17.8,7.5 17.45,8.54 17.35,8.79C18,9.5 18.38,10.39 18.38,11.5C18.38,15.32 16.04,16.16 13.81,16.41C14.17,16.72 14.5,17.33 14.5,18.26C14.5,19.6 14.5,20.68 14.5,21C14.5,21.27 14.66,21.59 15.17,21.5C19.14,20.16 22,16.42 22,12A10,10 0 0,0 12,2Z" />
+                                  </svg>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                          
+                          {/* Description */}
+                          <p className="text-foreground/80 text-sm md:text-base leading-relaxed mb-4">
+                            {project.description}
+                          </p>
+                          
+                          {/* Tags */}
+                          <div className="flex flex-wrap gap-2">
+                            {project.tags.map((tag) => (
+                              <span 
+                                key={tag}
+                                className="px-2 py-1 bg-muted text-foreground text-xs rounded-md border border-border"
+                              >
+                                {tag}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                    </Link>
+                  </div>
+                ))}
+              </div>
+
+              {filteredProjects.length === 0 && (
+                <div className="text-center py-16">
+                  <p className="text-foreground/60 text-lg">No projects found in this category.</p>
+                </div>
+              )}
+            </section>
+          </div>
+        </div>
+      </div>
+
+      {/* Footer */}
+      <footer className="py-8 bg-card border-t border-border pb-24 md:pb-8">
+        <div className="container mx-auto px-6 text-center">
+          <p className="text-foreground/70 text-sm">
+            © 2025 Antonia Mugisa. Built with React, TypeScript & Tailwind CSS.
           </p>
         </div>
-
-        {/* Featured Projects */}
-        {selectedFilter === 'All' && (
-          <section className="mb-20">
-            <h2 className="text-3xl font-bold text-center mb-12">Featured Projects</h2>
-            <div className="grid lg:grid-cols-2 gap-8">
-              {featuredProjects.map((project, index) => (
-                <Card
-                  key={index}
-                  className="group overflow-hidden bg-card border-border hover:border-primary/50 transition-all duration-500 hover:shadow-card"
-                >
-                  <div className="aspect-video overflow-hidden">
-                    <img
-                      src={project.image}
-                      alt={project.title}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                    />
-                  </div>
-                  <div className="p-8">
-                    <div className="flex items-start justify-between mb-4">
-                      <h3 className="text-2xl font-bold group-hover:text-primary transition-colors duration-300">
-                        {project.title}
-                      </h3>
-                      <Badge variant="secondary" className="bg-primary/10 text-primary border-primary/20">
-                        {project.category}
-                      </Badge>
-                    </div>
-                    
-                    <p className="text-foreground/80 leading-relaxed mb-6">
-                      {project.description}
-                    </p>
-                    
-                    <div className="flex flex-wrap gap-2 mb-6">
-                      {project.technologies.map((tech, techIndex) => (
-                        <Badge
-                          key={techIndex}
-                          variant="outline"
-                          className="text-xs border-border/50 hover:border-primary/50 transition-colors"
-                        >
-                          {tech}
-                        </Badge>
-                      ))}
-                    </div>
-                    
-                    <div className="flex gap-3">
-                      <Button size="sm" className="bg-primary hover:shadow-glow transition-all duration-300">
-                        <ExternalLink className="w-4 h-4 mr-2" />
-                        Live Demo
-                      </Button>
-                      <Button variant="outline" size="sm" className="border-border/50 hover:border-primary/50">
-                        <Github className="w-4 h-4 mr-2" />
-                        Code
-                      </Button>
-                    </div>
-                  </div>
-                </Card>
-              ))}
-            </div>
-          </section>
-        )}
-
-        {/* Filter Buttons */}
-        <div className="flex flex-wrap justify-center gap-3 mb-12">
-          <div className="flex items-center gap-2 text-foreground/70 mr-4">
-            <Filter className="w-4 h-4" />
-            <span className="text-sm font-medium">Filter by:</span>
-          </div>
-          {categories.map((category) => (
-            <Button
-              key={category}
-              variant={selectedFilter === category ? "default" : "outline"}
-              size="sm"
-              onClick={() => setSelectedFilter(category)}
-              className={`transition-all duration-300 ${
-                selectedFilter === category
-                  ? 'bg-primary shadow-glow'
-                  : 'border-border/50 hover:border-primary/50'
-              }`}
-            >
-              {category}
-            </Button>
-          ))}
-        </div>
-
-        {/* All Projects Grid */}
-        <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-8">
-          {filteredProjects.map((project, index) => (
-            <Card
-              key={index}
-              className="group overflow-hidden bg-card border-border hover:border-primary/50 transition-all duration-500 hover:shadow-card h-full flex flex-col"
-            >
-              <div className="aspect-video overflow-hidden">
-                <img
-                  src={project.image}
-                  alt={project.title}
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                />
-              </div>
-              <div className="p-6 flex flex-col flex-grow">
-                <div className="flex items-start justify-between mb-3">
-                  <h3 className="text-xl font-bold group-hover:text-primary transition-colors duration-300">
-                    {project.title}
-                  </h3>
-                  <Badge variant="secondary" className="bg-primary/10 text-primary border-primary/20 text-xs">
-                    {project.category}
-                  </Badge>
-                </div>
-                
-                <p className="text-foreground/80 text-sm leading-relaxed mb-4 flex-grow">
-                  {project.description}
-                </p>
-                
-                <div className="flex flex-wrap gap-1 mb-4">
-                  {project.technologies.slice(0, 3).map((tech, techIndex) => (
-                    <Badge
-                      key={techIndex}
-                      variant="outline"
-                      className="text-xs border-border/50"
-                    >
-                      {tech}
-                    </Badge>
-                  ))}
-                  {project.technologies.length > 3 && (
-                    <Badge variant="outline" className="text-xs border-border/50">
-                      +{project.technologies.length - 3}
-                    </Badge>
-                  )}
-                </div>
-                
-                <div className="flex gap-2">
-                  <Button size="sm" className="flex-1 bg-primary hover:shadow-glow transition-all duration-300">
-                    <ExternalLink className="w-3 h-3 mr-1" />
-                    Demo
-                  </Button>
-                  <Button variant="outline" size="sm" className="border-border/50 hover:border-primary/50">
-                    <Github className="w-3 h-3" />
-                  </Button>
-                </div>
-              </div>
-            </Card>
-          ))}
-        </div>
-
-        {filteredProjects.length === 0 && (
-          <div className="text-center py-16">
-            <p className="text-foreground/60 text-lg">No projects found in this category.</p>
-          </div>
-        )}
-      </div>
+      </footer>
     </div>
   );
 };

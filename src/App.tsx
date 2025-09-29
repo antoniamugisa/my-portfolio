@@ -9,6 +9,7 @@ import Index from "./pages/Index";
 import Blog from "./pages/Blog";
 import BlogPost from "./pages/BlogPost";
 import Projects from "./pages/Projects";
+import ProjectDetail from "./pages/ProjectDetail";
 import Experience from "./pages/Experience";
 import Interests from "./pages/Interests";
 import Preloader from "./components/Preloader";
@@ -55,6 +56,7 @@ const AppContent = () => {
           <Route path="/blog" element={<Blog />} />
           <Route path="/blog/:id" element={<BlogPost />} />
           <Route path="/projects" element={<Projects />} />
+          <Route path="/projects/:id" element={<ProjectDetail />} />
           <Route path="/experience" element={<Experience />} />
           <Route path="/interests" element={<Interests />} />
         </Routes>
