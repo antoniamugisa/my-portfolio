@@ -13,7 +13,7 @@ const About: React.FC = () => {
           <div className="col-span-12 lg:col-span-3 order-1 lg:order-1">
             <div className="sticky top-16 md:top-24 pb-4 md:pb-8">
               <h2 className="text-4xl lg:text-5xl xl:text-6xl font-bold font-heading mb-6 bg-primary bg-clip-text text-transparent leading-[1.2] pb-2">about me</h2>
-              <p className="text-lg text-foreground/70 leading-relaxed">a passionate developer who bridges the gap between technical excellence and creative expression</p>
+              <p className="text-lg text-foreground/70 leading-relaxed">a passionate developer bridging the gap between technical excellence and creative expression</p>
             </div>
           </div>
 
@@ -24,13 +24,17 @@ const About: React.FC = () => {
                 <h3 className="text-3xl font-bold text-center mb-8">my journey</h3>
                 <div className="space-y-6 text-lg text-foreground/80 leading-relaxed">
                   <p>
-                    hello! i'm Antonia, a software developer who thrives at the intersection of thoughtful engineering and creative problem-solving. my journey began in highschool when I joined my school's robotics team and learnt how to make a robot move forward and backwards. I decided then and there I want to do more of this, and my interest grew into a career where I get to design, build, and optimize full-stack applications that make a real impact.
+                    hello! i'm Antonia, a software developer who thrives at the intersection of thoughtful engineering and creative problem-solving. my journey began 
+                    in highschool when I joined my school's robotics team and discovered the thrill of bringing hardware to life through code. I decided then and 
+                    there I wanted to do more of this, and my interest grew into a career where I get to design, build, and optimize full-stack applications that make a real impact.
                   </p>
                   <p>
-                    over the years, I've worked on everything from AI-powered tools to cloud-native systems and intuitive web interfaces. I believe that great software goes beyond functionality. It should feel effortless, efficient, and user-first.
+                    since then, I've worked on everything from AI-powered tools to cloud-native systems and intuitive web interfaces. i believe that great software 
+                    goes beyond just functionality. it should feel effortless, efficient, and user-first.
                   </p>
                   <p>
-                    when I'm not immersed in code, you'll find me exploring the city with my friends, climbing at my local climbing gym and experimenting with new technologies. This blend of technical skill and creative passion drives me to build applications that are both powerful and beautiful.
+                    when I'm not immersed in code, you'll find me exploring the city with my friends, climbing at my local climbing gym and experimenting with 
+                    new technologies. I'm driven to create software that not only works well but helps the people who use it.
                   </p>
                 </div>
               </div>

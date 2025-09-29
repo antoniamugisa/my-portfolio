@@ -34,7 +34,7 @@ const Contact: React.FC<ContactProps> = ({ isSubmitting, onSubmit }) => {
           <div className="col-span-12 lg:col-span-3 order-1 lg:order-1">
             <div className="sticky top-16 md:top-24 pb-4 md:pb-8">
               <h2 className="text-4xl lg:text-5xl xl:text-6xl font-bold font-heading mb-6 bg-primary bg-clip-text text-transparent leading-[1.2] pb-2">let's connect</h2>
-              <p className="text-lg text-foreground/70 leading-relaxed">ready to bring your ideas to life? let's discuss how we can work together to create something amazing.</p>
+              <p className="text-lg text-foreground/70 leading-relaxed">i love to yap so let's discuss how we can work together to create something amazing.</p>
             </div>
           </div>
 
@@ -48,7 +48,7 @@ const Contact: React.FC<ContactProps> = ({ isSubmitting, onSubmit }) => {
                 <div className="grid md:grid-cols-2 gap-4">
                   <div>
                     <Label htmlFor="name">name</Label>
-                    <Input id="name" name="name" type="text" placeholder="Your name" required className="mt-2" />
+                    <Input id="name" name="name" type="text" placeholder="your name" required className="mt-2" />
                   </div>
                   <div>
                     <Label htmlFor="email">email</Label>
@@ -56,15 +56,15 @@ const Contact: React.FC<ContactProps> = ({ isSubmitting, onSubmit }) => {
                   </div>
                 </div>
                 <div>
-                  <Label htmlFor="subject">Subject</Label>
-                  <Input id="subject" name="subject" type="text" placeholder="What's this about?" required className="mt-2" />
+                  <Label htmlFor="subject">subject</Label>
+                  <Input id="subject" name="subject" type="text" placeholder="what's this about?" required className="mt-2" />
                 </div>
                 <div>
                   <Label htmlFor="message">message</Label>
-                  <Textarea id="message" name="message" placeholder="Tell me about your project..." required rows={6} className="mt-2" />
+                  <Textarea id="message" name="message" placeholder="tell me about your project..." required rows={6} className="mt-2" />
                 </div>
                 <Button type="submit" size="lg" className="w-full bg-primary hover:shadow-glow" disabled={isSubmitting}>
-                  {isSubmitting ? (<><Clock className="w-4 h-4 mr-2 animate-spin" />sending...</>) : (<><Send className="w-4 h-4 mr-2" />Send Message</>)}
+                  {isSubmitting ? (<><Clock className="w-4 h-4 mr-2 animate-spin" />sending...</>) : (<><Send className="w-4 h-4 mr-2" />send message</>)}
                 </Button>
               </form>
             </Card>
@@ -72,7 +72,7 @@ const Contact: React.FC<ContactProps> = ({ isSubmitting, onSubmit }) => {
               <div className="space-y-8">
             <div>
               <h3 className="text-2xl font-bold mb-4">get in touch!</h3>
-              <p className="text-foreground/80 leading-relaxed mb-8">i'm always excited to hear about new opportunities and interesting projects. Whether you're looking for a developer, have a question, or just want to say hello, don't hesitate to reach out!</p>
+              <p className="text-foreground/80 leading-relaxed mb-8">i'm always excited to hear about new opportunities and interesting projects. whether you're looking for a developer, have a question, or just want to say hello, don't hesitate to reach out!</p>
             </div>
             <div className="space-y-6">
               {contactInfo.map((info, index) => (

@@ -7,17 +7,10 @@ export const skills: string[] = [
 ];
 
 export const certifications = [
-  { name: 'Azure Fundamentals: AZ-900', issuer: 'Microsoft', year: '2023' },
-  { name: 'Azure Data Fundamentals: DP-900', issuer: 'Microsoft', year: '2023' },
-  { name: 'Azure Artificial Intelligence Fundamentals: AI-900', issuer: 'Microsoft', year: '2024' },
-  { name: 'Azure AI Engineer Associate', issuer: 'Microsoft', year: '2024' }
-];
-
-export const interests: { icon: ReactNode; title: string; desc: string }[] = [
-  { icon: <Code2 className="w-5 h-5" />, title: 'Coding', desc: 'Passionate about clean, efficient code' },
-  { icon: <Gamepad2 className="w-5 h-5" />, title: 'Anime & Gaming', desc: 'Enjoying watching my favourite shows' },
-  { icon: <Bike className="w-5 h-5" />, title: 'Biking', desc: 'Enjoying nature by moving my body' },
-  { icon: <Heart className="w-5 h-5" />, title: 'Open Source', desc: 'Contributing to the developer community' }
+  { name: 'Azure Fundamentals: AZ-900', issuer: 'Microsoft', year: ' Issued 2023' },
+  { name: 'Azure Data Fundamentals: DP-900', issuer: 'Microsoft', year: 'Issued 2023' },
+  { name: 'Azure Artificial Intelligence Fundamentals: AI-900', issuer: 'Microsoft', year: 'Issued 2024' },
+  { name: 'Azure AI Engineer Associate', issuer: 'Microsoft', year: 'Issued 2024' }
 ];
 
 export const experiences = [
@@ -61,13 +54,13 @@ export const education = [
 
 export const projects = [
   {
-    title: "portfolio website",
-    description: "A modern, responsive portfolio website built with dynamic project showcases, blog integration, and a sleek UI built with React and TypeScript.",
-    image: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=600",
+    title: "emotif",
+    description: "an AI-powered calendar extension with Gemini AI and Firebase allowing users to log moods and receive personalized check-ins and playlist recommendations using LLM-based responses and mood prediction prompts.",
+    image: "src/assets/emotif.png",
     technologies: ["React", "TypeScript", "Vite", "Tailwind CSS", "shadcn/ui", "React Router"],
     category: "Frontend",
-    demoUrl: "#",
-    githubUrl: "https://github.com/antoniamugisa/anime-dev-space",
+    demoUrl: "https://devpost.com/software/wits-you-can-change-this-at-any-time",
+    githubUrl: "https://github.com/antoniamugisa/emotif",
     featured: true
   },
   {
@@ -77,7 +70,7 @@ export const projects = [
     technologies: ["Python", "React", "TensorFlow", "MongoDB", "Docker"],
     category: "Machine Learning",
     demoUrl: "#",
-    githubUrl: "#",
+    githubUrl: "https://github.com/antoniamugisa/anidojo",
     featured: true
   }
 ];
@@ -87,19 +80,19 @@ export const categories = ['All', 'Full-Stack', 'Frontend', 'Backend', 'Machine 
 export const contactInfo = [
   {
     icon: 'Mail',
-    label: 'Email',
+    label: 'email',
     value: 'antoniamugisa@gmail.com',
     href: 'mailto:antoniamugisa@gmail.com'
   },
   {
     icon: 'Phone',
-    label: 'Phone',
+    label: 'phone',
     value: '+1 (902) 237-0744',
     href: 'tel:+19022370744'
   },
   {
     icon: 'MapPin',
-    label: 'Location',
+    label: 'location',
     value: 'Toronto, Canada',
     href: '#'
   }
