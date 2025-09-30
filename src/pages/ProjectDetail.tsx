@@ -126,6 +126,29 @@ const ProjectDetail = () => {
 
         {/* Project Details */}
         <div className="prose prose-lg max-w-none mb-16">
+          {/* Additional Project Information */}
+          <div className="mb-8 p-6 bg-card rounded-lg border border-border">
+            <h3 className="text-xl font-semibold mb-4 text-foreground">project details</h3>
+            <div className="grid md:grid-cols-2 gap-4 text-sm">
+              <div>
+                <span className="font-medium text-foreground">category:</span>
+                <span className="ml-2 text-foreground/80">{project.category}</span>
+              </div>
+              <div>
+                <span className="font-medium text-foreground">date:</span>
+                <span className="ml-2 text-foreground/80">{formatDate(project.date)}</span>
+              </div>
+              <div>
+                <span className="font-medium text-foreground">status:</span>
+                <span className="ml-2 text-foreground/80">completed</span>
+              </div>
+              <div>
+                <span className="font-medium text-foreground">featured:</span>
+                <span className="ml-2 text-foreground/80">{project.featured ? 'Yes' : 'No'}</span>
+              </div>
+            </div>
+          </div>
+
           <div className="grid md:grid-cols-2 gap-8">
             {/* Technologies Used */}
             <div>
@@ -158,30 +181,77 @@ const ProjectDetail = () => {
             <p className="text-foreground/80 leading-relaxed text-lg">
               {project.description}
             </p>
+            
+            {/* Long Description */}
+            {project.longDescription && (
+              <div className="mt-6">
+                <p className="text-foreground/80 leading-relaxed text-lg whitespace-pre-line">
+                  {project.longDescription}
+                </p>
+              </div>
+            )}
           </div>
 
-          {/* Additional Project Information */}
-          <div className="mt-8 p-6 bg-card rounded-lg border border-border">
-            <h3 className="text-xl font-semibold mb-4 text-foreground">project details</h3>
-            <div className="grid md:grid-cols-2 gap-4 text-sm">
-              <div>
-                <span className="font-medium text-foreground">category:</span>
-                <span className="ml-2 text-foreground/80">{project.category}</span>
-              </div>
-              <div>
-                <span className="font-medium text-foreground">date:</span>
-                <span className="ml-2 text-foreground/80">{formatDate(project.date)}</span>
-              </div>
-              <div>
-                <span className="font-medium text-foreground">status:</span>
-                <span className="ml-2 text-foreground/80">completed</span>
-              </div>
-              <div>
-                <span className="font-medium text-foreground">featured:</span>
-                <span className="ml-2 text-foreground/80">{project.featured ? 'Yes' : 'No'}</span>
-              </div>
+
+          {/* Key Features */}
+          {project.keyFeatures && project.keyFeatures.length > 0 && (
+            <div className="mt-8">
+              <h2 className="text-2xl font-bold mb-4 text-foreground">key features</h2>
+              <ul className="space-y-2">
+                {project.keyFeatures.map((feature, index) => (
+                  <li key={index} className="flex items-start">
+                    <span className="text-primary mr-3 mt-1">•</span>
+                    <span className="text-foreground/80 leading-relaxed">{feature}</span>
+                  </li>
+                ))}
+              </ul>
             </div>
-          </div>
+          )}
+
+          {/* Challenges */}
+          {project.challenges && project.challenges.length > 0 && (
+            <div className="mt-8">
+              <h2 className="text-2xl font-bold mb-4 text-foreground">challenges</h2>
+              <ul className="space-y-2">
+                {project.challenges.map((challenge, index) => (
+                  <li key={index} className="flex items-start">
+                    <span className="text-primary mr-3 mt-1">•</span>
+                    <span className="text-foreground/80 leading-relaxed">{challenge}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          {/* Learnings */}
+          {project.learnings && project.learnings.length > 0 && (
+            <div className="mt-8">
+              <h2 className="text-2xl font-bold mb-4 text-foreground">what i learned</h2>
+              <ul className="space-y-2">
+                {project.learnings.map((learning, index) => (
+                  <li key={index} className="flex items-start">
+                    <span className="text-primary mr-3 mt-1">•</span>
+                    <span className="text-foreground/80 leading-relaxed">{learning}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          {/* Future Improvements */}
+          {project.futureImprovements && project.futureImprovements.length > 0 && (
+            <div className="mt-8">
+              <h2 className="text-2xl font-bold mb-4 text-foreground">future improvements</h2>
+              <ul className="space-y-2">
+                {project.futureImprovements.map((improvement, index) => (
+                  <li key={index} className="flex items-start">
+                    <span className="text-primary mr-3 mt-1">•</span>
+                    <span className="text-foreground/80 leading-relaxed">{improvement}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
         </div>
       </article>
 
