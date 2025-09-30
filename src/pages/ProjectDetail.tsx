@@ -129,7 +129,7 @@ const ProjectDetail = () => {
           <div className="grid md:grid-cols-2 gap-8">
             {/* Technologies Used */}
             <div>
-              <h2 className="text-2xl font-bold mb-4 text-foreground">Technologies Used</h2>
+              <h2 className="text-2xl font-bold mb-4 text-foreground">technologies used</h2>
               <div className="flex flex-wrap gap-2">
                 {project.technologies.map((tech, index) => (
                   <Badge key={index} variant="outline" className="text-sm">
@@ -141,7 +141,7 @@ const ProjectDetail = () => {
 
             {/* Project Tags */}
             <div>
-              <h2 className="text-2xl font-bold mb-4 text-foreground">Tags</h2>
+              <h2 className="text-2xl font-bold mb-4 text-foreground">tags</h2>
               <div className="flex flex-wrap gap-2">
                 {project.tags.map((tag, index) => (
                   <Badge key={index} variant="secondary" className="text-sm">
@@ -154,7 +154,7 @@ const ProjectDetail = () => {
 
           {/* Project Description */}
           <div className="mt-8">
-            <h2 className="text-2xl font-bold mb-4 text-foreground">About This Project</h2>
+            <h2 className="text-2xl font-bold mb-4 text-foreground">about this project</h2>
             <p className="text-foreground/80 leading-relaxed text-lg">
               {project.description}
             </p>
@@ -162,22 +162,22 @@ const ProjectDetail = () => {
 
           {/* Additional Project Information */}
           <div className="mt-8 p-6 bg-card rounded-lg border border-border">
-            <h3 className="text-xl font-semibold mb-4 text-foreground">Project Details</h3>
+            <h3 className="text-xl font-semibold mb-4 text-foreground">project details</h3>
             <div className="grid md:grid-cols-2 gap-4 text-sm">
               <div>
-                <span className="font-medium text-foreground">Category:</span>
+                <span className="font-medium text-foreground">category:</span>
                 <span className="ml-2 text-foreground/80">{project.category}</span>
               </div>
               <div>
-                <span className="font-medium text-foreground">Date:</span>
+                <span className="font-medium text-foreground">date:</span>
                 <span className="ml-2 text-foreground/80">{formatDate(project.date)}</span>
               </div>
               <div>
-                <span className="font-medium text-foreground">Status:</span>
-                <span className="ml-2 text-foreground/80">Completed</span>
+                <span className="font-medium text-foreground">status:</span>
+                <span className="ml-2 text-foreground/80">completed</span>
               </div>
               <div>
-                <span className="font-medium text-foreground">Featured:</span>
+                <span className="font-medium text-foreground">featured:</span>
                 <span className="ml-2 text-foreground/80">{project.featured ? 'Yes' : 'No'}</span>
               </div>
             </div>

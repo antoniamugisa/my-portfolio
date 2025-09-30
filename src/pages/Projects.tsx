@@ -127,7 +127,7 @@ const Projects = () => {
 
               {filteredProjects.length === 0 && (
                 <div className="text-center py-16">
-                  <p className="text-foreground/60 text-lg">No projects found in this category.</p>
+                  <p className="text-foreground/60 text-lg">no projects found in this category.</p>
                 </div>
               )}
             </section>

@@ -1,9 +1,5 @@
 import { ReactNode } from 'react';
 import { Code2, Gamepad2, Heart, Bike } from 'lucide-react';
-import emotifImage from '@/assets/emotif.png';
-import socialUpImage from '@/assets/social-up-logo.jpg';
-import dalGazetteImage from '@/assets/dal-gazette.jpg';
-import anidojoImage from '@/assets/anidojo-logo.png';
 
 export const skills: string[] = [
   'React', 'JavaScript', 'Node.js', 'Python', 'Kubernetes', 'Terraform',
@@ -56,60 +52,11 @@ export const education = [
   }
 ];
 
-export const projects = [
-  {
-    id: "emotif",
-    title: "emotif",
-    description: "an AI-powered calendar extension with Gemini AI and Firebase allowing users to log moods and receive personalized check-ins and playlist recommendations using LLM-based responses.",
-    image: emotifImage,
-    technologies: ["React", "TypeScript", "Vite", "Tailwind CSS", "shadcn/ui", "React Router"],
-    category: "Frontend",
-    demoUrl: "https://devpost.com/software/wits-you-can-change-this-at-any-time",
-    githubUrl: "https://github.com/antoniamugisa/emotif",
-    featured: true,
-    date: "2024-12-01",
-    tags: ["AI", "Calendar", "Mood Tracking", "Firebase"]
-  },
-  {
-    id: "anidojo",
-    title: "anidojo",
-    description: "machine learning-powered recommendation system that suggests anime based on user preferences and viewing history. Built with Python and React.",
-    image: anidojoImage,
-    technologies: ["Python", "React", "TensorFlow", "MongoDB", "Docker"],
-    category: "Machine Learning",
-    demoUrl: "#",
-    githubUrl: "https://github.com/antoniamugisa/anidojo",
-    featured: true,
-    date: "2024-11-15",
-    tags: ["Machine Learning", "Recommendation System", "Anime", "Python"]
-  },
-  {
-    id: "socialUp",
-    title: "socialUp",
-    description: "a mobile-first analytics application using React and TypeScript to track followers, analyze engagement metrics, and schedule posts based on traffic data for optimal reach.",
-    image: socialUpImage,
-    technologies: ["React", "TypeScript"],
-    category: "Frontend",
-    demoUrl: "#",
-    githubUrl: "https://github.com/antoniamugisa/social-up",
-    featured: false,
-    date: "2024-10-20",
-    tags: ["React", "TypeScript", "Analytics", "Social Media", "Mobile"]
-  },
-    {
-      id: "dal gazette app",
-      title: "dal gazette app",
-      description: "a mobile application for Dalhousie University's campus newspaper using React Native and TypeScript, delivering real-time news articles, event updates, and campus announcements to 5,000+ students.",
-      image: dalGazetteImage,
-      technologies: ["TypeScript", "Tailwind", "React Native"],
-      category: "Mobile",
-      demoUrl: "#",
-      githubUrl: "#",
-      featured: false,
-      date: "2024-09-10",
-      tags: ["React Native", "TypeScript", "News", "Events", "Campus Announcements"]
-    }
-];
+// Import projects from the new organized structure
+import { projects } from './projects';
+
+// Re-export projects for backward compatibility
+export { projects };
 
 export const categories = ['All', 'Full-Stack', 'Frontend', 'Backend', 'Machine Learning'];
 
