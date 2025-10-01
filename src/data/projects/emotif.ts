@@ -11,8 +11,8 @@ export const emotifProject = {
   demoUrl: "https://devpost.com/software/wits-you-can-change-this-at-any-time",
   githubUrl: "https://github.com/antoniamugisa/emotif",
   featured: true,
-  date: "2024-12-01",
-  tags: ["AI", "Calendar", "Mood Tracking", "Firebase"],
+  date: "2025-01-17",
+  tags: ["GenAI", "Mood Tracking", "Firebase"],
   
   // Additional project details that can be expanded
   longDescription: `
