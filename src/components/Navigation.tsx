@@ -131,7 +131,7 @@ const Navigation = () => {
         </div>
       </nav>
 
-      {/* Mobile Top Navigation */}
+      {/* Mobile Top Navigation - Updated */}
       <nav className={`md:hidden fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
         isScrolled 
           ? 'opacity-100 pointer-events-auto bg-background/80 backdrop-blur-md border-b border-border shadow-lg pt-safe' 
