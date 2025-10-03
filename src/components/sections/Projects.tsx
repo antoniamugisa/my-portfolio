@@ -21,14 +21,14 @@ const Projects: React.FC<ProjectsProps> = ({ selectedFilter, onSelectFilter }) =
           {/* Left side - Title */}
           <div className="col-span-12 lg:col-span-3 order-1 lg:order-1">
             <div className="sticky top-16 md:top-24 pb-4 md:pb-8 text-center lg:text-left">
-              <h2 className="text-4xl lg:text-5xl xl:text-6xl font-bold font-heading mb-6 bg-primary bg-clip-text text-transparent leading-[1.2] pb-2">projects</h2>
-              <p className="text-lg text-foreground/70 leading-relaxed mb-6">a few things i've built</p>
+              <h2 className="text-4xl lg:text-5xl xl:text-6xl font-bold font-heading mb-6 bg-primary bg-clip-text text-transparent leading-[1.2] pb-2">Projects</h2>
+              <p className="text-lg text-foreground/70 leading-relaxed mb-6">A few things I've built</p>
               
               {/* Explore Projects Button - Desktop Only */}
               <div className="hidden lg:block">
                 <Button asChild size="lg" className="bg-primary hover:shadow-glow transition-all duration-300">
                   <Link to="/projects">
-                    explore projects
+                    Explore Projects
                     <ArrowRight className="w-4 h-4 ml-2" />
                   </Link>
                 </Button>
@@ -107,7 +107,7 @@ const Projects: React.FC<ProjectsProps> = ({ selectedFilter, onSelectFilter }) =
             <div className="mt-8 lg:hidden flex justify-center">
               <Button asChild size="lg" className="bg-primary hover:shadow-glow transition-all duration-300">
                 <Link to="/projects">
-                  explore projects
+                  Explore Projects
                   <ArrowRight className="w-4 h-4 ml-2" />
                 </Link>
               </Button>

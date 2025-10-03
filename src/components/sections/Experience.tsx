@@ -56,8 +56,8 @@ const Experience: React.FC = () => {
           {/* Right side - Title */}
           <div className="col-span-12 lg:col-span-3 order-1 lg:order-2">
             <div className="sticky top-16 md:top-24 pb-4 md:pb-8 text-center lg:text-left">
-              <h2 className="text-4xl lg:text-5xl xl:text-6xl font-bold font-heading mb-6 text-primary leading-[1.2] pb-2">experience</h2>
-              <p className="text-lg text-foreground/70 leading-relaxed">where I contributed to impactful projects and expanded my technical expertise</p>
+              <h2 className="text-4xl lg:text-5xl xl:text-6xl font-bold font-heading mb-6 text-primary leading-[1.2] pb-2">Experience</h2>
+              <p className="text-lg text-foreground/70 leading-relaxed">Where I contributed to impactful projects and expanded my technical expertise</p>
             </div>
           </div>
         </div>

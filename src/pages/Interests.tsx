@@ -32,10 +32,10 @@ const Interests = () => {
           <div className="lg:col-span-3 py-4 md:py-16">
             <div className="sticky top-16 md:top-32 pb-4 md:pb-16">
               <h1 className="text-4xl lg:text-5xl xl:text-6xl font-bold font-heading mb-4 md:mb-6 bg-primary bg-clip-text text-transparent leading-[1.2] pb-2">
-                media worth your time
+                Media Worth Your Time
               </h1>
               <p className="text-lg text-foreground/70 leading-relaxed">
-                what i'm watching and reading right now that i highly recommend you check out
+                What I'm watching and reading right now that I highly recommend you check out
               </p>
             </div>
           </div>

@@ -63,19 +63,19 @@ export const categories = ['All', 'Full-Stack', 'Frontend', 'Backend', 'Machine 
 export const contactInfo = [
   {
     icon: 'Mail',
-    label: 'email',
+    label: 'Email',
     value: 'antoniamugisa@gmail.com',
     href: 'mailto:antoniamugisa@gmail.com'
   },
   {
     icon: 'Phone',
-    label: 'phone',
+    label: 'Phone',
     value: '+1 (902) 237-0744',
     href: 'tel:+19022370744'
   },
   {
     icon: 'MapPin',
-    label: 'location',
+    label: 'Location',
     value: 'Toronto, Canada',
     href: '#'
   }

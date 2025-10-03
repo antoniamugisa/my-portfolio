@@ -3,8 +3,8 @@ import emotifImage from '@/assets/emotif.png';
 
 export const emotifProject = {
   id: "emotif",
-  title: "emotif",
-  description: "an AI-powered calendar extension with Gemini AI and Firebase allowing users to log moods and receive personalized check-ins and playlist recommendations using LLM-based responses.",
+  title: "Emotif",
+  description: "An AI-powered calendar extension with Gemini AI and Firebase allowing users to log moods and receive personalized check-ins and playlist recommendations using LLM-based responses.",
   image: emotifImage,
   technologies: ["React", "TypeScript", "Vite", "Tailwind CSS", "shadcn/ui", "React Router"],
   category: "Frontend",

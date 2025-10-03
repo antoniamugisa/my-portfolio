@@ -32,7 +32,7 @@ const ProjectDetail = () => {
         <Link to="/projects">
           <Button variant="ghost" className="group">
             <ArrowLeft className="w-4 h-4 mr-2 group-hover:-translate-x-1 transition-transform duration-300" />
-            back to projects
+            Back to projects
           </Button>
         </Link>
       </div>
@@ -130,22 +130,22 @@ const ProjectDetail = () => {
         <div className="prose prose-lg max-w-none mb-16">
           {/* Additional Project Information */}
           <div className="mb-8 p-6 bg-card rounded-lg border border-border">
-            <h3 className="text-xl font-semibold mb-4 text-foreground">project details</h3>
+            <h3 className="text-xl font-semibold mb-4 text-foreground">Project details</h3>
             <div className="grid md:grid-cols-2 gap-4 text-sm">
               <div>
-                <span className="font-medium text-foreground">category:</span>
+                <span className="font-medium text-foreground">Category:</span>
                 <span className="ml-2 text-foreground/80">{project.category}</span>
               </div>
               <div>
-                <span className="font-medium text-foreground">date:</span>
+                <span className="font-medium text-foreground">Date:</span>
                 <span className="ml-2 text-foreground/80">{formatDate(project.date)}</span>
               </div>
               <div>
-                <span className="font-medium text-foreground">status:</span>
+                <span className="font-medium text-foreground">Status:</span>
                 <span className="ml-2 text-foreground/80">completed</span>
               </div>
               <div>
-                <span className="font-medium text-foreground">featured:</span>
+                <span className="font-medium text-foreground">Featured:</span>
                 <span className="ml-2 text-foreground/80">{project.featured ? 'Yes' : 'No'}</span>
               </div>
             </div>
@@ -154,7 +154,7 @@ const ProjectDetail = () => {
           <div className="grid md:grid-cols-2 gap-8">
             {/* Technologies Used */}
             <div>
-              <h2 className="text-2xl font-bold mb-4 text-foreground">technologies used</h2>
+              <h2 className="text-2xl font-bold mb-4 text-foreground">Technologies Used</h2>
               <div className="flex flex-wrap gap-2">
                 {project.technologies.map((tech, index) => (
                   <Badge key={index} variant="outline" className="text-sm">
@@ -166,7 +166,7 @@ const ProjectDetail = () => {
 
             {/* Project Tags */}
             <div>
-              <h2 className="text-2xl font-bold mb-4 text-foreground">tags</h2>
+              <h2 className="text-2xl font-bold mb-4 text-foreground">Tags</h2>
               <div className="flex flex-wrap gap-2">
                 {project.tags.map((tag, index) => (
                   <Badge key={index} variant="secondary" className="text-sm">
@@ -179,7 +179,7 @@ const ProjectDetail = () => {
 
           {/* Project Description */}
           <div className="mt-8">
-            <h2 className="text-2xl font-bold mb-4 text-foreground">about this project</h2>
+            <h2 className="text-2xl font-bold mb-4 text-foreground">About This Project</h2>
             <p className="text-foreground/80 leading-relaxed text-lg">
               {project.description}
             </p>
@@ -198,7 +198,7 @@ const ProjectDetail = () => {
           {/* Key Features */}
           {project.keyFeatures && project.keyFeatures.length > 0 && (
             <div className="mt-8">
-              <h2 className="text-2xl font-bold mb-4 text-foreground">key features</h2>
+              <h2 className="text-2xl font-bold mb-4 text-foreground">Key Features</h2>
               <ul className="space-y-2">
                 {project.keyFeatures.map((feature, index) => (
                   <li key={index} className="flex items-start">
@@ -213,7 +213,7 @@ const ProjectDetail = () => {
           {/* Challenges */}
           {project.challenges && project.challenges.length > 0 && (
             <div className="mt-8">
-              <h2 className="text-2xl font-bold mb-4 text-foreground">challenges</h2>
+              <h2 className="text-2xl font-bold mb-4 text-foreground">Challenges</h2>
               <ul className="space-y-2">
                 {project.challenges.map((challenge, index) => (
                   <li key={index} className="flex items-start">
@@ -228,7 +228,7 @@ const ProjectDetail = () => {
           {/* Learnings */}
           {project.learnings && project.learnings.length > 0 && (
             <div className="mt-8">
-              <h2 className="text-2xl font-bold mb-4 text-foreground">what i learned</h2>
+              <h2 className="text-2xl font-bold mb-4 text-foreground">What I Learned</h2>
               <ul className="space-y-2">
                 {project.learnings.map((learning, index) => (
                   <li key={index} className="flex items-start">
@@ -243,7 +243,7 @@ const ProjectDetail = () => {
           {/* Future Improvements */}
           {project.futureImprovements && project.futureImprovements.length > 0 && (
             <div className="mt-8">
-              <h2 className="text-2xl font-bold mb-4 text-foreground">future improvements</h2>
+              <h2 className="text-2xl font-bold mb-4 text-foreground">Future Improvements</h2>
               <ul className="space-y-2">
                 {project.futureImprovements.map((improvement, index) => (
                   <li key={index} className="flex items-start">

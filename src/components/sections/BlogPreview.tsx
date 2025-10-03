@@ -15,12 +15,12 @@ const BlogPreview: React.FC = () => {
           {/* Blog Link */}
           <Card className="group bg-card hover:bg-card/80 border-border hover:border-primary/50 transition-all duration-300 hover:shadow-card cursor-pointer">
             <Link to="/blog" className="block p-8 text-center">
-              <h3 className="text-2xl font-bold mb-4 group-hover:text-primary transition-colors">thoughts</h3>
+              <h3 className="text-2xl font-bold mb-4 group-hover:text-primary transition-colors">Thoughts</h3>
               <p className="text-foreground/70 mb-6 leading-relaxed">
-                what's been on my mind lately
+                What's been on my mind lately
               </p>
               <div className="flex items-center justify-center text-primary font-medium group-hover:translate-x-1 transition-transform">
-                explore blog
+                Explore Blog
                 <ArrowRight className="w-4 h-4 ml-2" />
               </div>
             </Link>
@@ -29,12 +29,12 @@ const BlogPreview: React.FC = () => {
           {/* Interests Link */}
           <Card className="group bg-card hover:bg-card/80 border-border hover:border-primary/50 transition-all duration-300 hover:shadow-card cursor-pointer">
             <Link to="/interests" className="block p-8 text-center">
-              <h3 className="text-2xl font-bold mb-4 group-hover:text-primary transition-colors">media worth your time</h3>
+              <h3 className="text-2xl font-bold mb-4 group-hover:text-primary transition-colors">Media Worth Your Time</h3>
               <p className="text-foreground/70 mb-6 leading-relaxed">
-                what i'm watching, reading, and playing right now
+                What I'm watching, reading, and playing right now
               </p>
               <div className="flex items-center justify-center text-primary font-medium group-hover:translate-x-1 transition-transform">
-                explore media
+                Explore Media
                 <ArrowRight className="w-4 h-4 ml-2" />
               </div>
             </Link>
@@ -45,8 +45,8 @@ const BlogPreview: React.FC = () => {
           {/* Right side - Title */}
           <div className="col-span-12 lg:col-span-3 order-1 lg:order-2">
             <div className="sticky top-16 md:top-24 pb-4 md:pb-8 text-center lg:text-left">
-              <h2 className="text-4xl lg:text-5xl xl:text-6xl font-bold font-heading mb-6 bg-primary bg-clip-text text-transparent leading-[1.2] pb-2">explore more</h2>
-              <p className="text-lg text-foreground/70 leading-relaxed">a bit more on me</p>
+              <h2 className="text-4xl lg:text-5xl xl:text-6xl font-bold font-heading mb-6 bg-primary bg-clip-text text-transparent leading-[1.2] pb-2">Explore More</h2>
+              <p className="text-lg text-foreground/70 leading-relaxed">A bit more on me</p>
             </div>
           </div>
         </div>

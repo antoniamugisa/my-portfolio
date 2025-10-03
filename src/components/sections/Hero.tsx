@@ -15,12 +15,12 @@ const Hero: React.FC<HeroProps> = ({ onScrollTo }) => {
         <div className="grid lg:grid-cols-2 gap-12 items-center animate-fade-in">
           <div className="space-y-8 text-center lg:text-left">
             <h1 className="text-6xl md:text-8xl font-bold font-heading leading-tight">
-              <span className="block text-foreground">antonia mugisa</span>
+              <span className="block text-foreground">Antonia Mugisa</span>
             </h1>
             <div className="space-y-4">
-              <h2 className="text-2xl md:text-3xl font-semibold text-foreground">software engineer</h2>
+              <h2 className="text-2xl md:text-3xl font-semibold text-foreground">Software Engineer</h2>
               <p className="text-lg md:text-xl text-muted-foreground max-w-2xl leading-relaxed">
-                building functional, scalable and aesthetic software with cutting-edge technology.
+                Building functional, scalable and aesthetic software with cutting-edge technology.
               </p>
               <div className="flex gap-4 pt-4 justify-center lg:justify-start">
                 <a href="https://github.com" target="_blank" rel="noopener noreferrer" className="p-2 rounded-full hover:bg-muted transition-colors duration-300">
@@ -42,10 +42,10 @@ const Hero: React.FC<HeroProps> = ({ onScrollTo }) => {
             </div>
             <div className="flex flex-col sm:flex-row gap-4 pt-8 justify-center lg:justify-start">
               <Button size="lg" className="bg-primary hover:shadow-glow transition-all duration-300" onClick={() => onScrollTo('projects')}>
-                view my work
+                View My Work
               </Button>
               <Button size="lg" variant="outline" className="border-border text-foreground hover:bg-muted" onClick={() => onScrollTo('contact')}>
-                get in touch
+                Get In Touch
               </Button>
             </div>
           </div>

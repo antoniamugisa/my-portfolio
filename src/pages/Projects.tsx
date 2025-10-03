@@ -33,7 +33,7 @@ const Projects = () => {
         <Link to="/">
           <Button variant="ghost" className="group">
             <ArrowLeft className="w-4 h-4 mr-2 group-hover:-translate-x-1 transition-transform duration-300" />
-            back to home
+            Back to Home
           </Button>
         </Link>
       </div>
@@ -45,10 +45,10 @@ const Projects = () => {
           <div className="lg:col-span-3 py-4 md:py-16">
             <div className="sticky top-16 md:top-32 pb-4 md:pb-16">
               <h1 className="text-4xl lg:text-5xl xl:text-6xl font-bold font-heading mb-4 md:mb-6 bg-primary bg-clip-text text-transparent leading-[1.2] pb-2">
-                projects
+                Projects
               </h1>
               <p className="text-lg text-foreground/70 leading-relaxed">
-                a showcase of my technical skills and creative solutions
+                A showcase of my technical skills and creative solutions
               </p>
             </div>
           </div>
@@ -129,7 +129,7 @@ const Projects = () => {
 
               {filteredProjects.length === 0 && (
                 <div className="text-center py-16">
-                  <p className="text-foreground/60 text-lg">no projects found in this category.</p>
+                  <p className="text-foreground/60 text-lg">No projects found in this category.</p>
                 </div>
               )}
             </section>

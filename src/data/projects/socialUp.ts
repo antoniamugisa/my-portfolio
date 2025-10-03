@@ -3,8 +3,8 @@ import socialUpImage from '@/assets/social-up-logo.jpg';
 
 export const socialUpProject = {
   id: "socialUp",
-  title: "socialUp",
-  description: "a mobile-first analytics application using React and TypeScript to track followers, analyze engagement metrics, and schedule posts based on traffic data for optimal reach.",
+  title: "SocialUp",
+  description: "A mobile-first analytics application using React and TypeScript to track followers, analyze engagement metrics, and schedule posts based on traffic data for optimal reach.",
   image: socialUpImage,
   technologies: ["React", "TypeScript"],
   category: "Frontend",

@@ -3,8 +3,8 @@ import anidojoImage from '@/assets/anidojo-logo.png';
 
 export const anidojoProject = {
   id: "anidojo",
-  title: "anidojo",
-  description: "machine learning-powered recommendation system that suggests anime based on user preferences and viewing history. Built with Python and React.",
+  title: "Anidojo",
+  description: "Machine learning-powered recommendation system that suggests anime based on user preferences and viewing history. Built with Python and React.",
   image: anidojoImage,
   technologies: ["Python", "React", "TensorFlow", "MongoDB", "Docker"],
   category: "Machine Learning",

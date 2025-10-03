@@ -12,8 +12,8 @@ const About: React.FC = () => {
           {/* Left side - Title */}
           <div className="col-span-12 lg:col-span-3 order-1 lg:order-1">
             <div className="sticky top-16 md:top-24 pb-4 md:pb-8 text-center lg:text-left">
-              <h2 className="text-4xl lg:text-5xl xl:text-6xl font-bold font-heading mb-6 bg-primary bg-clip-text text-transparent leading-[1.2] pb-2">about me</h2>
-              <p className="text-lg text-foreground/70 leading-relaxed">a 25 year old software developer always building something</p>
+              <h2 className="text-4xl lg:text-5xl xl:text-6xl font-bold font-heading mb-6 bg-primary bg-clip-text text-transparent leading-[1.2] pb-2">About Me</h2>
+              <p className="text-lg text-foreground/70 leading-relaxed">A 25 year old software developer always building something</p>
             </div>
           </div>
 
@@ -21,26 +21,26 @@ const About: React.FC = () => {
           <div className="col-span-12 lg:col-span-9 order-2 lg:order-2">
             <div className="space-y-16">
               <div className="space-y-8">
-                <h3 className="text-3xl font-bold text-center mb-8">my journey</h3>
+                <h3 className="text-3xl font-bold text-center mb-8">My Journey</h3>
                 <div className="space-y-6 text-lg text-foreground/80 leading-relaxed">
                   <p>
-                    hello! i'm Antonia, a software developer who thrives at the intersection of thoughtful engineering and creative problem-solving. my journey began 
-                    in highschool when I joined my school's robotics team and discovered the thrill of bringing hardware to life through code. I decided then and 
+                    Hello! I'm Antonia, a software developer who thrives at the intersection of thoughtful engineering and creative problem-solving. My journey began 
+                    in high school when I joined my school's robotics team and discovered the thrill of bringing hardware to life through code. I decided then and 
                     there I wanted to do more of this, and my interest grew into a career where I get to design, build, and optimize full-stack applications that make a real impact.
                   </p>
                   <p>
-                    since then, I've worked on everything from AI-powered tools to cloud-native systems and intuitive web interfaces. i believe that great software 
-                    goes beyond just functionality. it should feel effortless, efficient, and user-first.
+                    Since then, I've worked on everything from AI-powered tools to cloud-native systems and intuitive web interfaces. I believe that great software 
+                    goes beyond just functionality. It should feel effortless, efficient, and user-first.
                   </p>
                   <p>
-                    when I'm not immersed in code, you'll find me exploring the city with my friends, climbing at my local climbing gym or watching One Piece. 
+                    When I'm not immersed in code, you'll find me exploring the city with my friends, climbing at my local climbing gym or watching One Piece. 
                     I'm driven to create software that not only works well but helps the people who use it.
                   </p>
                 </div>
               </div>
 
               <div>
-                <h3 className="text-3xl font-bold text-center mb-8">education</h3>
+                <h3 className="text-3xl font-bold text-center mb-8">Education</h3>
                 <div className="grid gap-4">
                   {education.map((edu, index) => (
                     <Card key={index} className="p-6 bg-card hover:bg-card/80 border-border hover:border-primary/50 transition-all duration-300">
@@ -56,7 +56,7 @@ const About: React.FC = () => {
               </div>
 
               <div>
-                <h3 className="text-3xl font-bold text-center mb-8">tech stack</h3>
+                <h3 className="text-3xl font-bold text-center mb-8">Tech Stack</h3>
                 <Card className="p-8 bg-secondary border-border/50">
                   <div className="flex flex-wrap gap-3 justify-center">
                     {skills.map((skill, index) => (
@@ -67,7 +67,7 @@ const About: React.FC = () => {
               </div>
 
               <div>
-                <h3 className="text-3xl font-bold text-center mb-8">certifications</h3>
+                <h3 className="text-3xl font-bold text-center mb-8">Certifications</h3>
                 <div className="grid md:grid-cols-2 gap-4">
                   {certifications.map((cert, index) => (
                     <Card key={index} className="p-6 bg-card hover:bg-card/80 border-border hover:border-primary/50 transition-all duration-300">

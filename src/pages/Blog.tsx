@@ -24,10 +24,10 @@ const Blog = () => {
           <div className="lg:col-span-3 py-8 md:py-16">
             <div className="sticky top-20 md:top-32 pb-8 md:pb-16">
               <h1 className="text-4xl lg:text-5xl xl:text-6xl font-bold font-heading mb-4 md:mb-6 bg-primary bg-clip-text text-transparent leading-[1.2] pb-2">
-                thoughts
+                Thoughts
               </h1>
               <p className="text-lg text-foreground/70 leading-relaxed">
-                what's been on my mind lately
+                What's been on my mind lately
               </p>
             </div>
           </div>

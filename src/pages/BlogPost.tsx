@@ -170,7 +170,7 @@ const BlogPost = () => {
         <Link to="/blog">
           <Button variant="ghost" className="group">
             <ArrowLeft className="w-4 h-4 mr-2 group-hover:-translate-x-1 transition-transform duration-300" />
-            back to my thoughts
+            Back to my Thoughts
           </Button>
         </Link>
       </div>

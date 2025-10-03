@@ -3,8 +3,8 @@ import dalGazetteImage from '@/assets/dal-gazette.jpg';
 
 export const dalGazetteProject = {
   id: "dal gazette app",
-  title: "dal gazette app",
-  description: "a mobile application for Dalhousie University's campus newspaper using React Native and TypeScript, delivering real-time news articles, event updates, and campus announcements to 5,000+ students.",
+  title: "Dal Gazette App",
+  description: "A mobile application for Dalhousie University's campus newspaper using React Native and TypeScript, delivering real-time news articles, event updates, and campus announcements to 5,000+ students.",
   image: dalGazetteImage,
   technologies: ["TypeScript", "Tailwind", "React Native"],
   category: "Mobile",
