@@ -1,6 +1,6 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { Github, Linkedin, Mail } from 'lucide-react';
+import { Github, Linkedin, Mail, Download } from 'lucide-react';
 import { XLogo } from '@/components/ui/x-logo';
 import profile from '@/assets/profile.jpeg';
 
@@ -34,6 +34,9 @@ const Hero: React.FC<HeroProps> = ({ onScrollTo }) => {
                 </a>
                 <a href="mailto:antoniamugisa@gmail.com" className="p-2 rounded-full hover:bg-muted transition-colors duration-300">
                   <Mail className="w-6 h-6 text-foreground hover:text-primary transition-colors duration-300" />
+                </a>
+                <a href="/resume.pdf" download="Antonia_Mugisa_Resume.pdf" className="p-2 rounded-full hover:bg-muted transition-colors duration-300" title="Download Resume">
+                  <Download className="w-6 h-6 text-foreground hover:text-primary transition-colors duration-300" />
                 </a>
               </div>
             </div>

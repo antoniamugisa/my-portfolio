@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
-import { Mail, Phone, MapPin, Send, Clock, Github, Linkedin } from 'lucide-react';
+import { Mail, Phone, MapPin, Send, Clock, Github, Linkedin, Download } from 'lucide-react';
 import { XLogo } from '@/components/ui/x-logo';
 import { contactInfo as rawContactInfo, socialLinks as rawSocialLinks } from '@/data/portfolio';
 
@@ -95,6 +95,9 @@ const Contact: React.FC<ContactProps> = ({ isSubmitting, onSubmit }) => {
                     {social.icon}
                   </a>
                 ))}
+                <a href="/resume.pdf" download="Antonia_Mugisa_Resume.pdf" className="p-3 rounded-full bg-card border border-border hover:border-primary/50 transition-all duration-300 hover:shadow-card" aria-label="Download Resume">
+                  <Download className="w-5 h-5" />
+                </a>
               </div>
             </div>
               </div>

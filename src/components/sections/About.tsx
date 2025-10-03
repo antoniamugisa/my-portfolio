@@ -56,7 +56,7 @@ const About: React.FC = () => {
               </div>
 
               <div>
-                <h3 className="text-3xl font-bold text-center mb-8">i know these pretty well</h3>
+                <h3 className="text-3xl font-bold text-center mb-8">tech stack</h3>
                 <Card className="p-8 bg-secondary border-border/50">
                   <div className="flex flex-wrap gap-3 justify-center">
                     {skills.map((skill, index) => (
@@ -67,7 +67,7 @@ const About: React.FC = () => {
               </div>
 
               <div>
-                <h3 className="text-3xl font-bold text-center mb-8">certs, certs and more certs</h3>
+                <h3 className="text-3xl font-bold text-center mb-8">certifications</h3>
                 <div className="grid md:grid-cols-2 gap-4">
                   {certifications.map((cert, index) => (
                     <Card key={index} className="p-6 bg-card hover:bg-card/80 border-border hover:border-primary/50 transition-all duration-300">
