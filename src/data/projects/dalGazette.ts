@@ -9,7 +9,7 @@ export const dalGazetteProject = {
   technologies: ["TypeScript", "Tailwind", "React Native"],
   category: "Mobile",
   // demoUrl: "#", // Commented out for now
-  githubUrl: "#",
+  githubUrl: "https://github.com/antoniamugisa/dal-gazette-app",
   featured: false,
   date: "2024-09-10",
   tags: ["React Native", "TypeScript", "News", "Events", "Campus Announcements"],

@@ -16,13 +16,13 @@ const Blog = () => {
   };
 
   return (
-        <div className="min-h-screen bg-background pt-4 md:pt-24">
+    <div className="min-h-screen bg-background pt-16 md:pt-24">
       {/* Main Layout */}
       <div className="container mx-auto px-4 md:px-6 max-w-7xl">
         <div className="grid lg:grid-cols-12 gap-4 md:gap-8">
           {/* Left Side - Title Section */}
-          <div className="lg:col-span-3 py-4 md:py-16">
-            <div className="sticky top-16 md:top-32 pb-4 md:pb-16">
+          <div className="lg:col-span-3 py-8 md:py-16">
+            <div className="sticky top-20 md:top-32 pb-8 md:pb-16">
               <h1 className="text-4xl lg:text-5xl xl:text-6xl font-bold font-heading mb-4 md:mb-6 bg-primary bg-clip-text text-transparent leading-[1.2] pb-2">
                 thoughts
               </h1>
@@ -35,8 +35,8 @@ const Blog = () => {
           {/* Right Side - Content Section */}
           <div className="lg:col-span-9">
             {/* Blog Posts Grid */}
-            <section className="py-4 md:py-16">
-              <div className="grid md:grid-cols-2 gap-4 md:gap-8">
+            <section className="py-8 md:py-16">
+              <div className="grid md:grid-cols-2 gap-6 md:gap-8">
                 {blogPosts.map((post, index) => (
                     <div key={post.id} className="py-px">
                       <Link to={`/blog/${post.id}`}>
@@ -99,6 +99,9 @@ const Blog = () => {
                     </div>
                   ))}
               </div>
+              
+              {/* Add some extra spacing for mobile scrolling */}
+              <div className="h-32 md:h-16"></div>
             </section>
           </div>
         </div>
