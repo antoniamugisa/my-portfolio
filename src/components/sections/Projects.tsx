@@ -69,6 +69,7 @@ const Projects: React.FC<ProjectsProps> = ({ selectedFilter, onSelectFilter }) =
                         ))}
                       </div>
                       <div className="flex gap-3">
+                        {/* Demo button - commented out for now
                         <Button 
                           size="sm" 
                           className="bg-primary hover:shadow-glow flex-1" 
@@ -81,6 +82,7 @@ const Projects: React.FC<ProjectsProps> = ({ selectedFilter, onSelectFilter }) =
                           <ExternalLink className="w-4 h-4 mr-2" />
                           Demo
                         </Button>
+                        */}
                         <Button 
                           size="sm" 
                           variant="outline" 

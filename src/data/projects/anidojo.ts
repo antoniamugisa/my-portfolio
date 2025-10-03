@@ -8,7 +8,7 @@ export const anidojoProject = {
   image: anidojoImage,
   technologies: ["Python", "React", "TensorFlow", "MongoDB", "Docker"],
   category: "Machine Learning",
-  demoUrl: "#",
+  // demoUrl: "#", // Commented out for now
   githubUrl: "https://github.com/antoniamugisa/anidojo",
   featured: true,
   date: "2024-11-15",

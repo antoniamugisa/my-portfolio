@@ -8,7 +8,7 @@ export const dalGazetteProject = {
   image: dalGazetteImage,
   technologies: ["TypeScript", "Tailwind", "React Native"],
   category: "Mobile",
-  demoUrl: "#",
+  // demoUrl: "#", // Commented out for now
   githubUrl: "#",
   featured: false,
   date: "2024-09-10",

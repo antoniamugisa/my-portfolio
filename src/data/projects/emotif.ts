@@ -8,7 +8,7 @@ export const emotifProject = {
   image: emotifImage,
   technologies: ["React", "TypeScript", "Vite", "Tailwind CSS", "shadcn/ui", "React Router"],
   category: "Frontend",
-  demoUrl: "https://devpost.com/software/wits-you-can-change-this-at-any-time",
+  // demoUrl: "https://devpost.com/software/wits-you-can-change-this-at-any-time", // Commented out for now
   githubUrl: "https://github.com/antoniamugisa/emotif",
   featured: true,
   date: "2025-01-17",

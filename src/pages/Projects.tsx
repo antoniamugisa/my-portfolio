@@ -85,6 +85,7 @@ const Projects = () => {
                               {project.title}
                             </h3>
                             <div className="flex gap-2 flex-shrink-0">
+                              {/* Demo link icon - commented out for now
                               {project.demoUrl !== "#" && (
                                 <div className="w-4 h-4 text-muted-foreground">
                                   <svg viewBox="0 0 24 24" fill="currentColor">
@@ -92,6 +93,7 @@ const Projects = () => {
                                   </svg>
                                 </div>
                               )}
+                              */}
                               {project.githubUrl !== "#" && (
                                 <div className="w-4 h-4 text-muted-foreground">
                                   <svg viewBox="0 0 24 24" fill="currentColor">
