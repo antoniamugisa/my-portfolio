@@ -13,7 +13,7 @@ const Hero: React.FC<HeroProps> = ({ onScrollTo }) => {
     <section id="home" className="relative min-h-screen flex items-center justify-center overflow-hidden bg-background pt-4 md:pt-0 pb-24 md:pb-0">
       <div className="relative z-10 px-6 max-w-6xl mx-auto">
         <div className="grid lg:grid-cols-2 gap-12 items-center animate-fade-in">
-          <div className="space-y-8">
+          <div className="space-y-8 text-center lg:text-left">
             <h1 className="text-6xl md:text-8xl font-bold font-heading leading-tight">
               <span className="block text-foreground">antonia mugisa</span>
             </h1>
@@ -22,7 +22,7 @@ const Hero: React.FC<HeroProps> = ({ onScrollTo }) => {
               <p className="text-lg md:text-xl text-muted-foreground max-w-2xl leading-relaxed">
                 building functional, scalable and aesthetic software with cutting-edge technology.
               </p>
-              <div className="flex gap-4 pt-4">
+              <div className="flex gap-4 pt-4 justify-center lg:justify-start">
                 <a href="https://github.com" target="_blank" rel="noopener noreferrer" className="p-2 rounded-full hover:bg-muted transition-colors duration-300">
                   <Github className="w-6 h-6 text-foreground hover:text-primary transition-colors duration-300" />
                 </a>
@@ -37,7 +37,7 @@ const Hero: React.FC<HeroProps> = ({ onScrollTo }) => {
                 </a>
               </div>
             </div>
-            <div className="flex flex-col sm:flex-row gap-4 pt-8">
+            <div className="flex flex-col sm:flex-row gap-4 pt-8 justify-center lg:justify-start">
               <Button size="lg" className="bg-primary hover:shadow-glow transition-all duration-300" onClick={() => onScrollTo('projects')}>
                 view my work
               </Button>

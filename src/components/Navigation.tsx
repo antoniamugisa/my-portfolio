@@ -131,49 +131,55 @@ const Navigation = () => {
         </div>
       </nav>
 
-      {/* Mobile Bottom Navigation */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-background border-t border-border shadow-lg pb-safe">
-        <div className="flex items-center justify-between px-4 py-3">
-          {navItems.map((item) => {
-            const IconComponent = item.icon;
-            const isActive = (item.path === '/blog' || item.path === '/interests') 
-              ? location.pathname.startsWith(item.path)
-              : activeSection === item.id && location.pathname === '/';
-            
-            return (item.path === '/blog' || item.path === '/interests') ? (
-              <Link
-                key={item.id}
-                to={item.path}
-                className={`flex flex-col items-center justify-center p-1 transition-all duration-200 ${
-                  isActive ? 'text-primary' : 'text-foreground/70'
-                }`}
-              >
-                <div className={`p-2 rounded-full transition-all duration-200 ${
-                  isActive ? 'bg-primary/10' : 'hover:bg-muted/50'
-                }`}>
-                  <IconComponent size={18} />
-                </div>
-              </Link>
-            ) : (
-              <button
-                key={item.id}
-                onClick={() => handleNavigation(item)}
-                className={`flex flex-col items-center justify-center p-1 transition-all duration-200 ${
-                  isActive ? 'text-primary' : 'text-foreground/70'
-                }`}
-              >
-                <div className={`p-2 rounded-full transition-all duration-200 ${
-                  isActive ? 'bg-primary/10' : 'hover:bg-muted/50'
-                }`}>
-                  <IconComponent size={18} />
-                </div>
-              </button>
-            );
-          })}
-          {/* Theme Toggle in Mobile Bottom Nav */}
-          <div className="flex flex-col items-center justify-center p-1">
-            <div className="p-2 rounded-full hover:bg-muted/50 transition-all duration-200">
-              <ThemeToggle />
+      {/* Mobile Top Navigation */}
+      <nav className={`md:hidden fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+        isScrolled 
+          ? 'opacity-100 pointer-events-auto bg-background/80 backdrop-blur-md border-b border-border shadow-lg pt-safe' 
+          : 'opacity-0 pointer-events-none'
+      }`}>
+        <div className="flex items-center justify-center px-2 py-3">
+          <div className="flex items-center justify-center space-x-3">
+            {navItems.map((item) => {
+              const IconComponent = item.icon;
+              const isActive = (item.path === '/blog' || item.path === '/interests') 
+                ? location.pathname.startsWith(item.path)
+                : activeSection === item.id && location.pathname === '/';
+              
+              return (item.path === '/blog' || item.path === '/interests') ? (
+                <Link
+                  key={item.id}
+                  to={item.path}
+                  className={`flex flex-col items-center justify-center p-1 transition-all duration-200 ${
+                    isActive ? 'text-primary' : 'text-foreground/70'
+                  }`}
+                >
+                  <div className={`p-1.5 rounded-full transition-all duration-200 ${
+                    isActive ? 'bg-primary/10' : 'hover:bg-muted/50'
+                  }`}>
+                    <IconComponent size={16} />
+                  </div>
+                </Link>
+              ) : (
+                <button
+                  key={item.id}
+                  onClick={() => handleNavigation(item)}
+                  className={`flex flex-col items-center justify-center p-1 transition-all duration-200 ${
+                    isActive ? 'text-primary' : 'text-foreground/70'
+                  }`}
+                >
+                  <div className={`p-1.5 rounded-full transition-all duration-200 ${
+                    isActive ? 'bg-primary/10' : 'hover:bg-muted/50'
+                  }`}>
+                    <IconComponent size={16} />
+                  </div>
+                </button>
+              );
+            })}
+            {/* Theme Toggle in Mobile Top Nav */}
+            <div className="flex flex-col items-center justify-center p-1">
+              <div className="p-1.5 rounded-full hover:bg-muted/50 transition-all duration-200">
+                <ThemeToggle />
+              </div>
             </div>
           </div>
         </div>

@@ -20,7 +20,7 @@ const Projects: React.FC<ProjectsProps> = ({ selectedFilter, onSelectFilter }) =
         <div className="grid grid-cols-12 gap-4 md:gap-8">
           {/* Left side - Title */}
           <div className="col-span-12 lg:col-span-3 order-1 lg:order-1">
-            <div className="sticky top-16 md:top-24 pb-4 md:pb-8">
+            <div className="sticky top-16 md:top-24 pb-4 md:pb-8 text-center lg:text-left">
               <h2 className="text-4xl lg:text-5xl xl:text-6xl font-bold font-heading mb-6 bg-primary bg-clip-text text-transparent leading-[1.2] pb-2">projects</h2>
               <p className="text-lg text-foreground/70 leading-relaxed mb-6">a few things i've built</p>
               
@@ -102,7 +102,7 @@ const Projects: React.FC<ProjectsProps> = ({ selectedFilter, onSelectFilter }) =
             </div>
             
             {/* Explore Projects Button - Mobile Only */}
-            <div className="mt-8 lg:hidden">
+            <div className="mt-8 lg:hidden flex justify-center">
               <Button asChild size="lg" className="bg-primary hover:shadow-glow transition-all duration-300">
                 <Link to="/projects">
                   explore projects
