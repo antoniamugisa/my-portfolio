@@ -8,7 +8,7 @@ export const socialUpProject = {
   image: socialUpImage,
   technologies: ["React", "TypeScript"],
   category: "Frontend",
-  // demoUrl: "#", // Commented out for now
+  demoUrl: "#",
   githubUrl: "https://github.com/antoniamugisa/social-up",
   featured: false,
   date: "2024-10-20",

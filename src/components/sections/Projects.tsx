@@ -69,20 +69,20 @@ const Projects: React.FC<ProjectsProps> = ({ selectedFilter, onSelectFilter }) =
                         ))}
                       </div>
                       <div className="flex gap-3">
-                        {/* Demo button - commented out for now
-                        <Button 
-                          size="sm" 
-                          className="bg-primary hover:shadow-glow flex-1" 
-                          onClick={(e) => {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            window.open(project.demoUrl, '_blank', 'noopener,noreferrer');
-                          }}
-                        >
-                          <ExternalLink className="w-4 h-4 mr-2" />
-                          Demo
-                        </Button>
-                        */}
+                        {project.demoUrl && project.demoUrl !== "#" && (
+                          <Button 
+                            size="sm" 
+                            className="bg-primary hover:shadow-glow flex-1" 
+                            onClick={(e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              window.open(project.demoUrl, '_blank', 'noopener,noreferrer');
+                            }}
+                          >
+                            <ExternalLink className="w-4 h-4 mr-2" />
+                            Demo
+                          </Button>
+                        )}
                         <Button 
                           size="sm" 
                           variant="outline" 

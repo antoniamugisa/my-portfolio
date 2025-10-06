@@ -8,7 +8,7 @@ export const emotifProject = {
   image: emotifImage,
   technologies: ["React", "TypeScript", "Vite", "Tailwind CSS", "shadcn/ui", "React Router"],
   category: "Frontend",
-  // demoUrl: "https://devpost.com/software/wits-you-can-change-this-at-any-time", // Commented out for now
+  demoUrl: "https://devpost.com/software/wits-you-can-change-this-at-any-time",
   githubUrl: "https://github.com/antoniamugisa/emotif",
   featured: true,
   date: "2025-01-17",
@@ -16,13 +16,9 @@ export const emotifProject = {
   
   // Additional project details that can be expanded
   longDescription: `
-    Emotif is an innovative AI-powered calendar extension that revolutionizes how users track and understand their emotional well-being. 
-    Built with cutting-edge technology including Gemini AI and Firebase, the application provides personalized mood tracking, 
-    intelligent check-ins, and curated playlist recommendations based on user's emotional state and patterns.
+    Emotif is an innovative AI-powered calendar extension that revolutionizes how users track and understand their emotional well-being. Built with cutting-edge technology including Gemini AI and Firebase, the application provides personalized mood tracking, intelligent check-ins, and curated playlist recommendations based on user's emotional state and patterns.
     
-    The project demonstrates advanced integration of Large Language Models (LLMs) to provide contextual and empathetic responses, 
-    making mental health tracking more engaging and insightful. Users can seamlessly log their daily moods, receive AI-generated 
-    insights about their emotional patterns, and get personalized recommendations for music and activities that match their current state.
+    The project demonstrates advanced integration of Large Language Models (LLMs) to provide contextual and empathetic responses, making mental health tracking more engaging and insightful. Users can seamlessly log their daily moods, receive AI-generated insights about their emotional patterns, and get personalized recommendations for music and activities that match their current state.
   `,
   
   keyFeatures: [
