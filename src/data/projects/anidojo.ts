@@ -13,16 +13,13 @@ export const anidojoProject = {
   featured: true,
   date: "2024-11-15",
   tags: ["Machine Learning", "Recommendation System", "Anime", "Python"],
+  status: "Ongoing" as const,
   
   // Additional project details that can be expanded
   longDescription: `
-    Anidojo is a sophisticated machine learning-powered recommendation system designed specifically for anime enthusiasts. 
-    The application leverages advanced ML algorithms to analyze user preferences, viewing history, and anime characteristics 
-    to provide highly personalized recommendations.
+    Anidojo is a sophisticated machine learning-powered recommendation system designed specifically for anime enthusiasts. The application leverages advanced ML algorithms to analyze user preferences, viewing history, and anime characteristics to provide highly personalized recommendations.
     
-    Built with a robust Python backend using TensorFlow for the ML models and a modern React frontend, Anidojo demonstrates 
-    the power of collaborative filtering and content-based recommendation systems. The application processes large datasets 
-    of anime metadata, user ratings, and viewing patterns to generate accurate and diverse recommendations.
+    Built with a robust Python backend using TensorFlow for the ML models and a modern React frontend, Anidojo demonstrates the power of collaborative filtering and content-based recommendation systems. The application processes large datasets of anime metadata, user ratings, and viewing patterns to generate accurate and diverse recommendations.
   `,
   
   keyFeatures: [

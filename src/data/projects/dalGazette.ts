@@ -13,16 +13,13 @@ export const dalGazetteProject = {
   featured: false,
   date: "2024-09-10",
   tags: ["React Native", "TypeScript", "News", "Events", "Campus Announcements"],
+  status: "Ongoing" as const,
   
   // Additional project details that can be expanded
   longDescription: `
-    The Dal Gazette App is a comprehensive mobile application developed for Dalhousie University's official campus newspaper. 
-    The app serves over 5,000 students with real-time news articles, campus events, and important announcements, creating a 
-    centralized hub for university information and student engagement.
+    The Dal Gazette App is a comprehensive mobile application developed for Dalhousie University's official campus newspaper. The app serves over 5,000 students with real-time news articles, campus events, and important announcements, creating a centralized hub for university information and student engagement.
     
-    Built with React Native and TypeScript, the application provides a native mobile experience across iOS and Android platforms. 
-    The app features real-time content updates, push notifications for breaking news, and an intuitive interface designed specifically 
-    for the university community.
+    Built with React Native and TypeScript, the application provides a native mobile experience across iOS and Android platforms. The app features real-time content updates, push notifications for breaking news, and an intuitive interface designed specifically for the university community.
   `,
   
   keyFeatures: [

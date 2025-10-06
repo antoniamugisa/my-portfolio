@@ -13,6 +13,7 @@ export const socialUpProject = {
   featured: false,
   date: "2024-10-20",
   tags: ["React", "TypeScript", "Analytics", "Social Media", "Mobile"],
+  status: "Ongoing" as const,
   
   // Additional project details that can be expanded
   longDescription: `

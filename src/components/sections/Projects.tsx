@@ -60,7 +60,21 @@ const Projects: React.FC<ProjectsProps> = ({ selectedFilter, onSelectFilter }) =
                             <ExternalLink className="w-4 h-4" />
                           </div>
                         </div>
-                        <Badge variant="secondary" className="bg-primary/10 text-primary border-primary/30">{project.category}</Badge>
+                        <div className="flex gap-2">
+                          <Badge variant="secondary" className="bg-primary/10 text-primary border-primary/30">{project.category}</Badge>
+                          <Badge 
+                            variant="outline" 
+                            className={`text-xs ${
+                              project.status === 'Completed' 
+                                ? 'border-green-500/50 text-green-600 dark:text-green-400' 
+                                : project.status === 'Ongoing'
+                                ? 'border-yellow-500/50 text-yellow-600 dark:text-yellow-400'
+                                : 'border-blue-500/50 text-blue-600 dark:text-blue-400'
+                            }`}
+                          >
+                            {project.status}
+                          </Badge>
+                        </div>
                       </div>
                       <p className="text-foreground/80 mb-4 leading-relaxed">{project.description}</p>
                       <div className="flex flex-wrap gap-2 mb-4">

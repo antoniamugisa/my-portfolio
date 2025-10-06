@@ -13,6 +13,7 @@ export const emotifProject = {
   featured: true,
   date: "2025-01-17",
   tags: ["GenAI", "Mood Tracking", "Firebase"],
+  status: "Completed" as const,
   
   // Additional project details that can be expanded
   longDescription: `

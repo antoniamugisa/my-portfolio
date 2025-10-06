@@ -32,7 +32,7 @@ const ProjectDetail = () => {
         <Link to="/projects">
           <Button variant="ghost" className="group">
             <ArrowLeft className="w-4 h-4 mr-2 group-hover:-translate-x-1 transition-transform duration-300" />
-            Back to projects
+            Back to Projects
           </Button>
         </Link>
       </div>
@@ -102,6 +102,20 @@ const ProjectDetail = () => {
                 </Badge>
               </div>
               <div className="flex items-center gap-2">
+                <Badge 
+                  variant="outline" 
+                  className={`text-sm ${
+                    project.status === 'Completed' 
+                      ? 'border-green-500/50 text-green-600 dark:text-green-400' 
+                      : project.status === 'Ongoing'
+                      ? 'border-yellow-500/50 text-yellow-600 dark:text-yellow-400'
+                      : 'border-blue-500/50 text-blue-600 dark:text-blue-400'
+                  }`}
+                >
+                  {project.status}
+                </Badge>
+              </div>
+              <div className="flex items-center gap-2">
                 <Calendar className="w-4 h-4" />
                 <span>{formatDate(project.date)}</span>
               </div>
@@ -142,7 +156,7 @@ const ProjectDetail = () => {
               </div>
               <div>
                 <span className="font-medium text-foreground">Status:</span>
-                <span className="ml-2 text-foreground/80">completed</span>
+                <span className="ml-2 text-foreground/80">{project.status}</span>
               </div>
               <div>
                 <span className="font-medium text-foreground">Featured:</span>

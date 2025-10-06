@@ -31,6 +31,7 @@ export interface Project {
   featured: boolean;
   date: string;
   tags: string[];
+  status: 'Completed' | 'Ongoing' | 'Planned';
   longDescription?: string;
   keyFeatures?: string[];
   challenges?: string[];
