@@ -17,12 +17,9 @@ export const socialUpProject = {
   
   // Additional project details that can be expanded
   longDescription: `
-    SocialUp is a comprehensive mobile-first analytics platform designed to help content creators and social media managers 
-    optimize their social media presence. The application provides detailed insights into follower growth, engagement metrics, 
-    and optimal posting times to maximize reach and engagement.
+    SocialUp is a comprehensive mobile-first analytics platform designed to help content creators and social media managers optimize their social media presence. The application provides detailed insights into follower growth, engagement metrics, and optimal posting times to maximize reach and engagement.
     
-    Built with modern React and TypeScript, SocialUp offers a clean, intuitive interface for analyzing social media performance. 
-    The platform processes large amounts of social media data to provide actionable insights and recommendations for content strategy.
+    Built with modern React and TypeScript, SocialUp offers a clean, intuitive interface for analyzing social media performance. The platform processes large amounts of social media data to provide actionable insights and recommendations for content strategy.
   `,
   
   keyFeatures: [
