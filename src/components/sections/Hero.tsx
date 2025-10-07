@@ -23,13 +23,13 @@ const Hero: React.FC<HeroProps> = ({ onScrollTo }) => {
                 Building functional, scalable and aesthetic software with cutting-edge technology.
               </p>
               <div className="flex gap-4 pt-4 justify-center lg:justify-start">
-                <a href="https://github.com" target="_blank" rel="noopener noreferrer" className="p-2 rounded-full hover:bg-muted transition-colors duration-300">
+                <a href="https://github.com/antoniamugisa" target="_blank" rel="noopener noreferrer" className="p-2 rounded-full hover:bg-muted transition-colors duration-300">
                   <Github className="w-6 h-6 text-foreground hover:text-primary transition-colors duration-300" />
                 </a>
-                <a href="https://x.com" target="_blank" rel="noopener noreferrer" className="p-2 rounded-full hover:bg-muted transition-colors duration-300">
+                <a href="https://x.com/antmugisa" target="_blank" rel="noopener noreferrer" className="p-2 rounded-full hover:bg-muted transition-colors duration-300">
                   <XLogo className="w-6 h-6 text-foreground hover:text-primary transition-colors duration-300" />
                 </a>
-                <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer" className="p-2 rounded-full hover:bg-muted transition-colors duration-300">
+                <a href="https://www.linkedin.com/in/antoniamugisa/" target="_blank" rel="noopener noreferrer" className="p-2 rounded-full hover:bg-muted transition-colors duration-300">
                   <Linkedin className="w-6 h-6 text-foreground hover:text-primary transition-colors duration-300" />
                 </a>
                 <a href="mailto:antoniamugisa@gmail.com" className="p-2 rounded-full hover:bg-muted transition-colors duration-300">
