@@ -27,13 +27,13 @@ export const interestsData: InterestCategory[] = [
         title: 'One Piece',
         type: 'tv',
         description: 'Anime Series',
-        author: '',
+        author: 'Eiichiro Oda',
       },
       {
         id: 'abundant-intelligence',
         title: 'Abundant Intelligence',
         type: 'book',
-        description: 'Book',
+        description: 'Blog',
         author: 'Sam Altman',
       },
       {
