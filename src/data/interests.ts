@@ -33,7 +33,7 @@ export const interestsData: InterestCategory[] = [
         id: 'abundant-intelligence',
         title: 'Abundant Intelligence',
         type: 'book',
-        description: 'Blog',
+        description: 'Personal Blog',
         author: 'Sam Altman',
       },
       {
