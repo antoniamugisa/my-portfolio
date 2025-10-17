@@ -47,7 +47,7 @@ export const interestsData: InterestCategory[] = [
         id: 'intimacy-of-inconvenience',
         title: 'The Intimacy of Inconvenience',
         type: 'book',
-        description: 'Essay',
+        description: 'Substack Essay',
         author: 'Emilie Mendham',
       },
       {
