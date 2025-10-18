@@ -5,7 +5,7 @@ export const firstPosts: BlogPost[] = [
   {
     id: "first-post",
     title: "Endings Are Just Beginnings",
-    date: "2024-09-29",
+    date: "2025-10-01",
     category: "Self",
     description: "Change is exciting",
     content: `# 
