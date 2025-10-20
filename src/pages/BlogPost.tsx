@@ -8,6 +8,7 @@ import { blogPosts } from '@/data/blog';
 import { useToast } from '@/hooks/use-toast';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import rehypeRaw from 'rehype-raw';
 
 const BlogPost = () => {
   const { id } = useParams<{ id: string }>();
@@ -56,113 +57,6 @@ const BlogPost = () => {
         // Handle clipboard error silently
       }
     }
-  };
-
-  // Convert markdown-like content to JSX (basic implementation)
-  const renderContent = (content: string) => {
-    const lines = content.split('\n');
-    const elements: React.ReactNode[] = [];
-    let currentElement: string[] = [];
-    let inCodeBlock = false;
-    let codeLanguage = '';
-
-    for (let i = 0; i < lines.length; i++) {
-      const line = lines[i];
-      
-      // Handle code blocks
-      if (line.startsWith('```')) {
-        if (inCodeBlock) {
-          // End code block
-          elements.push(
-            <div key={i} className="bg-muted p-4 rounded-lg my-6 overflow-x-auto">
-              <code className="text-sm text-foreground font-mono whitespace-pre">
-                {currentElement.join('\n')}
-              </code>
-            </div>
-          );
-          currentElement = [];
-          inCodeBlock = false;
-        } else {
-          // Start code block
-          codeLanguage = line.substring(3);
-          inCodeBlock = true;
-        }
-        continue;
-      }
-      
-      if (inCodeBlock) {
-        currentElement.push(line);
-        continue;
-      }
-
-      // Handle iframe embeds (like Spotify)
-      if (line.trim().startsWith('<iframe')) {
-        // Extract iframe attributes
-        const srcMatch = line.match(/src="([^"]+)"/);
-        const widthMatch = line.match(/width="([^"]+)"/);
-        const heightMatch = line.match(/height="([^"]+)"/);
-        const frameborderMatch = line.match(/frameborder="([^"]+)"/);
-        const allowtransparencyMatch = line.match(/allowtransparency="([^"]+)"/);
-        const allowMatch = line.match(/allow="([^"]+)"/);
-        
-        if (srcMatch) {
-          elements.push(
-            <div key={i} className="my-6 rounded-lg overflow-hidden">
-              <iframe
-                src={srcMatch[1]}
-                width={widthMatch ? widthMatch[1] : "100%"}
-                height={heightMatch ? heightMatch[1] : "152"}
-                frameBorder={frameborderMatch ? frameborderMatch[1] : "0"}
-                allowTransparency={allowtransparencyMatch ? allowtransparencyMatch[1] === "true" : true}
-                allow={allowMatch ? allowMatch[1] : "encrypted-media"}
-                className="w-full"
-              />
-            </div>
-          );
-        }
-        continue;
-      }
-
-      // Handle headings
-      if (line.startsWith('# ')) {
-        elements.push(
-          <h1 key={i} className="text-4xl font-bold font-heading mt-8 mb-4 text-foreground">
-            {line.substring(2)}
-          </h1>
-        );
-      } else if (line.startsWith('## ')) {
-        elements.push(
-          <h2 key={i} className="text-3xl font-semibold mt-8 mb-4 text-foreground">
-            {line.substring(3)}
-          </h2>
-        );
-      } else if (line.startsWith('### ')) {
-        elements.push(
-          <h3 key={i} className="text-2xl font-medium mt-6 mb-3 text-foreground">
-            {line.substring(4)}
-          </h3>
-        );
-      } else if (line.startsWith('- ')) {
-        // Handle list items (basic implementation)
-        elements.push(
-          <li key={i} className="ml-6 mb-2 text-foreground/80 leading-relaxed">
-            {line.substring(2)}
-          </li>
-        );
-      } else if (line.trim() === '') {
-        // Empty line - add spacing
-        elements.push(<div key={i} className="h-4" />);
-      } else if (line.trim()) {
-        // Regular paragraph
-        elements.push(
-          <p key={i} className="text-foreground/80 leading-relaxed mb-4">
-            {line}
-          </p>
-        );
-      }
-    }
-
-    return elements;
   };
 
   return (
@@ -256,8 +150,14 @@ const BlogPost = () => {
         </div>
 
         {/* Article Content */}
-        <div className="prose prose-lg max-w-none mb-16">
-          {renderContent(post.content)}
+        <div className="prose prose-lg max-w-none mb-16 space-y-6">
+          {/* Render markdown content directly */}
+          <ReactMarkdown 
+            remarkPlugins={[remarkGfm]} 
+            rehypePlugins={[rehypeRaw]}
+            >
+            {post.content}
+          </ReactMarkdown>
         </div>
       </article>
 

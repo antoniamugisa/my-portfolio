@@ -1,6 +1,5 @@
 import { BlogPost } from '../types';
 import firstPostImage from '@/assets/firstPost.jpg';
-import BlogPostPage from '@/components/sections/BlogPreview';
 
 export const firstPosts: BlogPost[] = [
   {
@@ -9,8 +8,7 @@ export const firstPosts: BlogPost[] = [
     date: "2025-10-01",
     category: "Self",
     description: "Change is exciting",
-    content: `# 
-
+    content: `
 I've been thinking of my university experience now that it's coming to an end. The routes to campus I've walked, the late-night conversations I've had with friends on various street corners, the mornings where my ears still rang from the night before, dancing without a care in the world. It's hitting me that I'll no longer experience those moments again, and it hit quite hard on my flight back home.
 
 I am so relieved that this degree is coming to a close. To finally put the academic anxiety to rest and place my focus on things that I care about and want to grow. So many new things are taking place in my life that make me feel grateful for the way things turned out. I definitely could have dodged a lot of suffering here and there by making different choices lol but lessons were learned, lessons to move forward with.
@@ -24,8 +22,6 @@ For now, I'm really excited to have a space to share my thoughts on my career in
 Endings suck but new beginnings are exciting so I will continue, by the lovely words of Olivia Dean, to take baby steps and fall forward.
 
 <iframe data-testid="embed-iframe" style="border-radius:12px" src="https://open.spotify.com/embed/track/5SruEBX3KpgpDvEcIuN53P?utm_source=generator" width="100%" height="152" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
-
-
 `,
     image: firstPostImage,
     readTime: 8,
