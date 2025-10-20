@@ -1,4 +1,5 @@
 import { BlogPost } from '../types';
+import BlogPostPage from '@/components/sections/BlogPreview';
 
 export const secondPosts: BlogPost[] = [
   {

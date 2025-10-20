@@ -1,5 +1,6 @@
 import { BlogPost } from '../types';
 import firstPostImage from '@/assets/firstPost.jpg';
+import BlogPostPage from '@/components/sections/BlogPreview';
 
 export const firstPosts: BlogPost[] = [
   {
