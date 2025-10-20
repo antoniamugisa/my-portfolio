@@ -3,20 +3,6 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ArrowRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import ReactMarkdown from "react-markdown";
-import remarkGfm from "remark-gfm";
-
-function BlogPostPage({ post }) {
-  return (
-    <article className="prose prose-lg max-w-none">
-      <h1>{post.title}</h1>
-      <p className="text-gray-500">{post.date}</p>
-      <ReactMarkdown remarkPlugins={[remarkGfm]}>
-        {post.content}
-      </ReactMarkdown>
-    </article>
-  );
-}
 
 const BlogPreview: React.FC = () => {
   return (

@@ -6,6 +6,8 @@ import { Card } from '@/components/ui/card';
 import { ArrowLeft, Calendar, Clock, Share2, User } from 'lucide-react';
 import { blogPosts } from '@/data/blog';
 import { useToast } from '@/hooks/use-toast';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 
 const BlogPost = () => {
   const { id } = useParams<{ id: string }>();
