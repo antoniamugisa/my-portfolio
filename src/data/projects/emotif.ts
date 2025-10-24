@@ -14,7 +14,7 @@ export const emotifProject = {
   date: "2025-01-17",
   tags: ["GenAI", "Mood Tracking", "Firebase"],
   status: "Completed" as const,
-  
+
   // Additional project details that can be expanded
   longDescription: `
     Emotif is an innovative AI-powered calendar extension that revolutionizes how users track and understand their emotional well-being. Built with cutting-edge technology including Gemini AI and Firebase, the application provides personalized mood tracking, intelligent check-ins, and curated playlist recommendations based on user's emotional state and patterns.
