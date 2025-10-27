@@ -5,16 +5,8 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const blogPosts = [
-  {
-    id: 'molochs-bargain-ai-misalignment',
-    title: "Moloch's Bargain: When AI Optimization Goes Wrong",
-    description: "After reading Stanford's new research on competitive AI optimization, we should be worried.",
-    image: "https://images.unsplash.com/photo-1655720828018-edd2daec9349?w=1200&h=630&fit=crop",
-    author: "Antonia Mugisa",
-    date: "2025-10-18"
-  }
-];
+// Import all blog posts from your central file
+import { blogPosts } from '../src/data/blog/index.js';
 
 function generateBlogHTML(post) {
   return `<!DOCTYPE html>
@@ -49,6 +41,7 @@ function generateBlogHTML(post) {
   <!-- Article Metadata -->
   <meta property="article:published_time" content="${post.date}" />
   <meta property="article:author" content="${post.author}" />
+  ${post.tags ? post.tags.map(tag => `<meta property="article:tag" content="${tag}" />`).join('\n  ') : ''}
   
   <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 </head>
@@ -62,6 +55,7 @@ function generateBlogHTML(post) {
 // Generate HTML files after Vite build
 const distDir = path.join(__dirname, '..', 'dist');
 
+// Use all blog posts from your central aggregator
 blogPosts.forEach(post => {
   const blogDir = path.join(distDir, 'blog', post.id);
   
