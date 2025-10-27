@@ -1,43 +1,9 @@
-import fs from 'fs';
-import path from 'path';
-import { fileURLToPath } from 'url';
-import firstPostImage from '@/assets/firstPost.jpg';
-
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-// Manually list your blog posts here
-// Update this array whenever you add a new post
-const blogPosts = [
-  {
-    id: 'molochs-bargain-ai-misalignment',
-    title: "Moloch's Bargain: When AI Optimization Goes Wrong",
-    description: "After reading Stanford's new research on competitive AI optimization, we should be worried.",
-    image: "https://images.unsplash.com/photo-1655720828018-edd2daec9349?w=1200&h=630&fit=crop",
-    author: "Antonia Mugisa",
-    date: "2025-10-18",
-    tags: ["AI Safety", "Machine Learning"]
-  },
-  {
-    id: 'first-post',
-    title: "Endings Are Just Beginnings",
-    description: "Change is exciting",
-    image: firstPostImage,
-    author: "Antonia Mugisa",
-    date: "2025-10-01",
-    tags: ["Personal", "Lessons"],
-
-    
-  }
-  // Add new posts here following the same format
-];
-
 function generateBlogHTML(post) {
-    // Convert relative image paths to absolute URLs
+  // Convert relative image paths to absolute URLs
   const imageUrl = post.image.startsWith('http') 
     ? post.image 
     : `https://antoniamugisa.com${post.image}`;
+  
   return `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -80,21 +46,3 @@ function generateBlogHTML(post) {
 </body>
 </html>`;
 }
-
-// Generate HTML files after Vite build
-const distDir = path.join(__dirname, '..', 'dist');
-
-blogPosts.forEach(post => {
-  const blogDir = path.join(distDir, 'blog', post.id);
-  
-  // Create directory
-  fs.mkdirSync(blogDir, { recursive: true });
-  
-  // Write HTML file
-  const html = generateBlogHTML(post);
-  fs.writeFileSync(path.join(blogDir, 'index.html'), html);
-  
-  console.log(`✅ Generated: /blog/${post.id}/index.html`);
-});
-
-console.log(`\n🎉 Generated ${blogPosts.length} blog page(s)!`);
