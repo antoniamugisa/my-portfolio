@@ -10,6 +10,11 @@ interface BlogPostPageProps {
 }
 
 const BlogPostPage: React.FC<BlogPostPageProps> = ({ post }) => {
+  // Construct full image URL
+  const imageUrl = post.image.startsWith('http') 
+    ? post.image 
+    : `https://antoniamugisa.com${post.image}`;
+
   return (
     <>
       <Helmet>
@@ -24,7 +29,7 @@ const BlogPostPage: React.FC<BlogPostPageProps> = ({ post }) => {
         <meta property="og:url" content={`https://antoniamugisa.com/blog/${post.id}`} />
         <meta property="og:title" content={post.title} />
         <meta property="og:description" content={post.description} />
-        <meta property="og:image" content={`https://antoniamugisa.com${post.image}`} />
+        <meta property="og:image" content={imageUrl} />
         <meta property="og:image:width" content="1200" />
         <meta property="og:image:height" content="630" />
         <meta property="og:site_name" content="Antonia Mugisa" />
@@ -34,7 +39,7 @@ const BlogPostPage: React.FC<BlogPostPageProps> = ({ post }) => {
         <meta name="twitter:url" content={`https://antoniamugisa.com/blog/${post.id}`} />
         <meta name="twitter:title" content={post.title} />
         <meta name="twitter:description" content={post.description} />
-        <meta name="twitter:image" content={`https://antoniamugisa.com${post.image}`} />
+        <meta name="twitter:image" content={imageUrl} />
 
         {/* Article Metadata */}
         <meta property="article:published_time" content={post.date} />
