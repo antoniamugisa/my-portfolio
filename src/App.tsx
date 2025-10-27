@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { HashRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -14,6 +14,7 @@ import Experience from "./pages/Experience";
 import Interests from "./pages/Interests";
 import Preloader from "./components/Preloader";
 import ReactGA from 'react-ga4';
+import { HelmetProvider } from 'react-helmet-async';
 
 // Initialize Google Analytics with YOUR Measurement ID
 ReactGA.initialize('G-X9J979V7LF');
@@ -80,8 +81,10 @@ const AppContent = () => {
   );
 };
 
+
 const App = () => {
   return (
+    <HelmetProvider>
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
         <Router>
@@ -90,6 +93,7 @@ const App = () => {
         </Router>
       </TooltipProvider>
     </QueryClientProvider>
+    </HelmetProvider>
   );
 };
 
