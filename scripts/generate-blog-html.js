@@ -61,10 +61,17 @@ function generateBlogHTML(post) {
   ${post.tags ? post.tags.map(tag => `<meta property="article:tag" content="${tag}" />`).join('\n  ') : ''}
   
   <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <link rel="stylesheet" href="/assets/index-${getAssetHash('css')}.css" />
 </head>
 <body>
   <div id="root"></div>
-  <script type="module" src="/src/main.tsx"></script>
+  <script>
+    // Load the main JavaScript file
+    const script = document.createElement('script');
+    script.type = 'module';
+    script.src = '/assets/index-${getAssetHash('js')}.js';
+    document.body.appendChild(script);
+  </script>
 </body>
 </html>`;
 }
