@@ -285,8 +285,8 @@ As AI systems become more autonomous and widely deployed, understanding these dy
 The paper doesn't fully answer that question. But by clearly demonstrating the problem, it takes an important step toward solutions.
 
 
-<u>References</u>:
-- **El, B., & Zou, J. (2025). Moloch's Bargain: Emergent Misalignment When LLMs Compete for Audiences. arXiv:2510.06105**
+**<u>References</u>**:
+- **Batu El, and James Zou. Moloch's Bargain: Emergent Misalignment When LLMs Compete for Audiences, 2025 URL https://arxiv.org/pdf/2510.06105**
 
  `,
     image: "https://images.unsplash.com/photo-1655720828018-edd2daec9349?w=800",
