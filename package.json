@@ -7,7 +7,7 @@
   "scripts": {
     "dev": "vite",
     "clean": "rm -rf dist",
-    "build": "npm run clean && tsc && vite build && tsx scripts/generate-blog-html.ts",
+    "build": "npm run clean && tsc && vite build && tsx scripts/generate-blog-html.js",
     "build:dev": "npm run clean && vite build --mode development",
     "lint": "eslint .",
     "preview": "vite preview"
