@@ -303,7 +303,7 @@ The paper doesn't fully answer that question. But by clearly demonstrating the p
 - **Batu El, and James Zou. Moloch's Bargain: Emergent Misalignment When LLMs Compete for Audiences, 2025 URL https://arxiv.org/pdf/2510.06105**
 
  `,
-    image: "https://images.unsplash.com/photo-1655720828018-edd2daec9349?w=800",
+    image: "https://images.unsplash.com/photo-1655720828018-edd2daec9349?w=1200&h=630&fit=crop",
     readTime: 12,
     author: "Antonia Mugisa",
     tags: ["AI Safety", "Machine Learning"]

@@ -24,7 +24,9 @@ const BlogPostPage: React.FC<BlogPostPageProps> = ({ post }) => {
         <meta property="og:url" content={`https://antoniamugisa.com/blog/${post.id}`} />
         <meta property="og:title" content={post.title} />
         <meta property="og:description" content={post.description} />
-        <meta property="og:image" content={post.image} />
+        <meta property="og:image" content={`https://antoniamugisa.com${post.image}`} />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
         <meta property="og:site_name" content="Antonia Mugisa" />
 
         {/* Twitter */}
@@ -32,7 +34,7 @@ const BlogPostPage: React.FC<BlogPostPageProps> = ({ post }) => {
         <meta name="twitter:url" content={`https://antoniamugisa.com/blog/${post.id}`} />
         <meta name="twitter:title" content={post.title} />
         <meta name="twitter:description" content={post.description} />
-        <meta name="twitter:image" content={post.image} />
+        <meta name="twitter:image" content={`https://antoniamugisa.com${post.image}`} />
 
         {/* Article Metadata */}
         <meta property="article:published_time" content={post.date} />
