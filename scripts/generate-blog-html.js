@@ -1,6 +1,8 @@
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import firstPostImage from '@/assets/firstPost.jpg';
+
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -21,7 +23,7 @@ const blogPosts = [
     id: 'first-post',
     title: "Endings Are Just Beginnings",
     description: "Change is exciting",
-    image: "src/assets/firstPost.jpg",
+    image: firstPostImage,
     author: "Antonia Mugisa",
     date: "2025-10-01",
     tags: ["Personal", "Lessons"],
