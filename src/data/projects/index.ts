@@ -37,4 +37,6 @@ export interface Project {
   challenges?: string[];
   learnings?: string[];
   futureImprovements?: string[];
+  teamImage?: string;
+  teamCaption?: string;
 }

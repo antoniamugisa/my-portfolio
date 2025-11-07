@@ -4,12 +4,13 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, ExternalLink, Github, Calendar, Clock, User } from 'lucide-react';
 import { projects } from '@/data/portfolio';
+import { Project } from '@/data/projects';
 
 const ProjectDetail = () => {
   const { id } = useParams<{ id: string }>();
   
   // Find the project by ID
-  const project = projects.find(p => p.id === id);
+  const project = projects.find(p => p.id === id) as Project;
   
   // If project not found, redirect to projects page
   if (!project) {
@@ -266,6 +267,25 @@ const ProjectDetail = () => {
                   </li>
                 ))}
               </ul>
+            </div>
+          )}
+
+          {/* Team Image */}
+          {project.teamImage && (
+            <div className="mt-12">
+              <h2 className="text-2xl font-bold mb-4 text-foreground">The Team</h2>
+              <div className="rounded-lg overflow-hidden shadow-md">
+                <img 
+                  src={project.teamImage} 
+                  alt={project.teamCaption || `${project.title} team`}
+                  className="w-full h-auto"
+                />
+                {project.teamCaption && (
+                  <p className="py-3 px-4 text-center text-sm text-foreground/70 bg-card border-t border-border">
+                    {project.teamCaption}
+                  </p>
+                )}
+              </div>
             </div>
           )}
         </div>

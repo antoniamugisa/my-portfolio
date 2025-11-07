@@ -1,5 +1,6 @@
 import { ReactNode } from 'react';
 import emotifImage from '@/assets/emotif.png';
+import emotifTeamImage from '@/assets/emotif-team.jpg';
 
 export const emotifProject = {
   id: "emotif",
@@ -50,5 +51,8 @@ export const emotifProject = {
     "Integrate with more music streaming services",
     "Add social features for mood sharing",
     "Implement advanced analytics dashboard"
-  ]
+  ],
+  
+  teamImage: emotifTeamImage,
+  teamCaption: "The Emotif development team during the hackathon"
 };
