@@ -1,6 +1,7 @@
 import { ReactNode } from 'react';
 import emotifImage from '@/assets/emotif.png';
-import emotifTeamImage from '@/assets/emotif-team.jpg';
+// Temporarily use the same image until we can properly upload the team image
+import emotifTeamImage from '@/assets/emotif-team.jpeg';
 
 export const emotifProject = {
   id: "emotif",
@@ -54,5 +55,5 @@ export const emotifProject = {
   ],
   
   teamImage: emotifTeamImage,
-  teamCaption: "The Emotif development team during the hackathon"
+  teamCaption: "when we won 3rd place!"
 };
