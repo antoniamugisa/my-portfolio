@@ -55,5 +55,5 @@ export const emotifProject = {
   ],
   
   teamImage: emotifTeamImage,
-  teamCaption: "when we won 3rd place!"
+  teamCaption: "When we won 3rd place!"
 };
