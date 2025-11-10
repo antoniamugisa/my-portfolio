@@ -48,10 +48,10 @@ export const emotifProject = {
   ],
   
   futureImprovements: [
-    "Add more sophisticated mood prediction algorithms",
-    "Integrate with more music streaming services",
-    "Add social features for mood sharing",
-    "Implement advanced analytics dashboard"
+    "Add more sophisticated mood prediction algorithms.",
+    "Integrate with more music streaming services.",
+    "Add social features for mood sharing.",
+    "Implement advanced analytics dashboard."
   ],
   
   teamImage: emotifTeamImage,
