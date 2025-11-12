@@ -41,10 +41,10 @@ export const emotifProject = {
   ],
   
   learnings: [
-    "Advanced AI/ML integration techniques",
-    "User experience design for mental health apps",
-    "Real-time data management with Firebase",
-    "Responsive design patterns"
+    "Advanced AI/ML integration techniques.",
+    "User experience design for mental health apps.",
+    "Real-time data management with Firebase.",
+    "Responsive design patterns."
   ],
   
   futureImprovements: [
