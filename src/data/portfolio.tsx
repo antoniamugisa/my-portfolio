@@ -15,6 +15,20 @@ export const certifications = [
 
 export const experiences = [
   {
+    company: "Compass Visas",
+    position: "Software Engineer",
+    duration: "Oct 2025 - Present",
+    location: "Toronto, ON",
+    description: "Engineered intelligent document processing solutions using RAG and vector embeddings, optimized client workflows, and resolved critical system issues to improve user experience and operational efficiency.",
+    achievements: [
+      "Engineered the core document parsing pipeline utilizing RAG and vector embeddings to intelligently classify and extract data from over 20 unique document types, reducing manual paralegal data ingestion time by 25%.",
+      "Resolved critical client access failures by refactoring backend authorization and implementing robust date field validation, eliminating all reported client 403 errors and preventing an average of 15 daily database exceptions.",
+      "Drove a 15% increase in client conversion to the final strategy call stage by deploying dynamic prerequisite tooltips and clear visual status indicators across the core application workflow.",
+      "Optimized the client document-submission flow by restructuring the Documents page with individual upload controls, reducing the lawyer document sorting time by 40% and saving 3–5 hours of manual review per week."
+    ],
+    technologies: ["RAG", "Vector Embeddings", "React", "TypeScript", "Backend Authorization", "Database Optimization"]
+  },
+  {
     company: "Avanade",
     position: "Software Engineer Intern",
     duration: "May 2024 - Aug 2024",

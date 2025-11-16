@@ -3,6 +3,15 @@ import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Calendar, MapPin } from 'lucide-react';
 import { experiences } from '@/data/portfolio';
+import compassLogo from '@/assets/compass-logo.png';
+
+const getCompanyLogo = (company: string): string => {
+  const logoMap: Record<string, string> = {
+    'Compass Visas': compassLogo,
+    'Avanade': '/avanade-logo.jpg'
+  };
+  return logoMap[company] || '/placeholder.svg';
+};
 
 const Experience: React.FC = () => {
   return (
@@ -26,7 +35,7 @@ const Experience: React.FC = () => {
                             <h4 className="text-xl font-bold text-primary">{exp.position}</h4>
                             <h5 className="text-lg font-semibold text-foreground/90">{exp.company}</h5>
                           </div>
-                          <img src="/avanade-logo.jpg" alt="Avanade" className="w-12 h-12 mt-1" />
+                          <img src={getCompanyLogo(exp.company)} alt={exp.company} className="w-12 h-12 mt-1" />
                         </div>
                   <div className="flex items-center space-x-4 text-sm text-foreground/70 mb-4">
                     <span className="flex items-center"><Calendar className="w-4 h-4 mr-1" />{exp.duration}</span>
