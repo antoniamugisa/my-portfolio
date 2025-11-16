@@ -24,7 +24,7 @@ const About: React.FC = () => {
                 <h3 className="text-3xl font-bold text-center mb-8">My Journey</h3>
                 <div className="space-y-6 text-lg text-foreground/80 leading-relaxed">
                   <p>
-                    Hello! I'm Antonia, a software developer who thrives at the intersection of thoughtful engineering and creative problem-solving. My journey began 
+                    Hello! I'm Antonia, a Software Engineer at Compass Visas who thrives at the intersection of thoughtful engineering and creative problem-solving. My journey began 
                     in high school when I joined my school's robotics team and discovered the thrill of bringing hardware to life through code. I decided then and 
                     there I wanted to do more of this, and my interest grew into a career where I get to design, build, and optimize full-stack applications that make a real impact.
                   </p>
