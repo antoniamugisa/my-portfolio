@@ -35,7 +35,7 @@ const Experience: React.FC = () => {
                             <h4 className="text-xl font-bold text-primary">{exp.position}</h4>
                             <h5 className="text-lg font-semibold text-foreground/90">{exp.company}</h5>
                           </div>
-                          <img src={getCompanyLogo(exp.company)} alt={exp.company} className="w-12 h-12 mt-1" />
+                          <img src={getCompanyLogo(exp.company)} alt={exp.company} className="w-16 h-16 mt-1 object-contain" />
                         </div>
                   <div className="flex items-center space-x-4 text-sm text-foreground/70 mb-4">
                     <span className="flex items-center"><Calendar className="w-4 h-4 mr-1" />{exp.duration}</span>
