@@ -28,6 +28,7 @@ export const interestsData: InterestCategory[] = [
         type: 'tv',
         description: 'Anime Series',
         author: 'Gege Akutami',
+        url: 'https://www.crunchyroll.com/series/GRDV0019R/jujutsu-kaisen',
       },
       {
         id: 'abundant-intelligence',
@@ -35,6 +36,7 @@ export const interestsData: InterestCategory[] = [
         type: 'book',
         description: 'Personal Blog',
         author: 'Sam Altman',
+        url: 'https://blog.samaltman.com/abundant-intelligence',
       },
       {
         id: 'wicked for good',
@@ -42,13 +44,15 @@ export const interestsData: InterestCategory[] = [
         type: 'film',
         description: 'Movie',
         author: 'Jon M.Chu',
+        url: 'https://www.wickedmovie.com/',
       },
       {
         id: 'stranger-things',
-        title: 'Stranger Things Season 4',
+        title: 'Stranger Things Season 5',
         type: 'tv',
         description: 'TV Series',
         author: 'The Duffer Brothers',
+        url: 'https://www.netflix.com/title/80057281',
       },
       {
         id: 'frankenstein',
@@ -56,6 +60,7 @@ export const interestsData: InterestCategory[] = [
         type: 'film',
         description: 'Movie',
         author: 'Guillermo del Toro',
+        url: 'https://www.netflix.com/title/81507921',
       },
       {
         id: 'demon-slayer',
@@ -63,6 +68,7 @@ export const interestsData: InterestCategory[] = [
         type: 'anime',
         description: 'Anime Series',
         author: 'Koyoharu Gotouge',
+        url: 'https://www.netflix.com/title/81091393',
       },
       {
         id: 'infinity-castle',
@@ -70,6 +76,7 @@ export const interestsData: InterestCategory[] = [
         type: 'film',
         description: 'Movie',
         author: 'Haruo Sotozaki',
+        url: 'https://www.crunchyroll.com/series/G8DHV7809/demon-slayer-kimetsu-no-yaiba-infinity-castle',
       },
       {
         id: 'whos-the-clown',
@@ -77,6 +84,7 @@ export const interestsData: InterestCategory[] = [
         type: 'music',
         description: 'Album',
         author: 'Audrey Hobart',
+        url: 'https://open.spotify.com/album/6unMpOoIJqsLxuoTEFqdfP',
       },
       {
         id: 'the-art-of-loving',
@@ -84,6 +92,7 @@ export const interestsData: InterestCategory[] = [
         type: 'music',
         description: 'Album',
         author: 'Olivia Dean',
+        url: 'https://open.spotify.com/album/0l8zYqoUeBYg47Gmevq9HZ',
       }
     ]
   }

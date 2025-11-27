@@ -49,10 +49,22 @@ const Interests = () => {
                   <li key={item.id} className="py-3 md:py-2">
                     <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2 md:gap-0">
                       <div className="flex-1">
-                        <span className={`font-medium px-2 py-1 rounded text-sm ${getTypeHighlight(item.type)}`}>
-                          {item.title}
-                          {item.author && ` – ${item.author}`}
-                        </span>
+                        {item.url ? (
+                          <a 
+                            href={item.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className={`font-medium px-2 py-1 rounded text-sm ${getTypeHighlight(item.type)} hover:brightness-75 transition-all cursor-pointer`}
+                          >
+                            {item.title}
+                            {item.author && ` – ${item.author}`}
+                          </a>
+                        ) : (
+                          <span className={`font-medium px-2 py-1 rounded text-sm ${getTypeHighlight(item.type)}`}>
+                            {item.title}
+                            {item.author && ` – ${item.author}`}
+                          </span>
+                        )}
                       </div>
                       <span className="text-sm italic text-foreground md:text-right">
                         – {item.description}

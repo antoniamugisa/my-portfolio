@@ -24,6 +24,16 @@ const Projects: React.FC<ProjectsProps> = ({ selectedFilter, onSelectFilter }) =
               <h2 className="text-4xl lg:text-5xl xl:text-6xl font-bold font-heading mb-6 bg-primary bg-clip-text text-transparent leading-[1.2] pb-2">Projects</h2>
               <p className="text-lg text-foreground/70 leading-relaxed mb-6">A few things I've built</p>
               
+              {/* Explore Projects Button - Mobile Only */}
+              <div className="lg:hidden mb-6 flex justify-center">
+                <Button asChild size="lg" className="bg-primary hover:shadow-glow transition-all duration-300">
+                  <Link to="/projects">
+                    Explore Projects
+                    <ArrowRight className="w-4 h-4 ml-2" />
+                  </Link>
+                </Button>
+              </div>
+              
               {/* Explore Projects Button - Desktop Only */}
               <div className="hidden lg:block">
                 <Button asChild size="lg" className="bg-primary hover:shadow-glow transition-all duration-300">
@@ -115,16 +125,6 @@ const Projects: React.FC<ProjectsProps> = ({ selectedFilter, onSelectFilter }) =
                   </Card>
                 </Link>
               ))}
-            </div>
-            
-            {/* Explore Projects Button - Mobile Only */}
-            <div className="mt-8 lg:hidden flex justify-center">
-              <Button asChild size="lg" className="bg-primary hover:shadow-glow transition-all duration-300">
-                <Link to="/projects">
-                  Explore Projects
-                  <ArrowRight className="w-4 h-4 ml-2" />
-                </Link>
-              </Button>
             </div>
           </div>
         </div>
