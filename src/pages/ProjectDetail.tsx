@@ -131,12 +131,14 @@ const ProjectDetail = () => {
                   </a>
                 </Button>
               )}
-              <Button variant="outline" asChild>
-                <a href={project.githubUrl} target="_blank" rel="noopener noreferrer">
-                  <Github className="w-4 h-4 mr-2" />
-                  View Code
-                </a>
-              </Button>
+              {project.githubUrl && project.githubUrl !== "#" && (
+                <Button variant="outline" asChild>
+                  <a href={project.githubUrl} target="_blank" rel="noopener noreferrer">
+                    <Github className="w-4 h-4 mr-2" />
+                    View Code
+                  </a>
+                </Button>
+              )}
             </div>
           </div>
         </div>
