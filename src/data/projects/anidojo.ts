@@ -12,9 +12,9 @@ export const anidojoProject = {
   demoUrl: "#",
   githubUrl: "https://github.com/antoniamugisa/anidojo",
   featured: true,
-  date: "2024-11-15",
+  date: "2025-11-27",
   tags: ["Machine Learning", "Recommendation System", "Anime", "Python"],
-  status: "Ongoing" as const,
+  status: "Completed" as const,
   
   // Additional project details that can be expanded
   longDescription: `
