@@ -198,6 +198,21 @@ const ProjectDetail = () => {
             <p className="text-foreground/80 leading-relaxed text-lg">
               {project.description}
             </p>
+
+            {/* Demo Video */}
+            {project.demoVideo && (
+              <div className="mt-8">
+                <h3 className="text-xl font-semibold mb-4 text-foreground">Demo</h3>
+                <video
+                  controls
+                  className="w-full rounded-lg shadow-md"
+                  preload="metadata"
+                >
+                  <source src={project.demoVideo} type="video/mp4" />
+                  Your browser does not support the video tag.
+                </video>
+              </div>
+            )}
             
             {/* Long Description */}
             {project.longDescription && (

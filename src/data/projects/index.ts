@@ -39,4 +39,5 @@ export interface Project {
   futureImprovements?: string[];
   teamImage?: string;
   teamCaption?: string;
+  demoVideo?: string;
 }
