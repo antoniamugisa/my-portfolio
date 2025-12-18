@@ -24,17 +24,17 @@ const Interests = () => {
   };
 
   return (
-        <div className="min-h-screen bg-background pt-4 md:pt-24">
+    <div className="min-h-screen bg-background md:ml-56 md:mr-32 pt-24 md:pt-16 flex flex-col">
       {/* Main Layout */}
-      <div className="container mx-auto px-4 md:px-6 max-w-7xl">
+      <div className="container mx-auto px-4 md:px-6 max-w-5xl flex-grow">
         <div className="grid lg:grid-cols-12 gap-4 md:gap-8">
           {/* Left Side - Title Section */}
-          <div className="lg:col-span-3 py-4 md:py-16">
-            <div className="sticky top-16 md:top-32 pb-4 md:pb-16">
+          <div className="lg:col-span-3 py-8 md:py-12">
+            <div className="sticky top-20 md:top-24 pb-2 md:pb-12">
               <h1 className="text-4xl lg:text-5xl xl:text-6xl font-bold font-heading mb-4 md:mb-6 bg-primary bg-clip-text text-transparent leading-[1.2] pb-2">
                 Media Worth Your Time
               </h1>
-              <p className="text-lg text-foreground/70 leading-relaxed">
+              <p className="text-base md:text-lg text-foreground/70 leading-relaxed">
                 What I'm watching and reading right now that I highly recommend you check out
               </p>
             </div>
@@ -43,7 +43,7 @@ const Interests = () => {
           {/* Right Side - Content Section */}
           <div className="lg:col-span-9">
             {/* Content Section */}
-            <section className="py-4 md:py-16">
+            <section className="py-8 md:py-12">
               <ul className="space-y-2 md:space-y-3">
                 {allItems.map((item) => (
                   <li key={item.id} className="py-3 md:py-2">
@@ -79,11 +79,11 @@ const Interests = () => {
       </div>
 
       {/* Footer */}
-      <footer className="py-8 bg-card border-t border-border pb-24 md:pb-8">
-        <div className="container mx-auto px-6 text-center">
-          <p className="text-foreground/70 text-sm">
-            © 2025 Antonia Mugisa. Built with React, TypeScript & Tailwind CSS.
-          </p>
+      <footer className="py-6 bg-background pb-24 md:pb-12 mt-auto">
+        <div className="container mx-auto px-6 flex flex-col items-center gap-2 text-center md:flex-row md:justify-between md:text-left">
+          <span className="inline-flex items-center rounded-full border border-border px-3 py-1 text-xs font-medium text-foreground/70 bg-background/60">
+            Version: <span className="ml-1 font-semibold">v3</span> | Last updated: <span className="ml-1 font-semibold">18/12/2025</span>
+          </span>
         </div>
       </footer>
     </div>

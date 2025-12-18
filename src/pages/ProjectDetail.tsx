@@ -2,7 +2,7 @@ import React from 'react';
 import { useParams, Link, Navigate } from 'react-router-dom';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, ExternalLink, Github, Calendar, Clock, User } from 'lucide-react';
+import { ExternalLink, Github, Calendar, Clock, User } from 'lucide-react';
 import { projects } from '@/data/portfolio';
 import { Project } from '@/data/projects';
 
@@ -27,19 +27,9 @@ const ProjectDetail = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background pt-24">
-      {/* Back Button */}
-      <div className="container mx-auto px-6 max-w-4xl mb-8">
-        <Link to="/projects">
-          <Button variant="ghost" className="group">
-            <ArrowLeft className="w-4 h-4 mr-2 group-hover:-translate-x-1 transition-transform duration-300" />
-            Back to Projects
-          </Button>
-        </Link>
-      </div>
-
+    <div className="min-h-screen bg-background md:ml-56 md:mr-32 pt-24 md:pt-16">
       {/* Project Header */}
-      <article className="container mx-auto px-6 max-w-4xl">
+      <article className="container mx-auto px-6 max-w-5xl">
         {/* Hero Image with Overlay */}
         <div className="relative aspect-[4/3] md:aspect-[21/9] min-h-[250px] md:min-h-[400px] overflow-hidden rounded-lg mb-8 shadow-card bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-900">
           <img 
@@ -146,7 +136,7 @@ const ProjectDetail = () => {
         {/* Project Details */}
         <div className="prose prose-lg max-w-none mb-16">
           {/* Additional Project Information */}
-          <div className="mb-8 p-6 bg-card rounded-lg border border-border">
+          <div className="mb-8 p-6 bg-background rounded-lg border border-border/40">
             <h3 className="text-xl font-semibold mb-4 text-foreground">Project details</h3>
             <div className="grid md:grid-cols-2 gap-4 text-sm">
               <div>
@@ -298,7 +288,7 @@ const ProjectDetail = () => {
                   className="w-full h-auto"
                 />
                 {project.teamCaption && (
-                  <p className="py-3 px-4 text-center text-sm text-foreground/70 bg-card border-t border-border">
+                  <p className="py-3 px-4 text-center text-sm text-foreground/70 bg-background border-t border-border/40">
                     {project.teamCaption}
                   </p>
                 )}
@@ -309,11 +299,11 @@ const ProjectDetail = () => {
       </article>
 
       {/* Footer */}
-      <footer className="py-8 bg-card border-t border-border pb-24 md:pb-8">
-        <div className="container mx-auto px-6 text-center">
-          <p className="text-foreground/70 text-sm">
-            © 2025 Antonia Mugisa. Built with React, TypeScript & Tailwind CSS.
-          </p>
+      <footer className="py-6 bg-background pb-16 md:pb-6">
+        <div className="container mx-auto px-6 flex flex-col items-center gap-2 text-center md:flex-row md:justify-between md:text-left">
+          <span className="inline-flex items-center rounded-full border border-border px-3 py-1 text-xs font-medium text-foreground/70 bg-background/60">
+            Version: <span className="ml-1 font-semibold">v3</span> | Last updated: <span className="ml-1 font-semibold">18/12/2025</span>
+          </span>
         </div>
       </footer>
     </div>

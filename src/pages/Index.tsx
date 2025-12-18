@@ -1,59 +1,12 @@
-import React, { useState } from 'react';
-import { useToast } from '@/hooks/use-toast';
-import { sendEmail, EmailData } from '@/lib/emailService';
+import React from 'react';
 import Hero from '@/components/sections/Hero';
-import About from '@/components/sections/About';
+
 import Experience from '@/components/sections/Experience';
 import Projects from '@/components/sections/Projects';
-import BlogPreview from '@/components/sections/BlogPreview';
 import Contact from '@/components/sections/Contact';
 
 const Index = () => {
-  const [selectedFilter, setSelectedFilter] = useState('All');
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const { toast } = useToast();
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsSubmitting(true);
-    
-    try {
-      // Get form data
-      const form = e.target as HTMLFormElement;
-      const formData = new FormData(form);
-      
-      const emailData: EmailData = {
-        name: formData.get('name') as string,
-        email: formData.get('email') as string,
-        subject: formData.get('subject') as string,
-        message: formData.get('message') as string,
-      };
-
-      // Send email
-      const success = await sendEmail(emailData);
-      
-      if (success) {
-        toast({
-          title: "Message sent!",
-          description: "Thank you for reaching out. I'll get back to you soon!",
-        });
-        
-        // Reset form
-        form.reset();
-      } else {
-        throw new Error('Failed to send email');
-      }
-    } catch (error) {
-      console.error('Error sending email:', error);
-      toast({
-        title: "Error",
-        description: "Sorry, there was an error sending your message. Please try again or contact me directly.",
-        variant: "destructive",
-      });
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
+  const [selectedFilter, setSelectedFilter] = React.useState('All');
 
   const scrollToSection = (id: string) => {
     document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
@@ -62,25 +15,36 @@ const Index = () => {
   // (Content moved to section components and data modules)
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen md:ml-56 md:mr-32">
       <Hero onScrollTo={scrollToSection} />
 
-      <About />
+      {/* Video above Experience section - right aligned with sidebar */}
+      <div className="hidden md:block relative -mb-20">
+        <div className="absolute right-0 top-0 z-10">
+          <video
+            src="/videos/Cats_Appear_Video_Ready.mp4"
+            autoPlay
+            loop
+            muted
+            playsInline
+            className="w-24 rounded-lg border border-border/40 shadow-lg"
+          />
+        </div>
+      </div>
 
       <Experience />
 
       <Projects selectedFilter={selectedFilter} onSelectFilter={setSelectedFilter} />
 
-      <BlogPreview />
 
-      <Contact isSubmitting={isSubmitting} onSubmit={handleSubmit} />
+      <Contact />
 
       {/* Footer */}
-      <footer className="py-8 bg-card border-t border-border pb-24 md:pb-8">
-        <div className="container mx-auto px-6 text-center">
-          <p className="text-foreground/70 text-sm">
-            © 2025 Antonia Mugisa. Built with React, TypeScript & Tailwind CSS.
-          </p>
+      <footer className="py-6 bg-background pb-16 md:pb-6">
+        <div className="container mx-auto px-6 flex flex-col items-center gap-2 text-center md:flex-row md:justify-between md:text-left">
+          <span className="inline-flex items-center rounded-full border border-border px-3 py-1 text-xs font-medium text-foreground/70 bg-background/60">
+            Version: <span className="ml-1 font-semibold">v3</span> | Last updated: <span className="ml-1 font-semibold">18/12/2025</span>
+          </span>
         </div>
       </footer>
     </div>

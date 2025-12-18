@@ -16,17 +16,17 @@ const Blog = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background pt-16 md:pt-24">
+    <div className="min-h-screen bg-background md:ml-56 md:mr-32 pt-24 md:pt-16 flex flex-col">
       {/* Main Layout */}
-      <div className="container mx-auto px-4 md:px-6 max-w-7xl">
+      <div className="container mx-auto px-4 md:px-6 max-w-5xl flex-grow">
         <div className="grid lg:grid-cols-12 gap-4 md:gap-8">
           {/* Left Side - Title Section */}
-          <div className="lg:col-span-3 py-8 md:py-16">
-            <div className="sticky top-20 md:top-32 pb-8 md:pb-16">
+          <div className="lg:col-span-3 py-8 md:py-12">
+            <div className="sticky top-20 md:top-24 pb-2 md:pb-12">
               <h1 className="text-4xl lg:text-5xl xl:text-6xl font-bold font-heading mb-4 md:mb-6 bg-primary bg-clip-text text-transparent leading-[1.2] pb-2">
                 Thoughts
               </h1>
-              <p className="text-lg text-foreground/70 leading-relaxed">
+              <p className="text-base md:text-lg text-foreground/70 leading-relaxed">
                 What's been on my mind lately
               </p>
             </div>
@@ -35,13 +35,13 @@ const Blog = () => {
           {/* Right Side - Content Section */}
           <div className="lg:col-span-9">
             {/* Blog Posts Grid */}
-            <section className="py-8 md:py-16">
+            <section className="py-8 md:py-12">
               <div className="grid md:grid-cols-2 gap-6 md:gap-8">
                 {blogPosts.map((post, index) => (
                     <div key={post.id} className="py-px">
                       <Link to={`/blog/${post.id}`}>
                         <div 
-                          className="group relative h-48 md:h-64 rounded-lg overflow-hidden cursor-pointer transition-transform duration-300 hover:scale-[1.02]"
+                          className="group relative h-52 md:h-72 rounded-lg overflow-hidden cursor-pointer transition-transform duration-300 hover:scale-[1.02]"
                           style={{ animationDelay: `${index * 100}ms` }}
                         >
                         {/* Background Image */}
@@ -56,7 +56,7 @@ const Blog = () => {
                         </div>
 
                         {/* Content Overlay */}
-                        <div className="absolute inset-0 p-4 md:p-6 flex flex-col justify-between">
+                        <div className="absolute inset-0 p-4 md:p-6 flex flex-col justify-between pb-5 md:pb-6">
                           {/* Top Right - Tags */}
                           <div className="flex justify-end">
                             <div className="flex flex-wrap gap-2">
@@ -77,19 +77,36 @@ const Blog = () => {
                           </div>
 
                           {/* Bottom Left - Date, Title, Subtitle */}
-                          <div className="space-y-2">
+                          <div className="space-y-2.5 pb-3">
                             {/* Date */}
                             <div className="text-white/90 text-xs font-medium">
                               {formatDate(post.date)}
                             </div>
                             
                             {/* Title */}
-                            <h3 className="text-lg md:text-xl font-bold text-white leading-tight line-clamp-2">
+                            <h3 className="text-lg md:text-xl font-bold text-white leading-[1.5]" style={{ 
+                              display: '-webkit-box', 
+                              WebkitLineClamp: 2, 
+                              WebkitBoxOrient: 'vertical', 
+                              overflow: 'hidden',
+                              textOverflow: 'ellipsis',
+                              maxHeight: 'calc(1.5em * 2 + 0.25em)',
+                              marginBottom: '6px',
+                              paddingBottom: '2px'
+                            }}>
                               {post.title}
                             </h3>
                             
                             {/* Subtitle/Description */}
-                            <p className="text-white/90 text-sm leading-relaxed line-clamp-2">
+                            <p className="text-white/90 text-sm leading-[1.6]" style={{ 
+                              display: '-webkit-box', 
+                              WebkitLineClamp: 2, 
+                              WebkitBoxOrient: 'vertical', 
+                              overflow: 'hidden',
+                              textOverflow: 'ellipsis',
+                              maxHeight: 'calc(1.6em * 2 + 0.25em)',
+                              paddingBottom: '4px'
+                            }}>
                               {post.description}
                             </p>
                           </div>
@@ -108,11 +125,11 @@ const Blog = () => {
       </div>
 
       {/* Footer */}
-      <footer className="py-8 bg-card border-t border-border pb-24 md:pb-8">
-        <div className="container mx-auto px-6 text-center">
-          <p className="text-foreground/70 text-sm">
-            © 2025 Antonia Mugisa. Built with React, TypeScript & Tailwind CSS.
-          </p>
+      <footer className="py-6 bg-background pb-24 md:pb-12 mt-auto">
+        <div className="container mx-auto px-6 flex flex-col items-center gap-2 text-center md:flex-row md:justify-between md:text-left">
+          <span className="inline-flex items-center rounded-full border border-border px-3 py-1 text-xs font-medium text-foreground/70 bg-background/60">
+            Version: <span className="ml-1 font-semibold">v3</span> | Last updated: <span className="ml-1 font-semibold">18/12/2025</span>
+          </span>
         </div>
       </footer>
     </div>

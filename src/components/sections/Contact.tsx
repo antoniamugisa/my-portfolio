@@ -1,17 +1,8 @@
 import React from 'react';
 import { Card } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Label } from '@/components/ui/label';
-import { Mail, Phone, MapPin, Send, Clock, Github, Linkedin, Download } from 'lucide-react';
+import { Mail, Phone, MapPin, Github, Linkedin, Download } from 'lucide-react';
 import { XLogo } from '@/components/ui/x-logo';
 import { contactInfo as rawContactInfo, socialLinks as rawSocialLinks } from '@/data/portfolio';
-
-type ContactProps = {
-  isSubmitting: boolean;
-  onSubmit: (e: React.FormEvent) => Promise<void> | void;
-};
 
 const iconMap: Record<string, React.ReactNode> = {
   Mail: <Mail className="w-5 h-5" />,
@@ -22,88 +13,90 @@ const iconMap: Record<string, React.ReactNode> = {
   Twitter: <XLogo className="w-5 h-5" />,
 };
 
-const Contact: React.FC<ContactProps> = ({ isSubmitting, onSubmit }) => {
+const Contact: React.FC = () => {
   const contactInfo = rawContactInfo.map((c) => ({ ...c, icon: iconMap[c.icon] }));
+  const primaryEmail = contactInfo.find((c) => c.label === 'Email');
+  const secondaryContacts = contactInfo.filter(
+    (c) => c.label !== 'Email' && c.label !== 'Phone'
+  );
   const socialLinks = rawSocialLinks.map((s) => ({ ...s, icon: iconMap[s.icon] }));
   
   return (
-    <section id="contact" className="py-16 md:py-24 pb-24 md:pb-24 bg-secondary">
-      <div className="container mx-auto px-4 md:px-6 max-w-6xl">
-        <div className="grid grid-cols-12 gap-4 md:gap-8">
-          {/* Left side - Title */}
-          <div className="col-span-12 lg:col-span-3 order-1 lg:order-1">
-            <div className="sticky top-16 md:top-24 pb-4 md:pb-8 text-center lg:text-left">
-              <h2 className="text-4xl lg:text-5xl xl:text-6xl font-bold font-heading mb-6 bg-primary bg-clip-text text-transparent leading-[1.2] pb-2">Let's Connect</h2>
-              <p className="text-lg text-foreground/70 leading-relaxed">I love to yap so let's discuss how we can work together to create something amazing.</p>
+    <section id="contact" className="py-12 md:py-16 bg-background">
+      <div className="container mx-auto px-4 md:px-6 max-w-4xl">
+        <Card className="p-6 md:p-8 bg-background border-border/40">
+          <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
+            <div className="text-center md:text-left space-y-2">
+              <p className="text-sm font-medium uppercase tracking-[0.2em] text-foreground/60">
+                LET'S CONNECT
+              </p>
+              <p className="text-sm md:text-base text-foreground/70">
+                Let's do something awesome together!
+              </p>
             </div>
-          </div>
-
-          {/* Right side - Contact content */}
-          <div className="col-span-12 lg:col-span-9 order-2 lg:order-2">
-            <div className="grid lg:grid-cols-2 gap-12">
-              <div>
-            <Card className="p-8 bg-card border-border h-full">
-              <h3 className="text-2xl font-bold mb-6">Send Me A Message</h3>
-              <form onSubmit={onSubmit} className="space-y-6">
-                <div className="grid md:grid-cols-2 gap-4">
-                  <div>
-                    <Label htmlFor="name">Name</Label>
-                    <Input id="name" name="name" type="text" placeholder="Your name" required className="mt-2" />
-                  </div>
-                  <div>
-                    <Label htmlFor="email">Email</Label>
-                    <Input id="email" name="email" type="email" placeholder="your.email@example.com" required className="mt-2" />
-                  </div>
-                </div>
-                <div>
-                  <Label htmlFor="subject">Subject</Label>
-                  <Input id="subject" name="subject" type="text" placeholder="What's this about?" required className="mt-2" />
-                </div>
-                <div>
-                  <Label htmlFor="message">Message</Label>
-                  <Textarea id="message" name="message" placeholder="Tell me about your project..." required rows={6} className="mt-2" />
-                </div>
-                <Button type="submit" size="lg" className="w-full bg-primary hover:shadow-glow" disabled={isSubmitting}>
-                  {isSubmitting ? (<><Clock className="w-4 h-4 mr-2 animate-spin" />Sending...</>) : (<><Send className="w-4 h-4 mr-2" />Send Message</>)}
-                </Button>
-              </form>
-            </Card>
-              </div>
-              <div className="space-y-8">
-            <div>
-              <h3 className="text-2xl font-bold mb-4">Get In Touch!</h3>
-              <p className="text-foreground/80 leading-relaxed mb-8">I'm always excited to hear about new opportunities and interesting projects. Whether you're looking for a developer, have a question, or just want to say hello, don't hesitate to reach out!</p>
-            </div>
-            <div className="space-y-6">
-              {contactInfo.map((info, index) => (
-                <Card key={index} className="p-4 bg-card border-border hover:border-primary/50 transition-colors">
-                  <a href={info.href} className="flex items-center space-x-4 text-foreground hover:text-primary transition-colors">
-                    <div className="text-primary">{info.icon}</div>
-                    <div>
-                      <p className="font-medium">{info.label}</p>
-                      <p className="text-sm text-foreground/70">{info.value}</p>
-                    </div>
-                  </a>
-                </Card>
-              ))}
-            </div>
-            <div>
-              <h4 className="text-lg font-semibold mb-4">Follow Me</h4>
-              <div className="flex space-x-4">
-                {socialLinks.map((social, index) => (
-                  <a key={index} href={social.href} target="_blank" rel="noopener noreferrer" className={`p-3 rounded-full bg-card border border-border hover:border-primary/50 transition-all duration-300 hover:shadow-card ${social.color}`} aria-label={social.label}>
-                    {social.icon}
-                  </a>
-                ))}
-                <a href="/resume.pdf" download="Antonia_Mugisa_Resume.pdf" className="p-3 rounded-full bg-card border border-border hover:border-primary/50 transition-all duration-300 hover:shadow-card" aria-label="Download Resume">
-                  <Download className="w-5 h-5" />
+            <div className="flex flex-col items-center gap-4 md:items-end">
+              {primaryEmail && (
+                <a
+                  href={primaryEmail.href}
+                  className="inline-flex items-center gap-2 rounded-full border border-border bg-background px-4 py-2 text-sm font-medium text-foreground hover:border-primary/70 hover:text-primary transition-colors"
+                >
+                  <span className="text-primary">{primaryEmail.icon}</span>
+                  <span>{primaryEmail.value}</span>
                 </a>
-              </div>
-            </div>
+              )}
+              <div className="flex flex-wrap justify-center gap-3 md:justify-end">
+                {secondaryContacts.map((info, index) => {
+                  const content = (
+                    <>
+                      <span className="text-primary">{info.icon}</span>
+                      <span>{info.value}</span>
+                    </>
+                  );
+
+                  const className =
+                    'inline-flex items-center gap-2 rounded-full bg-background/60 px-3 py-1 text-xs md:text-sm border border-border hover:border-primary/50 hover:text-primary transition-colors';
+
+                  // Location should be non-interactive (no external link)
+                  if (info.label === 'Location') {
+                    return (
+                      <div key={index} className={className}>
+                        {content}
+                      </div>
+                    );
+                  }
+
+                  return (
+                    <a key={index} href={info.href} className={className}>
+                      {content}
+                    </a>
+                  );
+                })}
               </div>
             </div>
           </div>
-        </div>
+          <div className="mt-4 flex justify-center md:justify-start gap-3">
+            {socialLinks.map((social, index) => (
+              <a
+                key={index}
+                href={social.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={`p-2 rounded-full bg-background/60 border border-border hover:border-primary/50 transition-all duration-300 hover:shadow-card ${social.color}`}
+                aria-label={social.label}
+              >
+                {social.icon}
+              </a>
+            ))}
+            <a
+              href="/resume.pdf"
+              download="Antonia_Mugisa_Resume.pdf"
+              className="p-2 rounded-full bg-background/60 border border-border hover:border-primary/50 transition-all duration-300 hover:shadow-card"
+              aria-label="Download Resume"
+            >
+              <Download className="w-5 h-5" />
+            </a>
+          </div>
+        </Card>
       </div>
     </section>
   );
