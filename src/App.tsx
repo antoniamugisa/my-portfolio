@@ -12,6 +12,7 @@ import Projects from "./pages/Projects";
 import ProjectDetail from "./pages/ProjectDetail";
 import Experience from "./pages/Experience";
 import Interests from "./pages/Interests";
+import Photos from "./pages/Photos";
 import Preloader from "./components/Preloader";
 import ReactGA from 'react-ga4';
 import { HelmetProvider } from 'react-helmet-async';
@@ -34,6 +35,7 @@ const Analytics = () => {
 
 const AppContent = () => {
   const [isLoading, setIsLoading] = useState(true);
+  const location = useLocation();
 
   useEffect(() => {
     // Simulate loading time and wait for page to be fully loaded
@@ -58,6 +60,15 @@ const AppContent = () => {
     };
   }, []);
 
+  // Scroll to top on route change, but not when navigating to home with a hash
+  useEffect(() => {
+    // Don't scroll to top if navigating to home page with a hash (for section navigation)
+    if (location.pathname === '/' && location.hash) {
+      return;
+    }
+    window.scrollTo(0, 0);
+  }, [location.pathname, location.hash]);
+
   return (
     <>
       <Toaster />
@@ -75,6 +86,7 @@ const AppContent = () => {
           <Route path="/projects/:id" element={<ProjectDetail />} />
           <Route path="/experience" element={<Experience />} />
           <Route path="/interests" element={<Interests />} />
+          <Route path="/photos" element={<Photos />} />
         </Routes>
       </div>
     </>
