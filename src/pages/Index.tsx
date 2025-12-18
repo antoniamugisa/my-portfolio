@@ -27,7 +27,7 @@ const Index = () => {
             loop
             muted
             playsInline
-            className="w-24 rounded-lg border border-border/40 shadow-lg"
+            className="w-24 box-content"
           />
         </div>
       </div>
