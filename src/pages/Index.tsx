@@ -18,20 +18,6 @@ const Index = () => {
     <div className="min-h-screen md:ml-56 md:mr-32">
       <Hero onScrollTo={scrollToSection} />
 
-      {/* Video above Experience section - right aligned with sidebar */}
-      <div className="hidden md:block relative -mb-20">
-        <div className="absolute right-0 top-0 z-10">
-          <video
-            src="/videos/Cats_Appear_Video_Ready.mp4"
-            autoPlay
-            loop
-            muted
-            playsInline
-            className="w-24 box-content"
-          />
-        </div>
-      </div>
-
       <Experience />
 
       <Projects selectedFilter={selectedFilter} onSelectFilter={setSelectedFilter} />

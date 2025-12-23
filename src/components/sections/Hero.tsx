@@ -71,13 +71,13 @@ const Hero: React.FC<HeroProps> = ({ onScrollTo }) => {
             <div className="flex flex-col sm:flex-row gap-4">
               <Link 
                 to="/projects"
-                className="px-6 py-3 bg-black hover:bg-black/90 text-white font-normal text-sm md:text-base border-none rounded-md transition-colors text-center"
+                className="px-6 py-3 bg-primary text-primary-foreground hover:bg-primary/90 font-normal text-sm md:text-base border-none rounded-md transition-colors text-center"
               >
                 View Projects
               </Link>
               <a 
                 href="mailto:antoniamugisa@gmail.com"
-                className="px-6 py-3 bg-white border border-foreground text-foreground font-normal text-sm md:text-base hover:bg-gray-50 rounded-md transition-colors text-center"
+                className="px-6 py-3 bg-background border border-border text-foreground font-normal text-sm md:text-base hover:bg-secondary rounded-md transition-colors text-center"
               >
                 Get In Touch
               </a>
@@ -89,7 +89,7 @@ const Hero: React.FC<HeroProps> = ({ onScrollTo }) => {
                 href="https://github.com/antoniamugisa" 
                 target="_blank" 
                 rel="noopener noreferrer" 
-                className="w-10 h-10 rounded-full border border-gray-300 flex items-center justify-center hover:bg-gray-100 transition-colors"
+                className="w-10 h-10 rounded-full border border-border flex items-center justify-center hover:bg-secondary transition-colors"
               >
                 <Github className="w-5 h-5 text-foreground" />
               </a>
@@ -97,7 +97,7 @@ const Hero: React.FC<HeroProps> = ({ onScrollTo }) => {
                 href="https://www.linkedin.com/in/antoniamugisa/" 
                 target="_blank" 
                 rel="noopener noreferrer" 
-                className="w-10 h-10 rounded-full border border-gray-300 flex items-center justify-center hover:bg-gray-100 transition-colors"
+                className="w-10 h-10 rounded-full border border-border flex items-center justify-center hover:bg-secondary transition-colors"
               >
                 <Linkedin className="w-5 h-5 text-foreground" />
               </a>
@@ -105,14 +105,14 @@ const Hero: React.FC<HeroProps> = ({ onScrollTo }) => {
                 href="https://x.com/antmugisa" 
                 target="_blank" 
                 rel="noopener noreferrer" 
-                className="w-10 h-10 rounded-full border border-gray-300 flex items-center justify-center hover:bg-gray-100 transition-colors"
+                className="w-10 h-10 rounded-full border border-border flex items-center justify-center hover:bg-secondary transition-colors"
               >
                 <XLogo className="w-5 h-5 text-foreground" />
               </a>
               <a 
                 href="/resume.pdf" 
                 download="Antonia_Mugisa_Resume.pdf" 
-                className="w-10 h-10 rounded-full border border-gray-300 flex items-center justify-center hover:bg-gray-100 transition-colors"
+                className="w-10 h-10 rounded-full border border-border flex items-center justify-center hover:bg-secondary transition-colors"
                 title="Download Resume"
               >
                 <Download className="w-5 h-5 text-foreground" />

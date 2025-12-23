@@ -1,9 +1,10 @@
 import { ReactNode } from 'react';
-import dalGazetteImage from '@/assets/dal-gazette.jpg';
+import dalGazetteImage from '@/assets/dal-gazette-logo.png';
 
 export const dalGazetteProject = {
   id: "dal gazette app",
   title: "Dal Gazette App",
+  demoVideo: "/videos/dal-gazette-demo.mp4",
   description: "A mobile application for Dalhousie University's campus newspaper using React Native and TypeScript, delivering real-time news articles, event updates, and campus announcements to 5,000+ students.",
   image: dalGazetteImage,
   technologies: ["TypeScript", "Tailwind", "React Native"],
