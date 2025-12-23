@@ -35,9 +35,7 @@ const ProjectDetail = () => {
           <img 
             src={project.image} 
             alt={project.title}
-            className={`w-full h-full ${
-              project.id === 'dal gazette app' ? 'object-contain p-8' : 'object-cover'
-            }`}
+            className="w-full h-full object-cover"
           />
           {/* Dark overlay for better text readability */}
           <div className="absolute inset-0 bg-black/50" />

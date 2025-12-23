@@ -29,9 +29,7 @@ const Projects: React.FC<ProjectsProps> = ({ selectedFilter, onSelectFilter }) =
                   <img 
                     src={project.image} 
                     alt={project.title} 
-                    className={`w-full h-full transition-transform duration-300 group-hover:scale-105 ${
-                      project.id === 'dal gazette app' ? 'object-contain p-4' : 'object-cover'
-                    }`}
+                    className="w-full h-full transition-transform duration-300 group-hover:scale-105 object-cover"
                   />
                 </div>
                 
