@@ -16,7 +16,6 @@ import Photos from "./pages/Photos";
 import Preloader from "./components/Preloader";
 import ReactGA from 'react-ga4';
 import { HelmetProvider } from 'react-helmet-async';
-import Snowfall from './components/Snowfall';
 
 // Initialize Google Analytics with YOUR Measurement ID
 ReactGA.initialize('G-X9J979V7LF');
@@ -78,7 +77,6 @@ const AppContent = () => {
       <div className={`min-h-screen bg-background text-foreground transition-opacity duration-500 ${
         isLoading ? 'opacity-0' : 'opacity-100'
       }`}>
-        <Snowfall />
         <Navigation />
         <Routes>
           <Route path="/" element={<Index />} />
