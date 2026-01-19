@@ -7,6 +7,7 @@ import { useToast } from '@/hooks/use-toast';
 import ReactMarkdown, { Components } from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import rehypeRaw from 'rehype-raw';
+import LinkPreview from '@/components/LinkPreview';
 
 // Define a type for code block props
 type CodeRendererProps = {
@@ -79,6 +80,25 @@ const markdownComponents: Components = {
       <div className="my-6 rounded-lg overflow-hidden">
         <iframe className="w-full" {...props} />
       </div>
+    );
+  },
+  // Links with preview
+  a({ href, children, ...props }: any) {
+    // Extract href from props if not directly available (for HTML links)
+    const linkHref = href || props.href || (props as any).node?.properties?.href;
+    if (!linkHref) return <a {...props}>{children}</a>;
+    
+    // Only show preview for external links
+    const isExternal = linkHref.startsWith('http://') || linkHref.startsWith('https://');
+    
+    if (isExternal) {
+      return <LinkPreview href={linkHref}>{children}</LinkPreview>;
+    }
+    
+    return (
+      <a href={linkHref} className="text-primary underline underline-offset-2 hover:text-primary/80 transition-colors" {...props}>
+        {children}
+      </a>
     );
   },
 };
@@ -154,7 +174,7 @@ const BlogPost: React.FC = () => {
             <div className="space-y-3">
               <div className="text-white/90 text-sm font-medium">{formatDate(post.date)}</div>
               <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white leading-tight">{post.title}</h1>
-              <p className="text-white/90 text-lg md:text-xl leading-relaxed max-w-2xl">{post.description}</p>
+              <p className="text-white/90 text-lg md:text-xl leading-relaxed max-w-2xl" dangerouslySetInnerHTML={{ __html: post.description }} />
             </div>
           </div>
         </div>
