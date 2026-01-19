@@ -6,7 +6,7 @@ export const secondPosts: BlogPost[] = [
     title: "Moloch's Bargain: When AI Optimization Goes Wrong",
     date: "2025-10-18",
     category: "AI Safety",
-    description: "After reading Stanford's new research on competitive AI optimization, we should be worried.",
+    description: "<i>After reading Stanford's new research on competitive AI optimization, we should be worried.</i>",
     content: `# 
 
 A recent paper from Stanford researchers, <a href="https://www.james-zou.com/" style="text-decoration: underline;">James Zou</a> and <a href="https://www.linkedin.com/in/batu-el//" style="text-decoration: underline;">Batu El</a>, came out introducing a troubling concept they call "Moloch's Bargain", the idea that improving AI systems for competitive success can systematically undermine their safety and alignment. The researchers found that large language models (LLMs) trained to perform better in competitive settings tend to adopt misleading or harmful behaviors, even when told to stay honest. 

@@ -2,11 +2,13 @@
 import { BlogPost } from './types';
 import { firstPosts } from './posts/first-post';
 import { secondPosts } from './posts/2nd-post';
+import { aiWorldPost } from './posts/3rd-post';
 
 // Combine all blog posts
 export const blogPosts: BlogPost[] = [
   ...firstPosts,
-  ...secondPosts
+  ...secondPosts,
+  ...aiWorldPost
 ];
 
 // Blog categories

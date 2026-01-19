@@ -6,7 +6,7 @@ export const firstPosts: BlogPost[] = [
     title: "Endings Are Just Beginnings",
     date: "2025-10-01",
     category: "Self",
-    description: "Change is exciting",
+    description: "<i>Change is exciting</i>",
     content: `
 I've been thinking of my university experience now that it's coming to an end. The routes to campus I've walked, the late-night conversations I've had with friends on various street corners, the mornings where my ears still rang from the night before, dancing without a care in the world. It's hitting me that I'll no longer experience those moments again, and it hit quite hard on my flight back home.
 

@@ -106,9 +106,9 @@ const Blog = () => {
                               textOverflow: 'ellipsis',
                               maxHeight: 'calc(1.6em * 2 + 0.25em)',
                               paddingBottom: '4px'
-                            }}>
-                              {post.description}
-                            </p>
+                            }}
+                            dangerouslySetInnerHTML={{ __html: post.description }}
+                            />
                           </div>
                         </div>
                         </div>
