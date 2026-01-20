@@ -43,7 +43,7 @@ In the long term, I do believe AI will impact everyone's lives across the world.
 
 ## The Tech Industry Reckoning
 
-The tech world is reeling from AI's impact. In 2024 alone, <a href="https://layoffs.fyi/" style="text-decoration: underline;">over 122,000 tech workers were laid off</a> across hundreds of companies. Amazon, Google, Meta, Intel—the list goes on. The industry that built AI is now being reshaped by it.
+The tech world is reeling from AI's impact. In 2024 alone, <a href="https://layoffs.fyi/" style="text-decoration: underline;">over 122,000 tech workers were laid off</a> across hundreds of companies. Amazon, Google, Meta, Intel...the list goes on. The industry that built AI is now being reshaped by it.
 
 Junior engineers are feeling the brunt of it most acutely. <a href="https://spectrum.ieee.org/ai-effect-entry-level-jobs" style="text-decoration: underline;">Hiring for entry-level developers has dropped to its lowest point in history</a>—some reports show a <a href="https://byteiota.com/junior-developer-extinction-67-hiring-collapse-explained/" style="text-decoration: underline;">67% decline in entry-level tech job postings</a> between 2023 and 2024. AI has essentially become the junior engineer for many senior developers. Companies would rather pay for tokens than people now. The economic logic is brutal and simple.
 
@@ -71,7 +71,7 @@ I'm a cautious optimist.
 
 Would I want to enter a cinema and see AI-generated clips in a film? I'd rather not. The craft of filmmaking, the human decisions about framing, timing, emotion, that's what makes cinema art.
 
-Would I use Claude to generate a codebase that cuts down loading times by 60% so my team can move on to the next feature? Well, yes! That's the kind of productivity gain that lets humans focus on the creative problem-solving that AI still can't match.
+Would I use Claude to help refactor a codebase to cut down loading times by 60% so my team can move on to the next feature? Well, yes! That's the kind of productivity gain that lets humans focus on the creative problem-solving that AI still can't match.
 
 2026 will be a pivotal year for understanding how far AI's influence truly reaches and who it reaches first. The girl studying by candlelight might not be thinking about AI today, but eventually, when the lights stay on and the internet is stable, AI will be there waiting. Whether that's in one year or ten depends on priorities far bigger than technology alone.
 
