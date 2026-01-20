@@ -41,7 +41,7 @@ const Blog = () => {
                     <div key={post.id} className="py-px">
                       <Link to={`/blog/${post.id}`}>
                         <div 
-                          className="group relative h-52 md:h-72 rounded-lg overflow-hidden cursor-pointer transition-transform duration-300 hover:scale-[1.02]"
+                          className="group relative h-64 md:h-72 rounded-lg overflow-hidden cursor-pointer transition-transform duration-300 hover:scale-[1.02]"
                           style={{ animationDelay: `${index * 100}ms` }}
                         >
                         {/* Background Image */}
@@ -100,11 +100,11 @@ const Blog = () => {
                             {/* Subtitle/Description */}
                             <p className="text-white/90 text-sm leading-[1.6]" style={{ 
                               display: '-webkit-box', 
-                              WebkitLineClamp: 2, 
+                              WebkitLineClamp: 3, 
                               WebkitBoxOrient: 'vertical', 
                               overflow: 'hidden',
                               textOverflow: 'ellipsis',
-                              maxHeight: 'calc(1.6em * 2 + 0.25em)',
+                              maxHeight: 'calc(1.6em * 3 + 0.25em)',
                               paddingBottom: '4px'
                             }}
                             dangerouslySetInnerHTML={{ __html: post.description }}
