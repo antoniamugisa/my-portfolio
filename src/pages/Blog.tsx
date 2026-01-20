@@ -98,16 +98,9 @@ const Blog = () => {
                             </h3>
                             
                             {/* Subtitle/Description */}
-                            <p className="text-white/90 text-sm leading-[1.6]" style={{ 
-                              display: '-webkit-box', 
-                              WebkitLineClamp: 3, 
-                              WebkitBoxOrient: 'vertical', 
-                              overflow: 'hidden',
-                              textOverflow: 'ellipsis',
-                              maxHeight: 'calc(1.6em * 3 + 0.25em)',
-                              paddingBottom: '4px'
-                            }}
-                            dangerouslySetInnerHTML={{ __html: post.description }}
+                            <p
+                              className="text-white/90 text-sm leading-[1.6] line-clamp-3 md:line-clamp-2 pb-1"
+                              dangerouslySetInnerHTML={{ __html: post.description }}
                             />
                           </div>
                         </div>

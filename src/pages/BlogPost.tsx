@@ -150,7 +150,7 @@ const BlogPost: React.FC = () => {
       {/* Article Header */}
       <article className="container mx-auto px-6 max-w-5xl">
         {/* Hero Image */}
-        <div className="relative aspect-video md:aspect-[21/9] overflow-hidden rounded-lg mb-8 shadow-card">
+        <div className="relative h-[520px] sm:h-[600px] md:h-auto md:aspect-[21/9] overflow-hidden rounded-lg mb-8 shadow-card">
           <img src={post.image} alt={post.title} className="w-full h-full object-cover" />
           <div className="absolute inset-0 bg-black/50" />
           <div className="absolute inset-0 p-6 md:p-8 flex flex-col justify-between">
@@ -174,7 +174,10 @@ const BlogPost: React.FC = () => {
             <div className="space-y-3">
               <div className="text-white/90 text-sm font-medium">{formatDate(post.date)}</div>
               <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white leading-tight">{post.title}</h1>
-              <p className="text-white/90 text-lg md:text-xl leading-relaxed max-w-2xl" dangerouslySetInnerHTML={{ __html: post.description }} />
+              <p
+                className="text-white/90 text-base md:text-lg leading-relaxed max-w-2xl"
+                dangerouslySetInnerHTML={{ __html: post.description }}
+              />
             </div>
           </div>
         </div>
