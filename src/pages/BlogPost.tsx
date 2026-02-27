@@ -1,13 +1,14 @@
-import React from 'react';
-import { useParams, Link, Navigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useParams, Navigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Clock, Share2, User } from 'lucide-react';
+import { Clock, Share2, User, Heart } from 'lucide-react';
 import { blogPosts } from '@/data/blog';
 import { useToast } from '@/hooks/use-toast';
 import ReactMarkdown, { Components } from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import rehypeRaw from 'rehype-raw';
 import LinkPreview from '@/components/LinkPreview';
+import { supabase, isSupabaseConfigured, getOrCreateFingerprint } from '@/lib/supabase';
 
 // Define a type for code block props
 type CodeRendererProps = {
@@ -106,9 +107,53 @@ const markdownComponents: Components = {
 const BlogPost: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const { toast } = useToast();
+  const [liked, setLiked] = useState(false);
+  const [likeCount, setLikeCount] = useState(0);
+  const [likesLoading, setLikesLoading] = useState(true);
 
-  // Find blog post by ID
   const post = blogPosts.find((p) => p.id === id);
+
+  useEffect(() => {
+    if (!post || !supabase) {
+      setLikesLoading(false);
+      return;
+    }
+    const fingerprint = getOrCreateFingerprint();
+
+    (async () => {
+      try {
+        const [countRes, likeRes] = await Promise.all([
+          supabase.from('blog_likes').select('*', { count: 'exact', head: true }).eq('post_id', post.id),
+          supabase.from('blog_likes').select('post_id').eq('post_id', post.id).eq('fingerprint', fingerprint).maybeSingle(),
+        ]);
+        setLikeCount(countRes.count ?? 0);
+        setLiked(likeRes.data !== null);
+      } catch {
+        setLikeCount(0);
+        setLiked(false);
+      } finally {
+        setLikesLoading(false);
+      }
+    })();
+  }, [post?.id]);
+
+  const handleLike = async () => {
+    if (!post || !supabase) return;
+    const fingerprint = getOrCreateFingerprint();
+    if (liked) {
+      const { error } = await supabase.rpc('delete_my_blog_like', { p_post_id: post.id, p_fingerprint: fingerprint });
+      if (!error) {
+        setLiked(false);
+        setLikeCount((c) => Math.max(0, c - 1));
+      }
+    } else {
+      const { error } = await supabase.rpc('insert_blog_like', { p_post_id: post.id, p_fingerprint: fingerprint });
+      if (!error) {
+        setLiked(true);
+        setLikeCount((c) => c + 1);
+      }
+    }
+  };
 
   if (!post) {
     return <Navigate to="/blog" replace />;
@@ -204,7 +249,7 @@ const BlogPost: React.FC = () => {
         </div>
 
         {/* Article Content */}
-        <div className="prose prose-lg max-w-none mb-16">
+        <div className="prose prose-lg max-w-none mb-12">
           <ReactMarkdown
             remarkPlugins={[remarkGfm]}
             rehypePlugins={[rehypeRaw]}
@@ -213,6 +258,32 @@ const BlogPost: React.FC = () => {
             {post.content}
           </ReactMarkdown>
         </div>
+
+        {/* Like section at end of article */}
+        {isSupabaseConfigured() ? (
+          <div className="border-t border-border pt-8 pb-16">
+            <div className="flex flex-wrap items-center gap-4">
+              <Button
+                variant="outline"
+                size="default"
+                onClick={handleLike}
+                disabled={likesLoading}
+                className={liked ? 'border-primary text-primary' : ''}
+              >
+                <Heart
+                  className={`w-5 h-5 mr-2 ${liked ? 'fill-current' : ''}`}
+                />
+                {likesLoading ? '...' : liked ? 'Liked' : 'Like'}
+              </Button>
+              <span className="text-muted-foreground text-sm">
+                {likesLoading && 'Loading'}
+                {!likesLoading && likeCount === 1 && '1 like'}
+                {!likesLoading && likeCount > 1 && !liked && `${likeCount} likes`}
+                {!likesLoading && likeCount > 1 && liked && `You and ${likeCount - 1} other${likeCount === 2 ? '' : 's'} like this`}
+              </span>
+            </div>
+          </div>
+        ) : null}
       </article>
 
       {/* Footer */}
