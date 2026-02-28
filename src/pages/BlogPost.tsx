@@ -268,19 +268,13 @@ const BlogPost: React.FC = () => {
                 size="default"
                 onClick={handleLike}
                 disabled={likesLoading}
-                className={liked ? 'border-primary text-primary' : ''}
               >
                 <Heart
-                  className={`w-5 h-5 mr-2 ${liked ? 'fill-current' : ''}`}
+                  className={`w-5 h-5 mr-2 ${liked ? 'fill-rose-500 text-rose-500' : ''}`}
                 />
-                {likesLoading ? '...' : liked ? 'Liked' : 'Like'}
+                {likesLoading ? '...' : null}
+                <span className="ml-2 tabular-nums">{!likesLoading && likeCount}</span>
               </Button>
-              <span className="text-muted-foreground text-sm">
-                {likesLoading && 'Loading'}
-                {!likesLoading && likeCount === 1 && '1 like'}
-                {!likesLoading && likeCount > 1 && !liked && `${likeCount} likes`}
-                {!likesLoading && likeCount > 1 && liked && `You and ${likeCount - 1} other${likeCount === 2 ? '' : 's'} like this`}
-              </span>
             </div>
           </div>
         ) : null}
