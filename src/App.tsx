@@ -4,6 +4,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { ThemeProvider } from '@/contexts/ThemeContext';
 import Navigation from "./components/Navigation";
 import Index from "./pages/Index";
 import Blog from "./pages/Blog";
@@ -98,12 +99,14 @@ const App = () => {
   return (
     <HelmetProvider>
     <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <Router>
-          <Analytics />
-          <AppContent />
-        </Router>
-      </TooltipProvider>
+      <ThemeProvider>
+        <TooltipProvider>
+          <Router>
+            <Analytics />
+            <AppContent />
+          </Router>
+        </TooltipProvider>
+      </ThemeProvider>
     </QueryClientProvider>
     </HelmetProvider>
   );

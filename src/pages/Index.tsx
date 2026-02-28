@@ -3,6 +3,7 @@ import Hero from '@/components/sections/Hero';
 
 import Experience from '@/components/sections/Experience';
 import Projects from '@/components/sections/Projects';
+import GithubStats from '@/components/sections/GithubStats';
 import Contact from '@/components/sections/Contact';
 
 const Index = () => {
@@ -20,8 +21,9 @@ const Index = () => {
 
       <Experience />
 
-      <Projects selectedFilter={selectedFilter} onSelectFilter={setSelectedFilter} />
+      <GithubStats />
 
+      <Projects selectedFilter={selectedFilter} onSelectFilter={setSelectedFilter} />
 
       <Contact />
 
