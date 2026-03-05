@@ -18,12 +18,29 @@ const parseDate = (s: string) => {
 const formatMonthLabel = (date: Date) =>
   date.toLocaleDateString('en-US', { month: 'short' });
 
+function useIsNarrow() {
+  const [isNarrow, setIsNarrow] = useState(() =>
+    typeof window !== 'undefined' ? window.matchMedia('(max-width: 640px)').matches : false
+  );
+  useEffect(() => {
+    const m = window.matchMedia('(max-width: 640px)');
+    const onChange = () => setIsNarrow(m.matches);
+    m.addEventListener('change', onChange);
+    return () => m.removeEventListener('change', onChange);
+  }, []);
+  return isNarrow;
+}
+
 export default function GithubStats() {
   const { theme } = useTheme();
+  const isNarrow = useIsNarrow();
   const levelColors = theme === 'dark' ? LEVEL_COLORS_DARK : LEVEL_COLORS_LIGHT;
   const [contributions, setContributions] = useState<Contribution[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  const cellSize = isNarrow ? 6 : 10;
+  const gap = isNarrow ? 2 : 3;
 
   useEffect(() => {
     let cancelled = false;
@@ -75,6 +92,7 @@ export default function GithubStats() {
     const monthPositions: { month: string; xPx: number }[] = [];
     let lastMonth = -1;
     let col = 0;
+    const step = cellSize + gap;
 
     for (let t = startTime; t <= end.getTime(); t += oneDay) {
       const d = new Date(t);
@@ -87,7 +105,7 @@ export default function GithubStats() {
 
       const month = d.getMonth();
       if (month !== lastMonth && (d.getDate() <= 7 || lastMonth === -1)) {
-        monthPositions.push({ month: formatMonthLabel(d), xPx: col * (10 + 3) });
+        monthPositions.push({ month: formatMonthLabel(d), xPx: col * step });
         lastMonth = month;
       }
       if (row === 6) col++;
@@ -103,71 +121,71 @@ export default function GithubStats() {
       totalInRange,
       monthLabels: monthPositions,
     };
-  }, [byDate]);
+  }, [byDate, cellSize, gap]);
 
-  const cellSize = 10;
-  const gap = 3;
   const width = grid[0]?.length ? grid[0].length * (cellSize + gap) - gap : 0;
   const height = 7 * (cellSize + gap) - gap;
   const gridWidth = width;
 
   return (
-    <section id="github-activity" className="py-12 md:py-16 bg-background">
+    <section id="github-activity" className="py-8 md:py-16 bg-background">
       <div className="container mx-auto px-4 md:px-6 max-w-5xl">
-        <div className="mb-8">
+        <div className="mb-4 md:mb-8">
           <p className="text-sm font-medium uppercase tracking-[0.2em] text-foreground/60">
             GITHUB ACTIVITY
           </p>
         </div>
 
-        <div className="rounded-lg border border-border/40 bg-card p-3 md:p-4 w-fit max-w-full">
+        <div className="rounded-lg border border-border/40 bg-card p-2 md:p-4 w-fit max-w-full overflow-hidden">
           {loading && (
-            <div className="flex items-center justify-center min-h-[200px] text-foreground/60">
+            <div className="flex items-center justify-center min-h-[120px] md:min-h-[200px] text-foreground/60">
               Loading…
             </div>
           )}
           {error && (
-            <div className="flex items-center justify-center min-h-[200px] text-destructive">
+            <div className="flex items-center justify-center min-h-[120px] md:min-h-[200px] text-destructive">
               {error}
             </div>
           )}
           {!loading && !error && grid[0]?.length > 0 && (
             <>
-              <p className="text-sm text-foreground/80 mb-3">
+              <p className="text-sm text-foreground/80 mb-2 md:mb-3">
                 <strong>{totalInRange.toLocaleString()} contributions</strong> from Jun 2025 – May 2026
               </p>
-              <div className="overflow-x-auto" style={{ width: gridWidth }}>
-                <svg
-                  width={width}
-                  height={height}
-                  viewBox={`0 0 ${width} ${height}`}
-                  className="min-w-0"
-                >
-                  {grid.map((row, rowIndex) =>
-                    row.map((level, colIndex) => (
-                      <rect
-                        key={`${rowIndex}-${colIndex}`}
-                        x={colIndex * (cellSize + gap)}
-                        y={rowIndex * (cellSize + gap)}
-                        width={cellSize}
-                        height={cellSize}
-                        rx={2}
-                        fill={levelColors[level]}
-                      />
-                    ))
-                  )}
-                </svg>
-              </div>
-              <div className="min-h-[1.25rem] relative mt-2 text-xs text-foreground/50" style={{ width: gridWidth }}>
-                {monthLabels.map(({ month, xPx }) => (
-                  <span
-                    key={`${month}-${xPx}`}
-                    className="absolute"
-                    style={{ left: xPx }}
+              <div className="overflow-x-auto overflow-y-hidden -mx-1 px-1 touch-pan-x" style={{ maxWidth: '100%' }}>
+                <div className="inline-block min-w-0" style={{ width: gridWidth }}>
+                  <svg
+                    width={width}
+                    height={height}
+                    viewBox={`0 0 ${width} ${height}`}
+                    className="min-w-0 block"
                   >
-                    {month}
-                  </span>
-                ))}
+                    {grid.map((row, rowIndex) =>
+                      row.map((level, colIndex) => (
+                        <rect
+                          key={`${rowIndex}-${colIndex}`}
+                          x={colIndex * (cellSize + gap)}
+                          y={rowIndex * (cellSize + gap)}
+                          width={cellSize}
+                          height={cellSize}
+                          rx={isNarrow ? 1 : 2}
+                          fill={levelColors[level]}
+                        />
+                      ))
+                    )}
+                  </svg>
+                  <div className="min-h-[1rem] md:min-h-[1.25rem] relative mt-1 md:mt-2 text-[10px] md:text-xs text-foreground/50" style={{ width: gridWidth }}>
+                    {monthLabels.map(({ month, xPx }) => (
+                      <span
+                        key={`${month}-${xPx}`}
+                        className="absolute"
+                        style={{ left: xPx }}
+                      >
+                        {month}
+                      </span>
+                    ))}
+                  </div>
+                </div>
               </div>
             </>
           )}
