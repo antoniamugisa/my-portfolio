@@ -11,6 +11,7 @@ import Blog from "./pages/Blog";
 import BlogPost from "./pages/BlogPost";
 import Projects from "./pages/Projects";
 import ProjectDetail from "./pages/ProjectDetail";
+import BikeShareTorontoPage from "./pages/bike-share-toronto/page";
 import Experience from "./pages/Experience";
 import Interests from "./pages/Interests";
 import Photos from "./pages/Photos";
@@ -84,6 +85,7 @@ const AppContent = () => {
           <Route path="/blog" element={<Blog />} />
           <Route path="/blog/:id" element={<BlogPost />} />
           <Route path="/projects" element={<Projects />} />
+          <Route path="/projects/bike-share-toronto" element={<BikeShareTorontoPage />} />
           <Route path="/projects/:id" element={<ProjectDetail />} />
           <Route path="/experience" element={<Experience />} />
           <Route path="/interests" element={<Interests />} />
