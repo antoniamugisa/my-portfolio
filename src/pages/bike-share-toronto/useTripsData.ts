@@ -1,150 +1,265 @@
-import { useState, useEffect, useCallback } from 'react';
-import type { Station, Trip, HourlyBucket, ProcessedTripsData, TripFilters } from './types';
-import { MAX_ACTIVE_TRIPS } from './types';
+import { useState, useEffect, useCallback, useRef } from 'react';
+import type { Station, Filters, RealTrip, HourlyBucket, TripsDataState } from './types';
 
-/** Station data is fetched at build time (npm run fetch-data) to avoid CORS. */
-const STATIONS_JSON = '/data/bikeshare-stations.json';
+const GBFS_URL = '/api/gbfs/ube/gbfs/v1/en/station_information';
+const DATA_URL = '/data/bikeshare-jan-2025.json';
+const MAX_PER_HOUR = 400;
 
-function sample<T>(arr: T[], max: number): T[] {
-  if (arr.length <= max) return arr;
-  const shuffled = [...arr].sort(() => Math.random() - 0.5);
-  return shuffled.slice(0, max);
+interface RawTrip {
+  sid: number;
+  eid: number;
+  h: number;
+  dur: number;
+  mem: number;
+  eb: number;
 }
 
-export function useTripsData() {
-  const [stations, setStations] = useState<Map<number, Station>>(new Map());
-  const [hourlyBuckets, setHourlyBuckets] = useState<HourlyBucket[]>([]);
-  const [totalTrips, setTotalTrips] = useState(0);
-  const [dataMonth, setDataMonth] = useState('');
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+interface BikeShareJSON {
+  meta: {
+    month: string;
+    monthKey: string;
+    totalTrips: number;
+    generatedAt: string;
+  };
+  stations: Array<{ id: number; name: string }>;
+  trips: RawTrip[];
+}
 
-  useEffect(() => {
-    let cancelled = false;
+function haversine(lat1: number, lng1: number, lat2: number, lng2: number): number {
+  const toRad = (d: number) => (d * Math.PI) / 180;
+  const R = 6371;
+  const dLat = toRad(lat2 - lat1);
+  const dLng = toRad(lng2 - lng1);
+  const a =
+    Math.sin(dLat / 2) ** 2 +
+    Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLng / 2) ** 2;
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+}
 
-    async function load() {
-      setError(null);
-      try {
-        const [stationsRes, tripsRes] = await Promise.all([
-          fetch(STATIONS_JSON),
-          fetch('/data/bikeshare-processed.json'),
-        ]);
+function nearestStation(station: Station, all: Station[], maxKm = 1.0): Station | null {
+  let best: Station | null = null;
+  let bestDist = Infinity;
+  for (const s of all) {
+    if (s.id === station.id) continue;
+    const d = haversine(station.lat, station.lng, s.lat, s.lng);
+    if (d < bestDist && d <= maxKm) {
+      best = s;
+      bestDist = d;
+    }
+  }
+  return best;
+}
 
-        if (!stationsRes.ok) {
-          setError('Could not load station data. Run npm run fetch-data to generate /public/data/ files.');
-          setIsLoading(false);
-          return;
-        }
+function sampleArray<T>(arr: T[], maxLen: number): T[] {
+  if (arr.length <= maxLen) return arr;
+  const shuffled = arr.slice();
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+  }
+  return shuffled.slice(0, maxLen);
+}
 
-        let stationsJson: { stations?: unknown[]; data?: { stations?: unknown[] } };
-        try {
-          stationsJson = await stationsRes.json();
-        } catch {
-          setError('Station data invalid (expected JSON). Run npm run fetch-data.');
-          setIsLoading(false);
-          return;
-        }
-        const stationList = stationsJson?.stations ?? stationsJson?.data?.stations ?? [];
-        const stationMap = new Map<number, Station>(
-          stationList.map((s: { station_id: string; id?: number; name: string; lat: number; lon?: number; lng?: number; capacity?: number }) => {
-            const id = s.id ?? parseInt(s.station_id, 10);
-            const lng = s.lng ?? s.lon ?? 0;
-            return [
-              id,
-              { id, name: s.name, lat: s.lat, lng, capacity: s.capacity ?? 10 },
-            ];
-          })
-        );
+export function monthLabel(monthKey: string): string {
+  const [year, month] = monthKey.split('-');
+  const date = new Date(parseInt(year), parseInt(month) - 1, 1);
+  return date.toLocaleDateString('en-CA', { month: 'long', year: 'numeric' });
+}
 
-        if (!tripsRes.ok) {
-          setError('Could not load trip data. Run npm run fetch-data to generate /public/data/ files.');
-          setHourlyBuckets(Array.from({ length: 24 }, (_, h) => ({ hour: h, trips: [], count: 0 })));
-          setTotalTrips(0);
-          setStations(stationMap);
-          setIsLoading(false);
-          return;
-        }
+const initialState: TripsDataState = {
+  stations: new Map(),
+  hourlyBuckets: [],
+  totalTrips: 0,
+  availableMonths: [],
+  currentMonth: '',
+  isLoading: false,
+  loadingMessage: '',
+  error: null,
+};
 
-        let tripsJson: ProcessedTripsData;
-        try {
-          tripsJson = await tripsRes.json();
-        } catch {
-          setError('Trip data invalid (expected JSON). Run npm run fetch-data.');
-          setHourlyBuckets(Array.from({ length: 24 }, (_, h) => ({ hour: h, trips: [], count: 0 })));
-          setStations(stationMap);
-          setIsLoading(false);
-          return;
-        }
+export function useTripsData(filters: Filters): {
+  data: TripsDataState;
+  setMonth: (month: string) => void;
+} {
+  const [data, setData] = useState<TripsDataState>(initialState);
 
-        const stationMapFinal = new Map<number, Station>(
-          stationList.map((s: { station_id: string; id?: number; name: string; lat: number; lon?: number; lng?: number; capacity?: number }) => {
-            const id = s.id ?? parseInt(s.station_id, 10);
-            const lng = s.lng ?? s.lon ?? 0;
-            return [
-              id,
-              { id, name: s.name, lat: s.lat, lng, capacity: s.capacity ?? 10 },
-            ];
-          })
-        );
+  const rawTripsRef = useRef<RawTrip[]>([]);
+  const stationMapRef = useRef<Map<number, Station>>(new Map());
+  const allStationsRef = useRef<Station[]>([]);
+  const totalTripsRef = useRef(0);
 
-        if (cancelled) return;
-        setStations(stationMapFinal);
+  const applyFilters = useCallback((f: Filters) => {
+    const raw = rawTripsRef.current;
+    const stations = stationMapRef.current;
+    const allStations = allStationsRef.current;
+    if (raw.length === 0 || stations.size === 0) return;
 
-        const rawBuckets = tripsJson.hourlyBuckets ?? [];
-        const filtered: HourlyBucket[] = rawBuckets.map((bucket) => {
-          const valid = bucket.trips.filter(
-            (t) =>
-              stationMapFinal.has(t.startStationId) &&
-              stationMapFinal.has(t.endStationId) &&
-              t.durationSeconds >= 60 &&
-              t.durationSeconds <= 3 * 3600
-          );
-          const sampled = sample(valid, MAX_ACTIVE_TRIPS);
-          return { hour: bucket.hour, trips: sampled, count: valid.length };
-        });
-
-        if (cancelled) return;
-        setHourlyBuckets(filtered);
-        setTotalTrips(tripsJson.totalTrips ?? 0);
-        setDataMonth(tripsJson.dataMonth ?? '');
-      } catch (e) {
-        if (!cancelled) {
-          setError(e instanceof Error ? e.message : 'Failed to load data');
-          setHourlyBuckets(Array.from({ length: 24 }, (_, h) => ({ hour: h, trips: [], count: 0 })));
-        }
-      } finally {
-        if (!cancelled) setIsLoading(false);
-      }
+    const raw24: RawTrip[][] = Array.from({ length: 24 }, () => []);
+    for (const t of raw) {
+      if (t.h >= 0 && t.h <= 23) raw24[t.h].push(t);
     }
 
-    load();
-    return () => {
-      cancelled = true;
-    };
+    const hourlyBuckets: HourlyBucket[] = raw24.map((rawTrips, hour) => {
+      let filtered = rawTrips;
+      if (!f.member) filtered = filtered.filter(t => t.mem !== 1);
+      if (!f.casual) filtered = filtered.filter(t => t.mem !== 0);
+      if (!f.ebike) filtered = filtered.filter(t => t.eb !== 1);
+      if (!f.classic) filtered = filtered.filter(t => t.eb !== 0);
+
+      const sampled = sampleArray(filtered, MAX_PER_HOUR);
+
+      const trips: RealTrip[] = [];
+      for (const t of sampled) {
+        const from = stations.get(t.sid);
+        let to = stations.get(t.eid);
+        if (!from || !to) continue;
+
+        if (from.id === to.id) {
+          const near = nearestStation(from, allStations);
+          if (!near) continue;
+          to = near;
+        }
+
+        trips.push({
+          from,
+          to,
+          startHour: t.h,
+          startMinute: 0,
+          durationSeconds: t.dur,
+          isMember: t.mem === 1,
+          isEbike: t.eb === 1,
+        });
+      }
+
+      return { hour, trips, count: rawTrips.length };
+    });
+
+    setData(prev => ({
+      ...prev,
+      hourlyBuckets,
+    }));
   }, []);
 
-  const getFilteredTripsForHour = useCallback(
-    (hour: number, filters: TripFilters): Trip[] => {
-      const bucket = hourlyBuckets[hour];
-      if (!bucket) return [];
-      return bucket.trips.filter((t) => {
-        if (t.isMember && !filters.members) return false;
-        if (!t.isMember && !filters.casual) return false;
-        if (t.isEbike && !filters.ebike) return false;
-        if (!t.isEbike && !filters.classic) return false;
-        return true;
-      });
-    },
-    [hourlyBuckets]
-  );
+  const loadData = useCallback(async () => {
+    setData(prev => ({
+      ...prev,
+      isLoading: true,
+      loadingMessage: 'Fetching station coordinates...',
+      error: null,
+    }));
 
-  return {
-    stations,
-    hourlyBuckets,
-    totalTrips,
-    dataMonth,
-    isLoading,
-    error,
-    getFilteredTripsForHour,
-  };
+    try {
+      const gbfsById = new Map<number, { lat: number; lon: number; capacity: number }>();
+      try {
+        const gbfsRes = await fetch(GBFS_URL);
+        if (gbfsRes.ok) {
+          const gbfsJson = await gbfsRes.json();
+          for (const s of gbfsJson.data.stations) {
+            gbfsById.set(parseInt(s.station_id), {
+              lat: s.lat,
+              lon: s.lon,
+              capacity: s.capacity ?? 15,
+            });
+          }
+        }
+      } catch {
+        // GBFS failed — continue with fallback coords
+      }
+
+      setData(prev => ({ ...prev, loadingMessage: 'Loading January 2025 trip data...' }));
+
+      const res = await fetch(DATA_URL);
+      if (!res.ok) throw new Error(`Failed to fetch trip data: ${res.status}`);
+      const json: BikeShareJSON = await res.json();
+
+      setData(prev => ({
+        ...prev,
+        loadingMessage: `Parsing ${json.meta.totalTrips.toLocaleString()} trips...`,
+      }));
+      await new Promise(r => setTimeout(r, 0));
+
+      const stationMap = new Map<number, Station>();
+      for (const s of json.stations) {
+        const gbfs = gbfsById.get(s.id);
+        stationMap.set(s.id, {
+          id: s.id,
+          name: s.name,
+          lat: gbfs?.lat ?? 43.655,
+          lng: gbfs?.lon ?? -79.385,
+          cap: gbfs?.capacity ?? 15,
+        });
+      }
+
+      setData(prev => ({ ...prev, loadingMessage: 'Building hourly trip map...' }));
+      await new Promise(r => setTimeout(r, 0));
+
+      rawTripsRef.current = json.trips;
+      stationMapRef.current = stationMap;
+      allStationsRef.current = Array.from(stationMap.values());
+      totalTripsRef.current = json.meta.totalTrips;
+
+      // Build initial buckets with all-pass filters
+      const raw24: RawTrip[][] = Array.from({ length: 24 }, () => []);
+      for (const t of json.trips) {
+        if (t.h >= 0 && t.h <= 23) raw24[t.h].push(t);
+      }
+
+      const allStations = allStationsRef.current;
+      const hourlyBuckets: HourlyBucket[] = raw24.map((rawTrips, hour) => {
+        const sampled = sampleArray(rawTrips, MAX_PER_HOUR);
+        const trips: RealTrip[] = [];
+        for (const t of sampled) {
+          const from = stationMap.get(t.sid);
+          let to = stationMap.get(t.eid);
+          if (!from || !to) continue;
+          if (from.id === to.id) {
+            const near = nearestStation(from, allStations);
+            if (!near) continue;
+            to = near;
+          }
+          trips.push({
+            from, to,
+            startHour: t.h, startMinute: 0,
+            durationSeconds: t.dur,
+            isMember: t.mem === 1, isEbike: t.eb === 1,
+          });
+        }
+        return { hour, trips, count: rawTrips.length };
+      });
+
+      setData({
+        stations: stationMap,
+        hourlyBuckets,
+        totalTrips: json.meta.totalTrips,
+        availableMonths: ['2025-01'],
+        currentMonth: '2025-01',
+        isLoading: false,
+        loadingMessage: '',
+        error: null,
+      });
+    } catch (err) {
+      setData(prev => ({
+        ...prev,
+        isLoading: false,
+        loadingMessage: '',
+        error: `Failed to load trip data: ${err instanceof Error ? err.message : 'Unknown error'}`,
+      }));
+    }
+  }, []);
+
+  useEffect(() => {
+    loadData();
+  }, [loadData]);
+
+  useEffect(() => {
+    if (rawTripsRef.current.length > 0) {
+      applyFilters(filters);
+    }
+  }, [filters.member, filters.casual, filters.ebike, filters.classic, applyFilters]);
+
+  const setMonth = useCallback((_month: string) => {
+    // Future: swap DATA_URL based on month, re-run loadData
+  }, []);
+
+  return { data, setMonth };
 }

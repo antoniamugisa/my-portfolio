@@ -1,20 +1,21 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import BikeShareMap from './BikeShareMap';
 import { Filters, HOUR_PROFILE, PERIOD_LABELS, STATIONS } from './types';
+import { useTripsData, monthLabel } from './useTripsData';
 import './bikeshare.css';
 
 const SPEEDS = [1, 2, 4];
+const ALL_FILTERS: Filters = { member: true, casual: true, ebike: true, classic: true };
 
 export default function BikeShareTorontoPage() {
   const [currentHour, setCurrentHour] = useState(8);
   const [playing, setPlaying] = useState(false);
   const [speedIdx, setSpeedIdx] = useState(0);
   const [tripCount, setTripCount] = useState(0);
-  const [filters, setFilters] = useState<Filters>({
-    member: true, casual: true, ebike: true, classic: true,
-  });
+
+  const { data: tripsData, setMonth } = useTripsData(ALL_FILTERS);
 
   const playIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
@@ -42,13 +43,37 @@ export default function BikeShareTorontoPage() {
     setSpeedIdx(i => (i + 1) % SPEEDS.length);
   };
 
-  const toggleFilter = (key: keyof Filters) => {
-    setFilters(prev => ({ ...prev, [key]: !prev[key] }));
-  };
-
   const hh = String(currentHour).padStart(2, '0');
   const timeStr = `${hh}:00`;
   const periodLabel = PERIOD_LABELS[currentHour];
+
+  const insights = useMemo(() => {
+    const buckets = tripsData.hourlyBuckets;
+    if (!buckets || buckets.length !== 24) return null;
+
+    let peakHour = 0;
+    let peakCount = 0;
+    let totalMembers = 0;
+    let totalEbike = 0;
+    let totalSampled = 0;
+
+    for (const b of buckets) {
+      if (b.count > peakCount) {
+        peakCount = b.count;
+        peakHour = b.hour;
+      }
+      for (const t of b.trips) {
+        totalSampled++;
+        if (t.isMember) totalMembers++;
+        if (t.isEbike) totalEbike++;
+      }
+    }
+
+    const memberPct = totalSampled > 0 ? Math.round((totalMembers / totalSampled) * 100) : 0;
+    const ebikePct = totalSampled > 0 ? Math.round((totalEbike / totalSampled) * 100) : 0;
+
+    return { peakHour, peakCount, memberPct, ebikePct };
+  }, [tripsData.hourlyBuckets]);
 
   return (
     <>
@@ -69,7 +94,9 @@ export default function BikeShareTorontoPage() {
             <div className="bs-logo-icon">🚲</div>
             <div>
               <div className="bs-title">BIKE SHARE TORONTO</div>
-              <div className="bs-subtitle">Trip Flow Visualizer — June 2024</div>
+              <div className="bs-subtitle">
+                Trip Flow Visualizer — {tripsData.currentMonth ? monthLabel(tripsData.currentMonth) : '2025'}
+              </div>
             </div>
           </div>
 
@@ -79,23 +106,37 @@ export default function BikeShareTorontoPage() {
               <div className="bs-stat-label">Active Trips</div>
             </div>
             <div className="bs-stat">
-              <div className="bs-stat-value">764K</div>
+              <div className="bs-stat-value">
+                {tripsData.totalTrips > 0 ? tripsData.totalTrips.toLocaleString() : '764K'}
+              </div>
               <div className="bs-stat-label">Monthly Total</div>
             </div>
             <div className="bs-stat">
-              <div className="bs-stat-value">{STATIONS.length}</div>
+              <div className="bs-stat-value">
+                {tripsData.stations.size > 0 ? tripsData.stations.size : STATIONS.length}
+              </div>
               <div className="bs-stat-label">Stations</div>
             </div>
           </div>
         </header>
 
         {/* Main */}
-        <div className="bs-main">
+        <div className="bs-main" style={{ position: 'relative' }}>
           <BikeShareMap
             currentHour={currentHour}
-            filters={filters}
             onTripCountChange={setTripCount}
+            hourlyBuckets={tripsData.hourlyBuckets}
           />
+
+          {/* Loading overlay */}
+          <div
+            className="bs-loading-overlay"
+            style={{ opacity: tripsData.isLoading ? 1 : 0, pointerEvents: tripsData.isLoading ? 'all' : 'none' }}
+          >
+            <div className="bs-loading-spinner" />
+            <div className="bs-loading-text">{tripsData.loadingMessage}</div>
+            {tripsData.error && <div className="bs-loading-error">{tripsData.error}</div>}
+          </div>
 
           {/* Sidebar */}
           <aside className="bs-sidebar">
@@ -150,6 +191,38 @@ export default function BikeShareTorontoPage() {
               </div>
             </section>
 
+            {/* Data source */}
+            <section className="bs-section">
+              <h3 className="bs-section-title">Data</h3>
+              {tripsData.availableMonths.length > 0 ? (
+                <>
+                  <select
+                    className="bs-month-select"
+                    value={tripsData.currentMonth}
+                    onChange={e => setMonth(e.target.value)}
+                    disabled={tripsData.isLoading}
+                  >
+                    {tripsData.availableMonths.map(m => (
+                      <option key={m} value={m}>{monthLabel(m)}</option>
+                    ))}
+                  </select>
+                  <div className="bs-data-status">
+                    {tripsData.isLoading ? (
+                      <span style={{ color: 'var(--bs-accent)' }}>● Loading...</span>
+                    ) : tripsData.error ? (
+                      <span style={{ color: 'var(--bs-accent2)' }}>● {tripsData.error}</span>
+                    ) : (
+                      <span style={{ color: '#00ff88' }}>✓ {tripsData.totalTrips.toLocaleString()} trips loaded</span>
+                    )}
+                  </div>
+                </>
+              ) : (
+                <div className="bs-data-status" style={{ color: 'var(--bs-muted)' }}>
+                  {tripsData.isLoading ? tripsData.loadingMessage : 'Synthetic data (fallback)'}
+                </div>
+              )}
+            </section>
+
             {/* 24h Activity */}
             <section className="bs-section">
               <h3 className="bs-section-title">24h Activity</h3>
@@ -170,26 +243,67 @@ export default function BikeShareTorontoPage() {
               </div>
             </section>
 
-            {/* Filters */}
+            {/* Data Insights */}
             <section className="bs-section">
-              <h3 className="bs-section-title">Filters</h3>
-              {(
-                [
-                  { key: 'member',  label: 'Member rides' },
-                  { key: 'casual',  label: 'Casual rides' },
-                  { key: 'ebike',   label: 'E-bikes' },
-                  { key: 'classic', label: 'Classic bikes' },
-                ] as { key: keyof Filters; label: string }[]
-              ).map(({ key, label }) => (
-                <div key={key} className="bs-toggle-row">
-                  <span className="bs-toggle-label">{label}</span>
-                  <button
-                    className={`bs-toggle ${filters[key] ? 'on' : ''}`}
-                    onClick={() => toggleFilter(key)}
-                    aria-label={`Toggle ${label}`}
-                  />
-                </div>
-              ))}
+              <h3 className="bs-section-title">Data Insights</h3>
+              {insights ? (
+                <>
+                  <div className="bs-insights-row">
+                    <span className="bs-insights-label">Peak hour</span>
+                    <span className="bs-insights-value">
+                      {String(insights.peakHour).padStart(2, '0')}:00
+                    </span>
+                  </div>
+                  <div className="bs-insights-row">
+                    <span className="bs-insights-label" />
+                    <span className="bs-insights-value" style={{ color: 'var(--bs-muted)', fontSize: 10 }}>
+                      {insights.peakCount.toLocaleString()} trips
+                    </span>
+                  </div>
+
+                  <div className="bs-insights-row" style={{ marginTop: 10 }}>
+                    <span className="bs-insights-label">Rider split</span>
+                  </div>
+                  <div className="bs-insights-row">
+                    <span className="bs-insights-label">Members</span>
+                    <span className="bs-insights-value">~{insights.memberPct}%</span>
+                  </div>
+                  <div className="bs-stat-bar">
+                    <div className="bs-stat-bar-fill" style={{ width: `${insights.memberPct}%` }} />
+                  </div>
+                  <div className="bs-insights-row">
+                    <span className="bs-insights-label">Casual</span>
+                    <span className="bs-insights-value">~{100 - insights.memberPct}%</span>
+                  </div>
+                  <div className="bs-stat-bar">
+                    <div className="bs-stat-bar-fill casual" style={{ width: `${100 - insights.memberPct}%` }} />
+                  </div>
+
+                  <div className="bs-insights-row" style={{ marginTop: 10 }}>
+                    <span className="bs-insights-label">Bike type</span>
+                  </div>
+                  <div className="bs-insights-row">
+                    <span className="bs-insights-label">Classic</span>
+                    <span className="bs-insights-value">~{100 - insights.ebikePct}%</span>
+                  </div>
+                  <div className="bs-stat-bar">
+                    <div className="bs-stat-bar-fill" style={{ width: `${100 - insights.ebikePct}%` }} />
+                  </div>
+                  <div className="bs-insights-row">
+                    <span className="bs-insights-label">E-bike</span>
+                    <span className="bs-insights-value">~{insights.ebikePct}%</span>
+                  </div>
+                  <div className="bs-stat-bar">
+                    <div className="bs-stat-bar-fill ebike" style={{ width: `${insights.ebikePct}%` }} />
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div className="bs-stat-bar"><div className="bs-stat-bar-fill" style={{ width: '0%' }} /></div>
+                  <div className="bs-stat-bar"><div className="bs-stat-bar-fill" style={{ width: '0%' }} /></div>
+                  <div className="bs-stat-bar"><div className="bs-stat-bar-fill" style={{ width: '0%' }} /></div>
+                </>
+              )}
             </section>
 
             {/* Legend */}
@@ -209,13 +323,6 @@ export default function BikeShareTorontoPage() {
                   <div className="bs-legend-sub">Pay-per-ride</div>
                 </div>
               </div>
-              <div className="bs-legend-item">
-                <div className="bs-legend-dot" style={{ background: 'rgba(255,255,255,0.5)' }} />
-                <div>
-                  <div className="bs-legend-text">Station</div>
-                  <div className="bs-legend-sub">Dot size = capacity</div>
-                </div>
-              </div>
             </section>
 
           </aside>
@@ -225,7 +332,9 @@ export default function BikeShareTorontoPage() {
         <footer className="bs-footer">
           <div className="bs-footer-note">
             <span className="bs-pulse" />
-            Representative sample — Open Toronto Data, June 2024 (~764K trips)
+            {tripsData.totalTrips > 0
+              ? `Real data — Open Toronto, ${tripsData.currentMonth ? monthLabel(tripsData.currentMonth) : '2025'} (${tripsData.totalTrips.toLocaleString()} trips)`
+              : 'Representative sample — Open Toronto Data'}
           </div>
           <div className="bs-footer-right">
             <span className="bs-footer-note">Drag to pan · Scroll to zoom</span>

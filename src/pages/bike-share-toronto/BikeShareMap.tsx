@@ -1,13 +1,14 @@
 import { useEffect, useRef, useCallback } from 'react';
-import { Station, Trip, Filters, MAP_BOUNDS, STATIONS, HOUR_PROFILE } from './types';
+import { Trip, MAP_BOUNDS, STATIONS, HOUR_PROFILE } from './types';
+import type { HourlyBucket } from './types';
 
 interface BikeShareMapProps {
   currentHour: number;
-  filters: Filters;
   onTripCountChange: (count: number) => void;
+  hourlyBuckets?: HourlyBucket[];
 }
 
-export default function BikeShareMap({ currentHour, filters, onTripCountChange }: BikeShareMapProps) {
+export default function BikeShareMap({ currentHour, onTripCountChange, hourlyBuckets }: BikeShareMapProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const tripsRef = useRef<Trip[]>([]);
   const animFrameRef = useRef<number>(0);
@@ -27,26 +28,20 @@ export default function BikeShareMap({ currentHour, filters, onTripCountChange }
     return [panX + nx * w * zoom, panY + ny * h * zoom];
   }, []);
 
-  const generateTrips = useCallback((hour: number, f: Filters): Trip[] => {
+  const generateTrips = useCallback((hour: number): Trip[] => {
     const count = Math.floor(HOUR_PROFILE[hour] * 180);
     const result: Trip[] = [];
     for (let i = 0; i < count; i++) {
       const fromIdx = Math.floor(Math.random() * STATIONS.length);
       let toIdx = Math.floor(Math.random() * STATIONS.length);
       while (toIdx === fromIdx) toIdx = Math.floor(Math.random() * STATIONS.length);
-      const isMember = Math.random() < 0.72;
-      const isEbike = Math.random() < 0.28;
-      if (!f.member && isMember) continue;
-      if (!f.casual && !isMember) continue;
-      if (!f.ebike && isEbike) continue;
-      if (!f.classic && !isEbike) continue;
       result.push({
         from: STATIONS[fromIdx],
         to: STATIONS[toIdx],
         progress: Math.random(),
         speed: 0.003 + Math.random() * 0.004,
-        member: isMember,
-        ebike: isEbike,
+        member: Math.random() < 0.72,
+        ebike: Math.random() < 0.28,
         alpha: 0.4 + Math.random() * 0.5,
       });
     }
@@ -121,30 +116,6 @@ export default function BikeShareMap({ currentHour, filters, onTripCountChange }
       ctx.fill();
     }
 
-    // Stations
-    for (const st of STATIONS) {
-      const [x, y] = latLngToXY(st.lat, st.lng, W, H, zoom, panX, panY);
-      const r = Math.sqrt(st.cap) * 0.7 * Math.min(zoom, 2);
-
-      ctx.beginPath();
-      ctx.arc(x, y, r + 2, 0, Math.PI * 2);
-      ctx.fillStyle = 'rgba(0,229,255,0.05)';
-      ctx.fill();
-
-      ctx.beginPath();
-      ctx.arc(x, y, r, 0, Math.PI * 2);
-      ctx.fillStyle = 'rgba(14,21,35,0.9)';
-      ctx.fill();
-      ctx.strokeStyle = 'rgba(0,229,255,0.5)';
-      ctx.lineWidth = 1;
-      ctx.stroke();
-
-      ctx.beginPath();
-      ctx.arc(x, y, 1.5, 0, Math.PI * 2);
-      ctx.fillStyle = 'rgba(0,229,255,0.8)';
-      ctx.fill();
-    }
-
     onTripCountChange(tripsRef.current.length);
   }, [latLngToXY, onTripCountChange]);
 
@@ -188,10 +159,24 @@ export default function BikeShareMap({ currentHour, filters, onTripCountChange }
     return () => cancelAnimationFrame(animFrameRef.current);
   }, [animate]);
 
-  // Regenerate trips when hour or filters change
+  const hasRealData = !!(hourlyBuckets && hourlyBuckets.length === 24 && hourlyBuckets.some(b => b.count > 0));
+
   useEffect(() => {
-    tripsRef.current = generateTrips(currentHour, filters);
-  }, [currentHour, filters, generateTrips]);
+    if (hasRealData) {
+      const realTrips = hourlyBuckets![currentHour].trips;
+      tripsRef.current = realTrips.map(rt => ({
+        from: rt.from,
+        to: rt.to,
+        progress: Math.random(),
+        speed: 0.003 + Math.random() * 0.004,
+        member: rt.isMember,
+        ebike: rt.isEbike,
+        alpha: 0.4 + Math.random() * 0.5,
+      }));
+    } else {
+      tripsRef.current = generateTrips(currentHour);
+    }
+  }, [currentHour, generateTrips, hasRealData, hourlyBuckets]);
 
   // Zoom
   useEffect(() => {

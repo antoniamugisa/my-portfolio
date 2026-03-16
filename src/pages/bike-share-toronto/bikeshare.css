@@ -382,6 +382,128 @@
   50%       { opacity: 0.7; box-shadow: 0 0 0 4px rgba(0, 255, 136, 0); }
 }
 
+/* ── Loading overlay ──────────────────────────────────────────────────── */
+.bs-loading-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(9, 12, 18, 0.85);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  z-index: 20;
+  transition: opacity 0.5s ease;
+}
+
+.bs-loading-spinner {
+  width: 48px;
+  height: 48px;
+  border: 3px solid var(--bs-border);
+  border-top-color: var(--bs-accent);
+  border-radius: 50%;
+  animation: bs-spin 0.8s linear infinite;
+}
+
+@keyframes bs-spin {
+  to { transform: rotate(360deg); }
+}
+
+.bs-loading-text {
+  font-family: 'Space Mono', monospace;
+  font-size: 13px;
+  color: var(--bs-accent);
+  letter-spacing: 0.05em;
+}
+
+.bs-loading-error {
+  font-family: 'Space Mono', monospace;
+  font-size: 11px;
+  color: var(--bs-accent2);
+}
+
+/* ── Month select ────────────────────────────────────────────────────── */
+.bs-month-select {
+  width: 100%;
+  padding: 7px 10px;
+  background: var(--bs-bg);
+  border: 1px solid var(--bs-border);
+  border-radius: 4px;
+  color: var(--bs-text);
+  font-family: 'Space Mono', monospace;
+  font-size: 11px;
+  cursor: pointer;
+  outline: none;
+  margin-bottom: 8px;
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%234a6080'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+}
+
+.bs-month-select:hover {
+  border-color: var(--bs-accent);
+}
+
+.bs-month-select:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.bs-month-select option {
+  background: var(--bs-bg);
+  color: var(--bs-text);
+}
+
+.bs-data-status {
+  font-family: 'Space Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.03em;
+}
+
+/* ── Data insights ───────────────────────────────────────────────────── */
+.bs-stat-bar {
+  height: 4px;
+  background: var(--bs-border);
+  border-radius: 2px;
+  margin: 4px 0 8px;
+  overflow: hidden;
+}
+
+.bs-stat-bar-fill {
+  height: 100%;
+  background: var(--bs-accent);
+  border-radius: 2px;
+  transition: width 0.6s ease;
+}
+
+.bs-stat-bar-fill.casual {
+  background: var(--bs-accent2);
+}
+
+.bs-stat-bar-fill.ebike {
+  background: #a78bfa;
+}
+
+.bs-insights-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2px;
+}
+
+.bs-insights-label {
+  font-size: 11px;
+  color: var(--bs-muted);
+}
+
+.bs-insights-value {
+  font-family: 'Space Mono', monospace;
+  font-size: 11px;
+  color: var(--bs-text);
+}
+
 /* ── Mobile: hide sidebar, show minimal controls ────────────────────────── */
 @media (max-width: 768px) {
   .bs-sidebar { display: none; }

@@ -8,7 +8,24 @@ export default defineConfig(({ mode }) => ({
   server: {
     host: "::",
     port: 5001,
-    hmr: true
+    hmr: true,
+    proxy: {
+      '/api/opendata': {
+        target: 'https://opendata.toronto.ca',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api\/opendata/, ''),
+      },
+      '/api/ckan': {
+        target: 'https://ckan0.cf.opendata.inter.prod-toronto.ca',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api\/ckan/, ''),
+      },
+      '/api/gbfs': {
+        target: 'https://tor.publicbikesystem.net',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api\/gbfs/, ''),
+      },
+    },
   },
   plugins: [
     react(),

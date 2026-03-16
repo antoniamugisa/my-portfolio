@@ -94,3 +94,30 @@ export const STATIONS: Station[] = [
   {id:7150,lat:43.6382,lng:-79.4452,name:"Roncesvalles / Queen W",cap:19},
   {id:7151,lat:43.6408,lng:-79.4350,name:"Lansdowne / Queen W",cap:15},
 ];
+
+export interface RealTrip {
+  from: Station;
+  to: Station;
+  startHour: number;
+  startMinute: number;
+  durationSeconds: number;
+  isMember: boolean;
+  isEbike: boolean;
+}
+
+export interface HourlyBucket {
+  hour: number;
+  trips: RealTrip[];
+  count: number;
+}
+
+export interface TripsDataState {
+  stations: Map<number, Station>;
+  hourlyBuckets: HourlyBucket[];
+  totalTrips: number;
+  availableMonths: string[];
+  currentMonth: string;
+  isLoading: boolean;
+  loadingMessage: string;
+  error: string | null;
+}
