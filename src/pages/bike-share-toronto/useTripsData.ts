@@ -1,7 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import type { Station, Filters, RealTrip, HourlyBucket, TripsDataState } from './types';
 
-const GBFS_URL = '/api/gbfs/ube/gbfs/v1/en/station_information';
 const DATA_URL = '/data/bikeshare-jan-2025.json';
 const MAX_PER_HOUR = 400;
 
@@ -21,7 +20,13 @@ interface BikeShareJSON {
     totalTrips: number;
     generatedAt: string;
   };
-  stations: Array<{ id: number; name: string }>;
+  stations: Array<{
+    id: number;
+    name: string;
+    lat?: number;
+    lng?: number;
+    cap?: number;
+  }>;
   trips: RawTrip[];
 }
 
@@ -73,7 +78,7 @@ const initialState: TripsDataState = {
   availableMonths: [],
   currentMonth: '',
   isLoading: false,
-  loadingMessage: '',
+  loadingMessage: 'Loading January 2025 trip data...',
   error: null,
 };
 
@@ -144,30 +149,11 @@ export function useTripsData(filters: Filters): {
     setData(prev => ({
       ...prev,
       isLoading: true,
-      loadingMessage: 'Fetching station coordinates...',
+      loadingMessage: 'Loading January 2025 trip data...',
       error: null,
     }));
 
     try {
-      const gbfsById = new Map<number, { lat: number; lon: number; capacity: number }>();
-      try {
-        const gbfsRes = await fetch(GBFS_URL);
-        if (gbfsRes.ok) {
-          const gbfsJson = await gbfsRes.json();
-          for (const s of gbfsJson.data.stations) {
-            gbfsById.set(parseInt(s.station_id), {
-              lat: s.lat,
-              lon: s.lon,
-              capacity: s.capacity ?? 15,
-            });
-          }
-        }
-      } catch {
-        // GBFS failed — continue with fallback coords
-      }
-
-      setData(prev => ({ ...prev, loadingMessage: 'Loading January 2025 trip data...' }));
-
       const res = await fetch(DATA_URL);
       if (!res.ok) throw new Error(`Failed to fetch trip data: ${res.status}`);
       const json: BikeShareJSON = await res.json();
@@ -180,13 +166,12 @@ export function useTripsData(filters: Filters): {
 
       const stationMap = new Map<number, Station>();
       for (const s of json.stations) {
-        const gbfs = gbfsById.get(s.id);
         stationMap.set(s.id, {
           id: s.id,
           name: s.name,
-          lat: gbfs?.lat ?? 43.655,
-          lng: gbfs?.lon ?? -79.385,
-          cap: gbfs?.capacity ?? 15,
+          lat: s.lat ?? 43.655,
+          lng: s.lng ?? -79.385,
+          cap: s.cap ?? 15,
         });
       }
 
