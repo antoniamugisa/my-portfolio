@@ -14,7 +14,12 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@deck.gl/core": "^9.2.11",
+    "@deck.gl/geo-layers": "^9.2.11",
+    "@deck.gl/layers": "^9.2.11",
+    "@deck.gl/mapbox": "^9.2.11",
     "@emailjs/browser": "^4.4.1",
+    "@mapbox/polyline": "^1.2.1",
     "@radix-ui/react-label": "^2.1.0",
     "@radix-ui/react-select": "^2.1.1",
     "@radix-ui/react-slot": "^1.1.0",
@@ -28,6 +33,7 @@
     "date-fns": "^3.6.0",
     "fflate": "^0.8.2",
     "lucide-react": "^0.462.0",
+    "mapbox-gl": "^3.20.0",
     "next-themes": "^0.4.6",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
@@ -44,6 +50,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.9.0",
+    "@types/mapbox-gl": "^3.4.1",
     "@types/node": "^22.5.5",
     "@types/react": "^18.3.26",
     "@types/react-dom": "^18.3.0",

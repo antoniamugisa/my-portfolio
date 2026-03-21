@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
-import BikeShareMap from './BikeShareMap';
+import MapView from './MapView';
 import { Filters, HOUR_PROFILE, PERIOD_LABELS, STATIONS } from './types';
 import { useTripsData, monthLabel } from './useTripsData';
 import './bikeshare.css';
@@ -122,7 +122,7 @@ export default function BikeShareTorontoPage() {
 
         {/* Main */}
         <div className="bs-main" style={{ position: 'relative' }}>
-          <BikeShareMap
+          <MapView
             currentHour={currentHour}
             onTripCountChange={setTripCount}
             hourlyBuckets={tripsData.hourlyBuckets}

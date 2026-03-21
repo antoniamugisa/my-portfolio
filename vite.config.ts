@@ -5,6 +5,26 @@ import { componentTagger } from "lovable-tagger";
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => ({
+  optimizeDeps: {
+    include: [
+      "@loaders.gl/core",
+      "@loaders.gl/loader-utils",
+      "@loaders.gl/worker-utils",
+      "@loaders.gl/schema",
+      "@loaders.gl/zip",
+      "@loaders.gl/gis",
+      "@loaders.gl/mvt",
+      "@loaders.gl/tiles",
+      "earcut",
+      "fast-xml-parser",
+      "long",
+      "jszip",
+      "pako",
+      "snappyjs",
+    ],
+    needsInterop: ["earcut", "fast-xml-parser", "long", "jszip", "pako", "snappyjs"],
+    exclude: ["@deck.gl/core", "@deck.gl/geo-layers", "@deck.gl/mapbox"],
+  },
   server: {
     host: "::",
     port: 5001,
