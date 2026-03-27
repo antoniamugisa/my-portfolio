@@ -28,3 +28,6 @@ public/data/*.csv
 public/data/bikeshare-ridership-2025/
 public/data/*.csv
 .env.local
+pipeline/osm/
+pipeline/output/
+pipeline/data/

@@ -1,0 +1,19 @@
+{
+  "name": "bikeshare-pipeline",
+  "version": "1.0.0",
+  "scripts": {
+    "stations": "bun run scripts/build-stations.ts",
+    "routes":   "bun run scripts/build-routes.ts",
+    "parquet":  "bun run scripts/build-parquet.ts",
+    "all":      "bun run stations && bun run routes && bun run parquet"
+  },
+  "dependencies": {
+    "@duckdb/node-api": "^1.5.0-r.1",
+    "adm-zip": "^0.5.16",
+    "xlsx": "^0.18.5"
+  },
+  "devDependencies": {
+    "@types/bun": "^1.3.11",
+    "typescript": "^5.9.3"
+  }
+}
