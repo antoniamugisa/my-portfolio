@@ -1,36 +1,185 @@
-import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
+import {
+  useState,
+  useEffect,
+  useCallback,
+  useRef,
+  useMemo,
+  type MutableRefObject,
+} from 'react';
 import { Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
+import { ChevronLeft, ChevronRight, Dices } from 'lucide-react';
 import MapView from './MapView';
-import { Filters, HOUR_PROFILE, PERIOD_LABELS, STATIONS } from './types';
-import { useTripsData, monthLabel } from './useTripsData';
+import { type DeckTrip, HOUR_PROFILE, PERIOD_LABELS, STATIONS } from './types';
+import { PUBLISHED_MONTHS } from './publishedMonths';
+import { useTripStream, monthLabel } from './useTripStream';
 import './bikeshare.css';
 
 const SPEEDS = [1, 2, 4];
-const ALL_FILTERS: Filters = { member: true, casual: true, ebike: true, classic: true };
+const TORONTO_TZ = 'America/Toronto';
+
+function MapFloatingClock({
+  timeMsRef,
+  hasTrips,
+}: {
+  timeMsRef: MutableRefObject<number>;
+  hasTrips: boolean;
+}) {
+  const [dateStr, setDateStr] = useState('');
+  const [timeStr, setTimeStr] = useState('--:--:--');
+
+  useEffect(() => {
+    const id = setInterval(() => {
+      const ms = timeMsRef.current;
+      if (!hasTrips || !ms) {
+        setDateStr('');
+        setTimeStr('--:--:--');
+        return;
+      }
+      setDateStr(
+        new Intl.DateTimeFormat('en-US', {
+          timeZone: TORONTO_TZ,
+          weekday: 'short',
+          month: 'short',
+          day: 'numeric',
+          year: 'numeric',
+        }).format(new Date(ms)),
+      );
+      setTimeStr(
+        new Intl.DateTimeFormat('en-US', {
+          timeZone: TORONTO_TZ,
+          hour: 'numeric',
+          minute: '2-digit',
+          second: '2-digit',
+          hour12: true,
+        }).format(new Date(ms)),
+      );
+    }, 50);
+    return () => clearInterval(id);
+  }, [timeMsRef, hasTrips]);
+
+  return (
+    <div className="bs-map-hud-clock">
+      <div className="bs-map-hud-date">{dateStr || '—'}</div>
+      <div className="bs-map-hud-time">{timeStr}</div>
+    </div>
+  );
+}
+
+const AVAILABLE_MONTHS = [...PUBLISHED_MONTHS];
+
+function formatTripClock(ms: number) {
+  return new Intl.DateTimeFormat('en-US', {
+    timeZone: TORONTO_TZ,
+    hour: 'numeric',
+    minute: '2-digit',
+    hour12: true,
+  }).format(new Date(ms));
+}
+
+function tripStats(trip: DeckTrip) {
+  const durSec = Math.max(1, Math.round((trip.endedAtMs - trip.startedAtMs) / 1000));
+  const mins = Math.max(1, Math.round(durSec / 60));
+  const mi = trip.distanceM / 1609.34;
+  const mph = mi / (durSec / 3600);
+  return {
+    durMin: mins,
+    miLabel: mi < 0.05 ? '<0.1' : mi.toFixed(1),
+    mphLabel: Number.isFinite(mph) && mph > 0.5 && mph < 200 ? mph.toFixed(1) : '—',
+  };
+}
+
+function shortTripId(id: string) {
+  const compact = id.replace(/-/g, '');
+  if (compact.length <= 12) return id.toUpperCase();
+  return `${compact.slice(0, 8).toUpperCase()}…`;
+}
 
 export default function BikeShareTorontoPage() {
   const [currentHour, setCurrentHour] = useState(8);
   const [playing, setPlaying] = useState(false);
   const [speedIdx, setSpeedIdx] = useState(0);
   const [tripCount, setTripCount] = useState(0);
+  const [currentMonth, setCurrentMonth] = useState('2025-07');
+  const [mapTimelinePaused, setMapTimelinePaused] = useState(false);
+  const [mapFps, setMapFps] = useState(0);
+  /** Bumps when the user picks a month/hour so the map clock snaps to that window (not when the hour auto-advances). */
+  const [playbackResetNonce, setPlaybackResetNonce] = useState(0);
+  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [spotlightTrip, setSpotlightTrip] = useState<DeckTrip | null>(null);
 
-  const { data: tripsData, setMonth } = useTripsData(ALL_FILTERS);
+  const { trips, totalTrips, isLoading, loadingMessage, error, playbackWindow } =
+    useTripStream(currentMonth, currentHour);
 
   const playIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const playbackTimeMsRef = useRef(0);
+
+  const bumpPlaybackReset = useCallback(() => {
+    setPlaybackResetNonce((n) => n + 1);
+  }, []);
+
+  const handleAdvanceHour = useCallback(() => {
+    setCurrentHour((h) => (h + 1) % 24);
+  }, []);
+
+  const handleMapFps = useCallback((fps: number) => {
+    setMapFps(fps);
+  }, []);
+
+  const pickRandomTrip = useCallback(() => {
+    if (trips.length === 0) return;
+    setSpotlightTrip(trips[Math.floor(Math.random() * trips.length)]!);
+  }, [trips]);
+
+  useEffect(() => {
+    if (isLoading) setSpotlightTrip(null);
+  }, [isLoading]);
+
+  useEffect(() => {
+    if (!spotlightTrip) return;
+    if (!trips.some((t) => t.id === spotlightTrip.id)) {
+      setSpotlightTrip(null);
+    }
+  }, [trips, spotlightTrip]);
+
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key !== 'Escape') return;
+      if (!spotlightTrip) return;
+      e.preventDefault();
+      setSpotlightTrip(null);
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [spotlightTrip]);
+
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.code !== 'Space' && e.key !== ' ') return;
+      const el = e.target as HTMLElement | null;
+      if (!el) return;
+      const tag = el.tagName;
+      if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
+      e.preventDefault();
+      setMapTimelinePaused((p) => !p);
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, []);
 
   const maxHourVal = Math.max(...HOUR_PROFILE);
 
   const handleSetHour = useCallback((h: number) => {
     setCurrentHour(h);
-  }, []);
+    bumpPlaybackReset();
+  }, [bumpPlaybackReset]);
 
-  // Play/pause logic
   useEffect(() => {
     if (playing) {
+      const msPerSimHour = 60000 / SPEEDS[speedIdx];
       playIntervalRef.current = setInterval(() => {
         setCurrentHour(prev => (prev + 1) % 24);
-      }, 1200 / SPEEDS[speedIdx]);
+      }, msPerSimHour);
     } else {
       if (playIntervalRef.current) clearInterval(playIntervalRef.current);
     }
@@ -43,37 +192,27 @@ export default function BikeShareTorontoPage() {
     setSpeedIdx(i => (i + 1) % SPEEDS.length);
   };
 
-  const hh = String(currentHour).padStart(2, '0');
-  const timeStr = `${hh}:00`;
-  const periodLabel = PERIOD_LABELS[currentHour];
+  const spotlightStats = useMemo(
+    () => (spotlightTrip ? tripStats(spotlightTrip) : null),
+    [spotlightTrip],
+  );
 
   const insights = useMemo(() => {
-    const buckets = tripsData.hourlyBuckets;
-    if (!buckets || buckets.length !== 24) return null;
+    if (trips.length === 0) return null;
 
-    let peakHour = 0;
-    let peakCount = 0;
     let totalMembers = 0;
     let totalEbike = 0;
-    let totalSampled = 0;
 
-    for (const b of buckets) {
-      if (b.count > peakCount) {
-        peakCount = b.count;
-        peakHour = b.hour;
-      }
-      for (const t of b.trips) {
-        totalSampled++;
-        if (t.isMember) totalMembers++;
-        if (t.isEbike) totalEbike++;
-      }
+    for (const t of trips) {
+      if (t.color[0] === 0 && t.color[1] === 229) totalMembers++;
+      if (t.isEbike) totalEbike++;
     }
 
-    const memberPct = totalSampled > 0 ? Math.round((totalMembers / totalSampled) * 100) : 0;
-    const ebikePct = totalSampled > 0 ? Math.round((totalEbike / totalSampled) * 100) : 0;
+    const memberPct = Math.round((totalMembers / trips.length) * 100);
+    const ebikePct = Math.round((totalEbike / trips.length) * 100);
 
-    return { peakHour, peakCount, memberPct, ebikePct };
-  }, [tripsData.hourlyBuckets]);
+    return { memberPct, ebikePct };
+  }, [trips]);
 
   return (
     <>
@@ -85,7 +224,6 @@ export default function BikeShareTorontoPage() {
         />
       </Helmet>
 
-      {/* Full-viewport dark page — overrides portfolio nav layout */}
       <div className="bs-page">
 
         {/* Header */}
@@ -95,7 +233,7 @@ export default function BikeShareTorontoPage() {
             <div>
               <div className="bs-title">BIKE SHARE TORONTO</div>
               <div className="bs-subtitle">
-                Trip Flow Visualizer — {tripsData.currentMonth ? monthLabel(tripsData.currentMonth) : '2025'}
+                Trip Flow Visualizer — {monthLabel(currentMonth)}
               </div>
             </div>
           </div>
@@ -107,61 +245,194 @@ export default function BikeShareTorontoPage() {
             </div>
             <div className="bs-stat">
               <div className="bs-stat-value">
-                {tripsData.totalTrips > 0 ? tripsData.totalTrips.toLocaleString() : '764K'}
+                {totalTrips > 0 ? totalTrips.toLocaleString() : '—'}
               </div>
               <div className="bs-stat-label">Monthly Total</div>
             </div>
             <div className="bs-stat">
-              <div className="bs-stat-value">
-                {tripsData.stations.size > 0 ? tripsData.stations.size : STATIONS.length}
-              </div>
+              <div className="bs-stat-value">{STATIONS.length}</div>
               <div className="bs-stat-label">Stations</div>
             </div>
           </div>
         </header>
 
         {/* Main */}
-        <div className="bs-main" style={{ position: 'relative' }}>
+        <div className="bs-main">
+          <div className="bs-map-stage">
           <MapView
-            currentHour={currentHour}
+            trips={trips}
+            playbackWindow={playbackWindow}
             onTripCountChange={setTripCount}
-            hourlyBuckets={tripsData.hourlyBuckets}
+            playbackTimeMsRef={playbackTimeMsRef}
+            paused={mapTimelinePaused || Boolean(spotlightTrip)}
+            onFpsChange={handleMapFps}
+            playbackResetNonce={playbackResetNonce}
+            onAdvanceHour={handleAdvanceHour}
+            spotlightTrip={spotlightTrip}
           />
+
+          <div className="bs-map-hud">
+            <div className="bs-map-hud-left">
+              <button
+                type="button"
+                className="bs-map-hud-btn"
+                onClick={() => setMapTimelinePaused((p) => !p)}
+                title={mapTimelinePaused ? 'Resume map animation (Space)' : 'Pause map animation (Space)'}
+              >
+                {mapTimelinePaused ? '▶' : '⏸'}
+              </button>
+              <span className="bs-map-hud-kbd">Space</span>
+              <button
+                type="button"
+                className="bs-map-hud-btn"
+                onClick={pickRandomTrip}
+                disabled={trips.length === 0 || isLoading}
+                title="Random trip — show route and details"
+                aria-label="Random trip"
+              >
+                <Dices className="bs-map-hud-icon" strokeWidth={2} />
+              </button>
+            </div>
+            <MapFloatingClock
+              timeMsRef={playbackTimeMsRef}
+              hasTrips={trips.length > 0}
+            />
+            <div className="bs-map-hud-right">
+              <div className="bs-map-hud-stat">
+                <span className="bs-map-hud-stat-val">{tripCount}</span>
+                <span className="bs-map-hud-stat-lbl">trips</span>
+              </div>
+              <div className="bs-map-hud-stat">
+                <span className="bs-map-hud-stat-val">{trips.length > 0 ? mapFps : '—'}</span>
+                <span className="bs-map-hud-stat-lbl">FPS</span>
+              </div>
+            </div>
+          </div>
+
+          {spotlightTrip && spotlightStats && (
+            <div
+              className="bs-trip-card-wrap"
+              role="dialog"
+              aria-labelledby="bs-trip-card-title"
+            >
+              <div className="bs-trip-card">
+                <button
+                  type="button"
+                  className="bs-trip-card-dismiss"
+                  onClick={() => setSpotlightTrip(null)}
+                  aria-label="Close trip details"
+                >
+                  ×
+                </button>
+                <div className="bs-trip-card-head">
+                  <div className="bs-trip-card-bike-row">
+                    <span className="bs-trip-card-bike-label" id="bs-trip-card-title">
+                      {spotlightTrip.isEbike ? 'Electric bike' : 'Classic bike'}
+                    </span>
+                    <span className="bs-trip-card-id" title={spotlightTrip.id}>
+                      {shortTripId(spotlightTrip.id)}
+                    </span>
+                  </div>
+                  <p className="bs-trip-card-route">
+                    <span className="bs-trip-card-station">{spotlightTrip.startName}</span>
+                    <span className="bs-trip-card-to">to</span>
+                    <span className="bs-trip-card-station">{spotlightTrip.endName}</span>
+                  </p>
+                  <p className="bs-trip-card-time">
+                    {formatTripClock(spotlightTrip.startedAtMs)} –{' '}
+                    {formatTripClock(spotlightTrip.endedAtMs)}
+                  </p>
+                  <div className="bs-trip-card-metrics">
+                    <span>{spotlightStats.durMin} min</span>
+                    <span>{spotlightStats.miLabel} mi</span>
+                    <span>{spotlightStats.mphLabel} mph</span>
+                  </div>
+                  <p className="bs-trip-card-member">
+                    {spotlightTrip.memberCasual === 'member' ? 'Member' : 'Casual'} ride
+                  </p>
+                </div>
+                <div className="bs-trip-card-foot">
+                  <span className="bs-trip-card-kbd">
+                    <kbd className="bs-kbd">Esc</kbd> to dismiss
+                  </span>
+                </div>
+              </div>
+            </div>
+          )}
+          </div>
 
           {/* Loading overlay */}
           <div
             className="bs-loading-overlay"
-            style={{ opacity: tripsData.isLoading ? 1 : 0, pointerEvents: tripsData.isLoading ? 'all' : 'none' }}
+            style={{ opacity: isLoading ? 1 : 0, pointerEvents: isLoading ? 'all' : 'none' }}
           >
             <div className="bs-loading-spinner" />
-            <div className="bs-loading-text">{tripsData.loadingMessage}</div>
-            {tripsData.error && <div className="bs-loading-error">{tripsData.error}</div>}
+            <div className="bs-loading-text">{loadingMessage}</div>
+            {error && <div className="bs-loading-error">{error}</div>}
           </div>
 
-          {/* Sidebar */}
-          <aside className="bs-sidebar">
+          <div
+            className={`bs-sidebar-shell${sidebarOpen ? '' : ' bs-sidebar-shell--collapsed'}`}
+          >
+            <button
+              type="button"
+              className="bs-sidebar-toggle"
+              onClick={() => setSidebarOpen((o) => !o)}
+              aria-expanded={sidebarOpen}
+              aria-controls="bs-controls-panel"
+              aria-label={sidebarOpen ? 'Collapse controls panel' : 'Expand controls panel'}
+            >
+              {sidebarOpen ? (
+                <ChevronRight className="bs-sidebar-toggle-icon" strokeWidth={2} />
+              ) : (
+                <ChevronLeft className="bs-sidebar-toggle-icon" strokeWidth={2} />
+              )}
+            </button>
+            <div className="bs-sidebar-clip">
+            <aside
+              id="bs-controls-panel"
+              className="bs-sidebar"
+              aria-hidden={!sidebarOpen}
+            >
 
             {/* Time of Day */}
             <section className="bs-section">
               <h3 className="bs-section-title">Time of Day</h3>
-              <div className="bs-time-display">{timeStr}</div>
-              <div className="bs-time-label">{periodLabel}</div>
+              <div className="bs-sidebar-live-hint">
+                <span className="bs-time-label" style={{ marginBottom: 8 }}>
+                  {PERIOD_LABELS[currentHour]}
+                </span>
+                <span className="bs-muted-small">
+                  Clock runs forward across the day; Space pauses · pick hour/month to jump
+                </span>
+              </div>
+
+              <div className="bs-random-trip-block">
+                <button
+                  type="button"
+                  className="bs-btn bs-btn-primary bs-btn-block"
+                  onClick={pickRandomTrip}
+                  disabled={trips.length === 0 || isLoading}
+                >
+                  Random trip
+                </button>
+                <p className="bs-random-trip-hint">
+                  Highlights one route and opens details. Esc or × to close.
+                </p>
+              </div>
 
               {/* Hour bars */}
               <div className="bs-hour-bars">
                 {HOUR_PROFILE.map((val, h) => {
                   const pct = val / maxHourVal;
-                  const isEvening = h >= 17 && h <= 19;
-                  const r = isEvening ? 255 : 0;
-                  const g = isEvening ? 107 : 229;
-                  const b = isEvening ? 53 : 255;
+                  const alpha = 0.12 + pct * 0.55;
                   return (
                     <button
                       key={h}
                       className={`bs-hour-bar ${h === currentHour ? 'active' : ''}`}
                       style={{
                         height: `${pct * 100}%`,
-                        background: `rgba(${r},${g},${b},${0.2 + pct * 0.8})`,
+                        background: `rgba(255,255,255,${alpha})`,
                       }}
                       onClick={() => handleSetHour(h)}
                       title={`${String(h).padStart(2,'0')}:00`}
@@ -183,7 +454,7 @@ export default function BikeShareTorontoPage() {
               {/* Play controls */}
               <div className="bs-play-row">
                 <button className="bs-btn bs-btn-primary" onClick={togglePlay}>
-                  {playing ? '⏸ PAUSE' : '▶ PLAY'}
+                  {playing ? '⏸ HOUR' : '▶ HOUR'}
                 </button>
                 <button className="bs-btn" onClick={cycleSpeed}>
                   {SPEEDS[speedIdx]}×
@@ -194,33 +465,30 @@ export default function BikeShareTorontoPage() {
             {/* Data source */}
             <section className="bs-section">
               <h3 className="bs-section-title">Data</h3>
-              {tripsData.availableMonths.length > 0 ? (
-                <>
-                  <select
-                    className="bs-month-select"
-                    value={tripsData.currentMonth}
-                    onChange={e => setMonth(e.target.value)}
-                    disabled={tripsData.isLoading}
-                  >
-                    {tripsData.availableMonths.map(m => (
-                      <option key={m} value={m}>{monthLabel(m)}</option>
-                    ))}
-                  </select>
-                  <div className="bs-data-status">
-                    {tripsData.isLoading ? (
-                      <span style={{ color: 'var(--bs-accent)' }}>● Loading...</span>
-                    ) : tripsData.error ? (
-                      <span style={{ color: 'var(--bs-accent2)' }}>● {tripsData.error}</span>
-                    ) : (
-                      <span style={{ color: '#00ff88' }}>✓ {tripsData.totalTrips.toLocaleString()} trips loaded</span>
-                    )}
-                  </div>
-                </>
-              ) : (
-                <div className="bs-data-status" style={{ color: 'var(--bs-muted)' }}>
-                  {tripsData.isLoading ? tripsData.loadingMessage : 'Synthetic data (fallback)'}
-                </div>
-              )}
+              <select
+                className="bs-month-select"
+                value={currentMonth}
+                onChange={e => {
+                  setCurrentMonth(e.target.value);
+                  bumpPlaybackReset();
+                }}
+                disabled={isLoading}
+              >
+                {AVAILABLE_MONTHS.map(m => (
+                  <option key={m} value={m}>{monthLabel(m)}</option>
+                ))}
+              </select>
+              <div className="bs-data-status">
+                {isLoading ? (
+                  <span className="bs-data-status-loading">Loading…</span>
+                ) : error ? (
+                  <span className="bs-data-status-error">{error}</span>
+                ) : (
+                  <span className="bs-data-status-ok">
+                    {totalTrips.toLocaleString()} trips loaded
+                  </span>
+                )}
+              </div>
             </section>
 
             {/* 24h Activity */}
@@ -235,7 +503,9 @@ export default function BikeShareTorontoPage() {
                       className="bs-activity-bar"
                       style={{
                         height: `${Math.max(4, pct * 100)}%`,
-                        background: h === currentHour ? 'var(--bs-accent)' : 'var(--bs-border)',
+                        background: h === currentHour
+                          ? 'var(--bs-chart-active)'
+                          : 'var(--bs-chart-inactive)',
                       }}
                     />
                   );
@@ -248,19 +518,6 @@ export default function BikeShareTorontoPage() {
               <h3 className="bs-section-title">Data Insights</h3>
               {insights ? (
                 <>
-                  <div className="bs-insights-row">
-                    <span className="bs-insights-label">Peak hour</span>
-                    <span className="bs-insights-value">
-                      {String(insights.peakHour).padStart(2, '0')}:00
-                    </span>
-                  </div>
-                  <div className="bs-insights-row">
-                    <span className="bs-insights-label" />
-                    <span className="bs-insights-value" style={{ color: 'var(--bs-muted)', fontSize: 10 }}>
-                      {insights.peakCount.toLocaleString()} trips
-                    </span>
-                  </div>
-
                   <div className="bs-insights-row" style={{ marginTop: 10 }}>
                     <span className="bs-insights-label">Rider split</span>
                   </div>
@@ -269,7 +526,10 @@ export default function BikeShareTorontoPage() {
                     <span className="bs-insights-value">~{insights.memberPct}%</span>
                   </div>
                   <div className="bs-stat-bar">
-                    <div className="bs-stat-bar-fill" style={{ width: `${insights.memberPct}%` }} />
+                    <div
+                      className="bs-stat-bar-fill member"
+                      style={{ width: `${insights.memberPct}%` }}
+                    />
                   </div>
                   <div className="bs-insights-row">
                     <span className="bs-insights-label">Casual</span>
@@ -310,14 +570,14 @@ export default function BikeShareTorontoPage() {
             <section className="bs-section">
               <h3 className="bs-section-title">Legend</h3>
               <div className="bs-legend-item">
-                <div className="bs-legend-dot" style={{ background: '#00e5ff' }} />
+                <div className="bs-legend-dot bs-legend-dot--member" />
                 <div>
                   <div className="bs-legend-text">Member trip</div>
                   <div className="bs-legend-sub">Annual pass holder</div>
                 </div>
               </div>
               <div className="bs-legend-item">
-                <div className="bs-legend-dot" style={{ background: '#ff6b35' }} />
+                <div className="bs-legend-dot bs-legend-dot--casual" />
                 <div>
                   <div className="bs-legend-text">Casual trip</div>
                   <div className="bs-legend-sub">Pay-per-ride</div>
@@ -325,16 +585,18 @@ export default function BikeShareTorontoPage() {
               </div>
             </section>
 
-          </aside>
+            </aside>
+            </div>
+          </div>
         </div>
 
         {/* Bottom bar */}
         <footer className="bs-footer">
           <div className="bs-footer-note">
             <span className="bs-pulse" />
-            {tripsData.totalTrips > 0
-              ? `Real data — Open Toronto, ${tripsData.currentMonth ? monthLabel(tripsData.currentMonth) : '2025'} (${tripsData.totalTrips.toLocaleString()} trips)`
-              : 'Representative sample — Open Toronto Data'}
+            {totalTrips > 0
+              ? `Real data — Open Toronto, ${monthLabel(currentMonth)} (${totalTrips.toLocaleString()} trips)`
+              : 'Loading trip data...'}
           </div>
           <div className="bs-footer-right">
             <span className="bs-footer-note">Drag to pan · Scroll to zoom</span>
