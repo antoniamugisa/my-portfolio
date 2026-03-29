@@ -264,7 +264,7 @@ export default function BikeShareTorontoPage() {
             playbackWindow={playbackWindow}
             onTripCountChange={setTripCount}
             playbackTimeMsRef={playbackTimeMsRef}
-            paused={mapTimelinePaused || Boolean(spotlightTrip)}
+            paused={mapTimelinePaused}
             onFpsChange={handleMapFps}
             playbackResetNonce={playbackResetNonce}
             onAdvanceHour={handleAdvanceHour}

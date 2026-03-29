@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import * as duckdb from '@duckdb/duckdb-wasm';
 import duckdb_wasm from '@duckdb/duckdb-wasm/dist/duckdb-mvp.wasm?url';
 import duckdb_wasm_eh from '@duckdb/duckdb-wasm/dist/duckdb-eh.wasm?url';
@@ -215,26 +215,45 @@ export function useTripStream(
   const [isLoading, setIsLoading] = useState(true);
   const [loadingMessage, setLoadingMessage] = useState('');
   const [error, setError] = useState<string | null>(null);
+  /** Month/hour of the trips currently shown; playbackWindow follows this so the clock stays aligned during hour fetches. */
+  const [dataEpoch, setDataEpoch] = useState<{
+    month: string;
+    hour: number;
+  } | null>(null);
+  const dataEpochRef = useRef<{ month: string; hour: number } | null>(null);
 
-  const playbackWindow = useMemo(
-    () => getPlaybackHourWindow(currentMonth, currentHour),
-    [currentMonth, currentHour],
-  );
+  const playbackWindow = useMemo(() => {
+    if (trips.length > 0 && dataEpoch) {
+      return getPlaybackHourWindow(dataEpoch.month, dataEpoch.hour);
+    }
+    return getPlaybackHourWindow(currentMonth, currentHour);
+  }, [trips.length, dataEpoch, currentMonth, currentHour]);
 
   useEffect(() => {
     let cancelled = false;
 
     async function load() {
-      setTrips([]);
-      setIsLoading(true);
-      setError(null);
-      setLoadingMessage(`Initialising DuckDB...`);
+      const seamlessHourChange =
+        dataEpochRef.current !== null &&
+        dataEpochRef.current.month === currentMonth &&
+        dataEpochRef.current.hour !== currentHour;
+
+      if (!seamlessHourChange) {
+        setTrips([]);
+        setIsLoading(true);
+        setError(null);
+        setLoadingMessage(`Initialising DuckDB...`);
+      } else {
+        setError(null);
+      }
 
       try {
         const db = await getDB();
         if (cancelled) return;
 
-        setLoadingMessage(`Loading ${monthLabel(currentMonth)}...`);
+        if (!seamlessHourChange) {
+          setLoadingMessage(`Loading ${monthLabel(currentMonth)}...`);
+        }
         await ensureMonthLoaded(db, currentMonth);
         if (cancelled) return;
 
@@ -277,6 +296,9 @@ export function useTripStream(
           );
 
           if (!cancelled) {
+            const epoch = { month: currentMonth, hour: currentHour };
+            dataEpochRef.current = epoch;
+            setDataEpoch(epoch);
             setTrips(deckTrips);
             setTotalTrips(total);
             setIsLoading(false);

@@ -15,6 +15,14 @@ infrastructure-weighted routing that prefers protected bike lanes over fast road
 
 ## Setup
 
+### 0. Install pipeline dependencies
+
+```bash
+cd pipeline
+bun install
+cd ..
+```
+
 ### 1. Download Ontario OSM data
 
 ```bash
@@ -89,6 +97,11 @@ bun run all
 - `output/routes.db` - SQLite cache of GraphHopper routes
 - `output/parquets/YYYY-MM.parquet` - one file per month, 2014-01 through 2025-XX
 
+## Using the output in the web app
+
+- The web app queries monthly Parquets from a public bucket (configured in `src/pages/bike-share-toronto/useTripStream.ts`).
+- To use your own Parquets, upload them somewhere public (R2/S3) and point the app at that base URL.
+
 ## Uploading to Cloudflare R2
 
 After pipeline completes, upload Parquets to R2:
@@ -96,6 +109,8 @@ After pipeline completes, upload Parquets to R2:
 ```bash
 wrangler r2 object put bikeshare-toronto/parquets/ --file output/parquets/ -r
 ```
+
+If you upload to a different bucket/key prefix, update the corresponding base URL in the app.
 
 ## Data notes
 

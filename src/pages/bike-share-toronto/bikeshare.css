@@ -131,13 +131,10 @@
   flex-direction: column;
 }
 
-/* Mapbox root — filter dims basemap + deck together when a spotlight trip plays */
-.bs-map-view-root {
+/* Dim only the Mapbox basemap canvas; deck.gl overlay stays unfiltered so the chosen route pops */
+.bs-map-view-root--spotlight-dim .mapboxgl-canvas {
+  filter: brightness(0.32) saturate(0.78);
   transition: filter 0.45s ease;
-}
-
-.bs-map-view-root--spotlight-dim {
-  filter: brightness(0.34) saturate(0.85);
 }
 
 /* ── Sidebar shell + toggle ───────────────────────────────────────────── */

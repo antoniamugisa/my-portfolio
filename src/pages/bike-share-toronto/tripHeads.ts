@@ -58,11 +58,11 @@ export function buildTripHeadPoints(
   return out;
 }
 
-/** Leading point for the spotlight trip at arbitrary playback time along its timestamps. */
+/** Head dot for the spotlight trip at the animated time along its timestamps. */
 export function buildSpotlightHeadPoint(
   trip: DeckTrip,
   currentRelMs: number,
-  headRgb: [number, number, number] = [200, 230, 255],
+  headRgb: [number, number, number],
 ): TripHeadPoint | null {
   const ts = trip.timestamps;
   const path = trip.path;

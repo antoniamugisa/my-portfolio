@@ -2,6 +2,25 @@
 
 A modern, responsive portfolio website showcasing my development journey. 
 
+## Bike Share Toronto (interactive map)
+
+This repo also contains an interactive Deck.gl + Mapbox visualization at `"/projects/bike-share-toronto"` that streams trip data from monthly Parquet files using DuckDB WASM.
+
+### Map requirements
+
+- **Mapbox token**: create a `.env.local` (or `.env`) in the repo root with:
+
+```bash
+VITE_MAPBOX_TOKEN="your_mapbox_public_token"
+```
+
+The map reads it in `src/pages/bike-share-toronto/MapView.tsx` via `import.meta.env.VITE_MAPBOX_TOKEN`.
+
+### Data requirements
+
+- **Trip Parquets**: the app loads monthly Parquets from a public R2 bucket (see `src/pages/bike-share-toronto/useTripStream.ts`).
+- **Generating Parquets locally**: see [`pipeline/README.md`](pipeline/README.md).
+
 ## Features
 
 ###  **Design & User Experience**
@@ -107,6 +126,9 @@ npm run dev          # Start development server
 npm run build        # Build for production
 npm run preview      # Preview production build
 npm run lint         # Run ESLint
+
+# Data
+npm run fetch-data   # Fetch Bike Share data (utility script)
 
 # Build variants
 npm run build:dev    # Build in development mode
