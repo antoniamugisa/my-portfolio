@@ -3,127 +3,113 @@ import { X, Compass } from 'lucide-react';
 import { photos } from '@/data/photos';
 import type { Photo } from '@/data/photos/types';
 
-/** Macro grid per tile: denser grid = smaller thumbnails (same tile size everywhere for seamless wrap). */
+/** Grid cells per mega-tile (5×5). */
 const TILE_MACRO = 5;
-/** Same as grid dimension; old name kept so any stale `TILE_COLS` reference does not throw. */
-const TILE_COLS = TILE_MACRO;
-const GAP_PX = 20;
-const TILE_PAD = 32; // matches p-8
+const GAP_PX = 12;
 
-/** Cells across the full plane (3 mega-tiles × TILE_MACRO columns each). */
-const PLANE_GRID = TILE_MACRO * 3;
+/** We render a 3×3 grid of mega-tiles around the camera for seamless infinite scroll. */
+const RENDER_TILES = 3;
 
-/**
- * One mega-tile is square: the seamless plane uses a single grid with outer padding only,
- * so cell size is derived from 3×tileW; height must match width for square cells.
- */
-function computeTileHeight(tileW: number): number {
-  return tileW;
+/** Pixel size of one cell given tile width. */
+function cellPx(tileW: number): number {
+  const contentW = tileW - GAP_PX;
+  return (contentW - (TILE_MACRO - 1) * GAP_PX) / TILE_MACRO;
 }
 
-/** Pixel size of one macro cell (matches CSS grid math for the 15×15 plane). */
-function centerCellPx(tileW: number): number {
-  const contentW = 3 * tileW - 2 * TILE_PAD;
-  return (contentW - 14 * GAP_PX) / 15;
-}
-
-/** Global flat index of the single center cell (row 7, col 7 in 15×15). */
-const CENTER_CELL_INDEX = 7 * PLANE_GRID + 7;
-
-function PhotoCell({
-  photo,
-  onPhotoClick,
-}: {
-  photo: Photo;
-  onPhotoClick: (id: string) => void;
-}) {
-  return (
-    <div
-      className="group relative min-w-0 overflow-hidden rounded-lg cursor-pointer"
-      onClick={() => onPhotoClick(photo.id)}
-    >
-      <div className="aspect-square overflow-hidden bg-background border border-border/40 group-hover:border-primary/50 transition-all duration-300">
-        <img
-          src={photo.image}
-          alt={photo.title}
-          className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
-          loading="lazy"
-          draggable={false}
-        />
-      </div>
-      <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-colors duration-300 flex items-end pointer-events-none">
-        <div className="p-2 md:p-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300 w-full">
-          <h3 className="text-white font-semibold text-[10px] md:text-xs mb-0.5 line-clamp-2">{photo.title}</h3>
-          {photo.location && <p className="text-white/80 text-[9px] md:text-[10px]">{photo.location}</p>}
-        </div>
-      </div>
-    </div>
-  );
-}
-
-/**
- * Photos grid + a single intro card at world center. Dimensions are fixed for the session so the
- * layout does not reflow while you pan (no infinite scroll-wrap — that caused jumpy scroll).
- */
-const SeamlessPhotoPlane = memo(function SeamlessPhotoPlane({
+/** One mega-tile of photos (TILE_MACRO × TILE_MACRO grid). */
+const MegaTile = memo(function MegaTile({
   tileW,
+  offsetX,
+  offsetY,
   photosList,
   onPhotoClick,
+  isCenter,
+  tx,
+  ty,
 }: {
   tileW: number;
+  offsetX: number;
+  offsetY: number;
   photosList: Photo[];
   onPhotoClick: (id: string) => void;
+  isCenter: boolean;
+  tx: number;
+  ty: number;
 }) {
-  if (photosList.length === 0) return null;
-  const total = PLANE_GRID * PLANE_GRID;
-  let photoIdx = 0;
+  const total = TILE_MACRO * TILE_MACRO;
+  const centerIdx = Math.floor(total / 2);
+  const cell = cellPx(tileW);
 
   const cells: JSX.Element[] = [];
+  const numPhotos = photosList.length;
+  const tileOffset = ((tx * 7 + ty * 13) % numPhotos + numPhotos) % numPhotos;
   for (let i = 0; i < total; i++) {
-    if (i === CENTER_CELL_INDEX) {
-      cells.push(<div key="center-hole" className="aspect-square min-h-0 rounded-lg bg-muted/30" aria-hidden />);
+    if (isCenter && i === centerIdx) {
+      cells.push(<div key="center-hole" className="aspect-square rounded-lg bg-muted/30" aria-hidden />);
       continue;
     }
-    const photo = photosList[photoIdx % photosList.length];
-    photoIdx += 1;
-    cells.push(<PhotoCell key={`cell-${i}-${photo.id}`} photo={photo} onPhotoClick={onPhotoClick} />);
+    const photoIdx = (tileOffset + i) % numPhotos;
+    const photo = photosList[photoIdx];
+    cells.push(
+      <div
+        key={`${i}-${photo.id}`}
+        className="group relative overflow-hidden rounded-lg cursor-pointer"
+        onClick={() => onPhotoClick(photo.id)}
+      >
+        <div className="aspect-square overflow-hidden bg-background border border-border/40 group-hover:border-primary/50 transition-all duration-300">
+          <img
+            src={photo.image}
+            alt={photo.title}
+            className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+            loading="lazy"
+            draggable={false}
+          />
+        </div>
+        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-colors duration-300 flex items-end pointer-events-none">
+          <div className="p-2 md:p-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300 w-full">
+            <h3 className="text-white font-semibold text-[10px] md:text-xs mb-0.5 line-clamp-2">{photo.title}</h3>
+            {photo.location && <p className="text-white/80 text-[9px] md:text-[10px]">{photo.location}</p>}
+          </div>
+        </div>
+      </div>
+    );
   }
 
-  const totalW = tileW * 3;
-  const cellPx = centerCellPx(tileW);
-
   return (
-    <div className="relative bg-background" style={{ width: totalW, height: totalW }}>
-      <div
-        className="box-border grid h-full w-full bg-background"
-        style={{
-          boxSizing: 'border-box',
-          padding: TILE_PAD,
-          gap: GAP_PX,
-          gridTemplateColumns: `repeat(${PLANE_GRID}, minmax(0, 1fr))`,
-        }}
-      >
-        {cells}
-      </div>
-      <div
-        className="pointer-events-none absolute left-1/2 top-1/2 z-10 flex flex-col items-center justify-center rounded-xl border border-border/60 bg-background p-2 text-center shadow-sm sm:p-3 md:p-4"
-        style={{
-          width: cellPx,
-          height: cellPx,
-          maxWidth: '100%',
-          maxHeight: '100%',
-          transform: 'translate3d(-50%, -50%, 0)',
-        }}
-        role="region"
-        aria-label="Photos introduction"
-      >
-        <h1 className="text-sm sm:text-base md:text-lg lg:text-xl font-bold font-heading mb-1 md:mb-2 bg-primary bg-clip-text text-transparent leading-tight">
-          Photos
-        </h1>
-        <p className="text-[10px] sm:text-xs md:text-sm text-foreground/75 leading-snug px-0.5">
-          A gallery into my love for film photography.
-        </p>
-      </div>
+    <div
+      className="absolute box-border grid bg-background"
+      style={{
+        width: tileW,
+        height: tileW,
+        left: offsetX,
+        top: offsetY,
+        padding: `0 ${GAP_PX}px ${GAP_PX}px 0`,
+        gap: GAP_PX,
+        gridTemplateColumns: `repeat(${TILE_MACRO}, minmax(0, 1fr))`,
+      }}
+    >
+      {cells}
+      {isCenter && (
+        <div
+          className="pointer-events-none absolute z-10 flex flex-col items-center justify-center rounded-xl border border-border/60 bg-background p-2 text-center shadow-sm sm:p-3 md:p-4"
+          style={{
+            width: cell,
+            height: cell,
+            left: '50%',
+            top: '50%',
+            transform: 'translate(-50%, -50%)',
+          }}
+          role="region"
+          aria-label="Photos introduction"
+        >
+          <h1 className="text-sm sm:text-base md:text-lg lg:text-xl font-bold font-heading mb-1 md:mb-2 bg-primary bg-clip-text text-transparent leading-tight">
+            Photos
+          </h1>
+          <p className="text-[10px] sm:text-xs md:text-sm text-foreground/75 leading-snug px-0.5">
+            A gallery into my love for film photography.
+          </p>
+        </div>
+      )}
     </div>
   );
 });
@@ -131,18 +117,18 @@ const SeamlessPhotoPlane = memo(function SeamlessPhotoPlane({
 const Photos = () => {
   const [selectedPhoto, setSelectedPhoto] = useState<string | null>(null);
   const selectedPhotoData = selectedPhoto ? photos.find((p) => p.id === selectedPhoto) : null;
-  const scrollRef = useRef<HTMLDivElement>(null);
-  /** 0 until measured — avoids centering with a wrong default width then jumping when RO runs. */
+  const containerRef = useRef<HTMLDivElement>(null);
+
   const [tileW, setTileW] = useState(0);
-  const initialScrollDoneRef = useRef(false);
-  const panRef = useRef<{
-    active: boolean;
-    x: number;
-    y: number;
-    sl: number;
-    st: number;
-    moved: boolean;
-  } | null>(null);
+  const [viewportW, setViewportW] = useState(0);
+  const [viewportH, setViewportH] = useState(0);
+
+  /** Camera position (top-left of viewport in world coords). Start centered on center tile. */
+  const [camX, setCamX] = useState(0);
+  const [camY, setCamY] = useState(0);
+  const initializedRef = useRef(false);
+
+  const panRef = useRef<{ x: number; y: number; camX: number; camY: number; moved: boolean; pointerId: number } | null>(null);
   const skipPhotoOpenRef = useRef(false);
 
   const openPhoto = useCallback((id: string) => {
@@ -157,92 +143,141 @@ const Photos = () => {
     () =>
       photos.length === 0
         ? []
-        : Array.from({ length: Math.max(photos.length, TILE_COLS * TILE_COLS) }, (_, i) => photos[i % photos.length]),
-    [photos]
+        : Array.from({ length: Math.max(photos.length, TILE_MACRO * TILE_MACRO) }, (_, i) => photos[i % photos.length]),
+    []
   );
 
-  const tileH = computeTileHeight(tileW);
-
-  /**
-   * Measure once and keep tile size fixed. Updating tileW on every ResizeObserver tick (scrollbars,
-   * devtools, subpixel layout) was resizing the whole grid and looked like photos “rearranging”.
-   */
   useLayoutEffect(() => {
-    const scrollEl = scrollRef.current;
-    if (!scrollEl) return;
-    const updateWidth = () => {
+    const el = containerRef.current;
+    if (!el) return;
+    const measure = () => {
+      const cw = el.clientWidth;
+      const ch = el.clientHeight;
+      setViewportW(cw);
+      setViewportH(ch);
       setTileW((prev) => {
         if (prev > 0) return prev;
-        const cw = scrollEl.clientWidth;
-        const ch = scrollEl.clientHeight;
         if (cw <= 0 || ch <= 0) return prev;
         const minTile = Math.max(cw, ch) + 32;
         const preferred = Math.min(1100, Math.max(480, Math.round(cw - 24)));
         return Math.round(Math.max(480, minTile, preferred));
       });
     };
-    updateWidth();
-    const ro = new ResizeObserver(() => requestAnimationFrame(updateWidth));
-    ro.observe(scrollEl);
+    measure();
+    const ro = new ResizeObserver(() => requestAnimationFrame(measure));
+    ro.observe(el);
     return () => ro.disconnect();
   }, []);
 
-  /** Center the viewport once after we know tile size — not on every resize (that was causing jumps / “glitching”). */
   useLayoutEffect(() => {
-    const el = scrollRef.current;
-    if (!el || tileW <= 0 || photos.length === 0) return;
-    if (initialScrollDoneRef.current) return;
-    const { clientWidth, clientHeight } = el;
-    el.scrollLeft = Math.round(tileW + (tileW - clientWidth) / 2);
-    el.scrollTop = Math.round(tileH + (tileH - clientHeight) / 2);
-    initialScrollDoneRef.current = true;
-  }, [tileW, tileH, photos.length]);
+    if (tileW <= 0 || viewportW <= 0 || viewportH <= 0 || initializedRef.current) return;
+    initializedRef.current = true;
+    setCamX(tileW / 2 - viewportW / 2);
+    setCamY(tileW / 2 - viewportH / 2);
+  }, [tileW, viewportW, viewportH]);
 
   const recenter = useCallback(() => {
-    const el = scrollRef.current;
-    if (!el || photos.length === 0 || tileW <= 0) return;
-    const { clientWidth, clientHeight } = el;
-    el.scrollTo({
-      left: Math.round(tileW + (tileW - clientWidth) / 2),
-      top: Math.round(tileH + (tileH - clientHeight) / 2),
-      behavior: 'smooth',
-    });
-  }, [tileW, tileH, photos.length]);
+    setCamX(tileW / 2 - viewportW / 2);
+    setCamY(tileW / 2 - viewportH / 2);
+  }, [tileW, viewportW, viewportH]);
+
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+    const handleWheel = (e: WheelEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
+      setCamX((x) => x + e.deltaX);
+      setCamY((y) => y + e.deltaY);
+    };
+    el.addEventListener('wheel', handleWheel, { passive: false });
+    return () => el.removeEventListener('wheel', handleWheel);
+  }, []);
+
+  const handlePointerDown = useCallback((e: React.PointerEvent) => {
+    if (e.button !== 0) return;
+    panRef.current = { x: e.clientX, y: e.clientY, camX, camY, moved: false, pointerId: e.pointerId };
+  }, [camX, camY]);
+
+  const handlePointerMove = useCallback((e: React.PointerEvent) => {
+    const pan = panRef.current as { x: number; y: number; camX: number; camY: number; moved: boolean; pointerId: number } | null;
+    if (!pan) return;
+    const dx = e.clientX - pan.x;
+    const dy = e.clientY - pan.y;
+    if (!pan.moved && (Math.abs(dx) > 4 || Math.abs(dy) > 4)) {
+      pan.moved = true;
+      try {
+        containerRef.current?.setPointerCapture(pan.pointerId);
+      } catch {}
+    }
+    if (pan.moved) {
+      setCamX(pan.camX - dx);
+      setCamY(pan.camY - dy);
+    }
+  }, []);
+
+  const handlePointerUp = useCallback((e: React.PointerEvent) => {
+    const pan = panRef.current as { x: number; y: number; camX: number; camY: number; moved: boolean; pointerId: number } | null;
+    if (!pan) return;
+    if (pan.moved) {
+      skipPhotoOpenRef.current = true;
+      try {
+        containerRef.current?.releasePointerCapture(pan.pointerId);
+      } catch {}
+    }
+    panRef.current = null;
+  }, []);
+
+  const handlePointerCancel = useCallback(() => {
+    const pan = panRef.current;
+    if (pan?.moved) {
+      try {
+        containerRef.current?.releasePointerCapture(pan.pointerId);
+      } catch {}
+    }
+    panRef.current = null;
+  }, []);
 
   useEffect(() => {
     if (!selectedPhoto) return;
-
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
         setSelectedPhoto(null);
       } else if (e.key === 'ArrowLeft') {
-        const currentIndex = photos.findIndex((p) => p.id === selectedPhoto);
-        const prevIndex = currentIndex > 0 ? currentIndex - 1 : photos.length - 1;
-        setSelectedPhoto(photos[prevIndex].id);
+        const idx = photos.findIndex((p) => p.id === selectedPhoto);
+        setSelectedPhoto(photos[idx > 0 ? idx - 1 : photos.length - 1].id);
       } else if (e.key === 'ArrowRight') {
-        const currentIndex = photos.findIndex((p) => p.id === selectedPhoto);
-        const nextIndex = currentIndex < photos.length - 1 ? currentIndex + 1 : 0;
-        setSelectedPhoto(photos[nextIndex].id);
+        const idx = photos.findIndex((p) => p.id === selectedPhoto);
+        setSelectedPhoto(photos[idx < photos.length - 1 ? idx + 1 : 0].id);
       }
     };
-
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [selectedPhoto]);
 
   useEffect(() => {
-    if (selectedPhoto) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = '';
-    }
-    return () => {
-      document.body.style.overflow = '';
-    };
+    document.body.style.overflow = selectedPhoto ? 'hidden' : '';
+    return () => { document.body.style.overflow = ''; };
   }, [selectedPhoto]);
 
-  const totalW = tileW * 3;
-  const totalH = tileH * 3;
+  const tiles = useMemo(() => {
+    if (tileW <= 0 || photos.length === 0) return [];
+    const result: { tx: number; ty: number; ox: number; oy: number; isCenter: boolean }[] = [];
+    const baseTileX = Math.round(camX / tileW);
+    const baseTileY = Math.round(camY / tileW);
+    const half = Math.floor(RENDER_TILES / 2);
+    for (let dy = -half; dy <= half; dy++) {
+      for (let dx = -half; dx <= half; dx++) {
+        const tx = baseTileX + dx;
+        const ty = baseTileY + dy;
+        const ox = tx * tileW - camX;
+        const oy = ty * tileW - camY;
+        const isCenter = tx === 0 && ty === 0;
+        result.push({ tx, ty, ox, oy, isCenter });
+      }
+    }
+    return result;
+  }, [camX, camY, tileW, photos.length]);
 
   if (photos.length === 0) {
     return (
@@ -272,64 +307,27 @@ const Photos = () => {
   return (
     <div className="h-[100dvh] min-h-0 bg-background md:ml-56 md:mr-32 flex flex-col overflow-hidden relative">
       <div
-        ref={scrollRef}
-        className="flex-1 min-h-0 w-full overflow-auto overscroll-contain touch-pan-x touch-pan-y cursor-grab active:cursor-grabbing [overflow-anchor:none]"
-        onPointerDown={(e) => {
-          if (e.button !== 0 || e.pointerType !== 'mouse') return;
-          const el = scrollRef.current;
-          if (!el) return;
-          panRef.current = {
-            active: true,
-            x: e.clientX,
-            y: e.clientY,
-            sl: el.scrollLeft,
-            st: el.scrollTop,
-            moved: false,
-          };
-          el.setPointerCapture(e.pointerId);
-        }}
-        onPointerMove={(e) => {
-          const pan = panRef.current;
-          if (!pan?.active) return;
-          const el = scrollRef.current;
-          if (!el) return;
-          const dx = e.clientX - pan.x;
-          const dy = e.clientY - pan.y;
-          if (Math.abs(dx) > 4 || Math.abs(dy) > 4) pan.moved = true;
-          el.scrollLeft = pan.sl - dx;
-          el.scrollTop = pan.st - dy;
-        }}
-        onPointerUp={(e) => {
-          const pan = panRef.current;
-          if (!pan?.active) return;
-          if (pan.moved) skipPhotoOpenRef.current = true;
-          panRef.current = null;
-          try {
-            scrollRef.current?.releasePointerCapture(e.pointerId);
-          } catch {
-            /* already released */
-          }
-        }}
-        onPointerCancel={(e) => {
-          panRef.current = null;
-          try {
-            scrollRef.current?.releasePointerCapture(e.pointerId);
-          } catch {
-            /* ignore */
-          }
-        }}
+        ref={containerRef}
+        className="flex-1 min-h-0 w-full overflow-hidden cursor-grab active:cursor-grabbing touch-none select-none"
+        onPointerDown={handlePointerDown}
+        onPointerMove={handlePointerMove}
+        onPointerUp={handlePointerUp}
+        onPointerCancel={handlePointerCancel}
       >
-        <div
-          className="relative bg-background"
-          style={{
-            width: tileW > 0 ? totalW : undefined,
-            minHeight: tileW > 0 ? totalH : undefined,
-            height: tileW > 0 ? totalH : undefined,
-          }}
-        >
-          {tileW > 0 && (
-            <SeamlessPhotoPlane tileW={tileW} photosList={cyclePhotos} onPhotoClick={openPhoto} />
-          )}
+        <div className="relative w-full h-full overflow-hidden">
+          {tiles.map(({ tx, ty, ox, oy, isCenter }) => (
+            <MegaTile
+              key={`${tx},${ty}`}
+              tileW={tileW}
+              offsetX={ox}
+              offsetY={oy}
+              photosList={cyclePhotos}
+              onPhotoClick={openPhoto}
+              isCenter={isCenter}
+              tx={tx}
+              ty={ty}
+            />
+          ))}
         </div>
       </div>
 
@@ -362,9 +360,8 @@ const Photos = () => {
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
-                    const currentIndex = photos.findIndex((p) => p.id === selectedPhoto);
-                    const prevIndex = currentIndex > 0 ? currentIndex - 1 : photos.length - 1;
-                    setSelectedPhoto(photos[prevIndex].id);
+                    const idx = photos.findIndex((p) => p.id === selectedPhoto);
+                    setSelectedPhoto(photos[idx > 0 ? idx - 1 : photos.length - 1].id);
                   }}
                   className="absolute left-4 top-1/2 -translate-y-1/2 text-white hover:text-primary transition-colors z-10 p-3 rounded-full hover:bg-white/10"
                   aria-label="Previous photo"
@@ -376,9 +373,8 @@ const Photos = () => {
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
-                    const currentIndex = photos.findIndex((p) => p.id === selectedPhoto);
-                    const nextIndex = currentIndex < photos.length - 1 ? currentIndex + 1 : 0;
-                    setSelectedPhoto(photos[nextIndex].id);
+                    const idx = photos.findIndex((p) => p.id === selectedPhoto);
+                    setSelectedPhoto(photos[idx < photos.length - 1 ? idx + 1 : 0].id);
                   }}
                   className="absolute right-4 top-1/2 -translate-y-1/2 text-white hover:text-primary transition-colors z-10 p-3 rounded-full hover:bg-white/10"
                   aria-label="Next photo"
