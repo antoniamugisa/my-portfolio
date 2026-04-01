@@ -626,6 +626,8 @@
   backdrop-filter: blur(12px);
   border: 1px solid var(--bs-border);
   pointer-events: none;
+  position: relative;
+  overflow: hidden;
 }
 
 .bs-map-hud-date {
@@ -645,6 +647,81 @@
   letter-spacing: 0.03em;
   line-height: 1;
   font-variant-numeric: tabular-nums;
+}
+
+.bs-map-hud-clock__content {
+  transition: opacity 0.25s ease, filter 0.25s ease;
+}
+
+.bs-map-hud-clock__content--blur {
+  opacity: 0;
+  filter: blur(8px);
+}
+
+.bs-map-hud-clock__overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  pointer-events: none;
+}
+
+.bs-map-hud-clock__loading-bar {
+  width: 100px;
+  height: 2px;
+  border-radius: 9999px;
+  background: rgba(255, 255, 255, 0.1);
+  position: relative;
+}
+
+.bs-map-hud-clock__loading-bar::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 24px;
+  height: 2px;
+  border-radius: 9999px;
+  background: rgba(240, 240, 240, 0.9);
+  transform: translateY(-50%);
+  animation: bs-map-hud-clock-sweep 1s linear infinite;
+}
+
+@keyframes bs-map-hud-clock-sweep {
+  0% {
+    transform: translate(0, -50%);
+  }
+  100% {
+    transform: translate(138px, -50%);
+  }
+}
+
+.bs-map-hud-clock__slow-text {
+  font-family: 'IBM Plex Mono', ui-monospace, monospace;
+  font-size: 8px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.5);
+  letter-spacing: 0.06em;
+  text-align: center;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
+.bs-map-hud-clock__error {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.bs-map-hud-clock__error-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 9999px;
+  background: rgba(248, 113, 113, 0.95);
+  box-shadow: 0 0 6px rgba(248, 113, 113, 0.35);
 }
 
 .bs-map-hud-stat {

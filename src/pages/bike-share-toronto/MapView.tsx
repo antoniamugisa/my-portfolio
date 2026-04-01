@@ -147,8 +147,18 @@ export default function MapView({
 
   useEffect(() => {
     const prevMin = lastPwMinRef.current;
-    lastPwMinRef.current = playbackWindow.min;
-    advanceScheduledRef.current = false;
+    const nextMin = playbackWindow.min;
+    lastPwMinRef.current = nextMin;
+
+    /**
+     * Only clear the "advanced" guard when we actually enter a new hour window.
+     * Some reload paths can recreate `playbackWindow` with the same min/max, and if we
+     * reset the guard on every object change while sim time is already >= pw.max,
+     * we'll repeatedly call `onAdvanceHour()` (refresh loop).
+     */
+    if (prevMin == null || nextMin !== prevMin) {
+      advanceScheduledRef.current = false;
+    }
 
     if (
       prevMin != null &&

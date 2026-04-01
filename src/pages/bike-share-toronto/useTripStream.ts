@@ -47,6 +47,31 @@ async function ensureMonthLoaded(db: duckdb.AsyncDuckDB, month: string) {
   if (registeredMonths.has(month)) return;
   const url = `${R2_BASE}/parquets/${month}.parquet`;
   const tableName = `trips_${month.replace('-', '_')}`;
+
+  /**
+   * DuckDB WASM fetches Parquets in the browser. If the object is public but CORS is not
+   * enabled on the bucket/domain, the request is blocked and DuckDB surfaces a confusing
+   * "No files found" IO error. Preflight with HEAD so we can show a useful message.
+   */
+  try {
+    const head = await fetch(url, { method: 'HEAD' });
+    if (!head.ok) {
+      throw new Error(`HTTP ${head.status} ${head.statusText}`.trim());
+    }
+  } catch (e) {
+    const msg =
+      e instanceof Error && e.message ? e.message : String(e ?? 'unknown error');
+    throw new Error(
+      [
+        `Unable to fetch Parquet for ${month}.`,
+        `This is usually caused by missing CORS headers on the R2 public domain.`,
+        `Fix: configure the bucket/domain to return "Access-Control-Allow-Origin: *" (or your site origin) for Parquet responses.`,
+        `URL: ${url}`,
+        `Details: ${msg}`,
+      ].join(' '),
+    );
+  }
+
   const conn = await db.connect();
   try {
     await conn.query(`
@@ -221,6 +246,58 @@ export function useTripStream(
     hour: number;
   } | null>(null);
   const dataEpochRef = useRef<{ month: string; hour: number } | null>(null);
+  const cacheRef = useRef<
+    Map<
+      string,
+      {
+        trips: DeckTrip[];
+        totalTrips: number;
+      }
+    >
+  >(new Map());
+  const pruneCache = () => {
+    const c = cacheRef.current;
+    const MAX = 8;
+    while (c.size > MAX) {
+      const firstKey = c.keys().next().value as string | undefined;
+      if (!firstKey) break;
+      c.delete(firstKey);
+    }
+  };
+
+  const prefetchHour = async (
+    db: duckdb.AsyncDuckDB,
+    month: string,
+    hour: number,
+    tableName: string,
+    totalTripsForMonth: number,
+  ) => {
+    const key = `${month}:${hour}`;
+    if (cacheRef.current.has(key)) return;
+
+    const conn = await db.connect();
+    try {
+      const res = await conn.query(`
+        SELECT id, startName, endName, startedAt, endedAt,
+               bikeType, memberCasual, routeGeometry, distanceM
+        FROM ${tableName}
+        WHERE hour = ${hour}
+        ORDER BY random()
+        LIMIT 1800
+      `);
+      const rows = res
+        .toArray()
+        .map((r: { toJSON: () => Record<string, unknown> }) => r.toJSON());
+      const { min: canonicalHourStartMs } = getPlaybackHourWindow(month, hour);
+      const deckTrips = rows
+        .map((row) => rowToDeckTrip(row, canonicalHourStartMs))
+        .filter((t): t is DeckTrip => t !== null);
+      cacheRef.current.set(key, { trips: deckTrips, totalTrips: totalTripsForMonth });
+      pruneCache();
+    } finally {
+      await conn.close();
+    }
+  };
 
   const playbackWindow = useMemo(() => {
     if (trips.length > 0 && dataEpoch) {
@@ -251,6 +328,25 @@ export function useTripStream(
         const db = await getDB();
         if (cancelled) return;
 
+        const epoch = { month: currentMonth, hour: currentHour };
+        const cacheKey = `${currentMonth}:${currentHour}`;
+
+        if (seamlessHourChange) {
+          /**
+           * Seamless rollover: switch the playback window to the next hour immediately
+           * (even while the next hour’s query runs) so the map animation does not stall
+           * at the previous window end.
+           */
+          dataEpochRef.current = epoch;
+          setDataEpoch(epoch);
+
+          const cached = cacheRef.current.get(cacheKey);
+          if (cached) {
+            setTrips(cached.trips);
+            setTotalTrips(cached.totalTrips);
+          }
+        }
+
         if (!seamlessHourChange) {
           setLoadingMessage(`Loading ${monthLabel(currentMonth)}...`);
         }
@@ -264,6 +360,21 @@ export function useTripStream(
         }
 
         const tableName = `trips_${currentMonth.replace('-', '_')}`;
+
+        /**
+         * Warm the next hour *immediately* (even before the current hour query finishes),
+         * so the first hour rollover is also seamless.
+         *
+         * We don't know `totalTrips` yet; use the current state value as a placeholder —
+         * it will be overwritten when the main load finishes.
+         */
+        const nextHourEarly = (currentHour + 1) % 24;
+        const nextKeyEarly = `${currentMonth}:${nextHourEarly}`;
+        if (!cacheRef.current.has(nextKeyEarly)) {
+          Promise.resolve()
+            .then(() => prefetchHour(db, currentMonth, nextHourEarly, tableName, totalTrips))
+            .catch(() => {});
+        }
 
         const conn = await db.connect();
         try {
@@ -296,13 +407,29 @@ export function useTripStream(
           );
 
           if (!cancelled) {
-            const epoch = { month: currentMonth, hour: currentHour };
             dataEpochRef.current = epoch;
             setDataEpoch(epoch);
             setTrips(deckTrips);
             setTotalTrips(total);
             setIsLoading(false);
             setLoadingMessage('');
+
+            cacheRef.current.set(cacheKey, { trips: deckTrips, totalTrips: total });
+            pruneCache();
+
+            /**
+             * Prefetch the next hour in the background (same month) so the rollover is
+             * near-instant most of the time.
+             */
+            const nextHour = (currentHour + 1) % 24;
+            const nextKey = `${currentMonth}:${nextHour}`;
+            if (!cacheRef.current.has(nextKey)) {
+              Promise.resolve()
+                .then(async () => {
+                  await prefetchHour(db, currentMonth, nextHour, tableName, total);
+                })
+                .catch(() => {});
+            }
           }
         } finally {
           await conn.close();

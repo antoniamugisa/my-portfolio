@@ -21,47 +21,126 @@ const TORONTO_TZ = 'America/Toronto';
 function MapFloatingClock({
   timeMsRef,
   hasTrips,
+  isLoading,
+  loadError,
 }: {
   timeMsRef: MutableRefObject<number>;
   hasTrips: boolean;
+  isLoading: boolean;
+  loadError: string | null;
 }) {
   const [dateStr, setDateStr] = useState('');
   const [timeStr, setTimeStr] = useState('--:--:--');
+  const [showSlowLoadingText, setShowSlowLoadingText] = useState(false);
+
+  const SLOW_LOADING_THRESHOLD_MS = 5000;
+
+  const hasError = Boolean(loadError);
+  const showOverlay = isLoading || hasError;
+
+  const dateFormatter = useMemo(
+    () =>
+      new Intl.DateTimeFormat('en-US', {
+        timeZone: TORONTO_TZ,
+        weekday: 'short',
+        month: 'short',
+        day: 'numeric',
+        year: 'numeric',
+      }),
+    [],
+  );
+  const timeFormatter = useMemo(
+    () =>
+      new Intl.DateTimeFormat('en-US', {
+        timeZone: TORONTO_TZ,
+        hour: 'numeric',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: true,
+      }),
+    [],
+  );
+
+  const lastDisplayedSecondRef = useRef<number | null>(null);
 
   useEffect(() => {
-    const id = setInterval(() => {
+    if (!isLoading) {
+      setShowSlowLoadingText(false);
+      return;
+    }
+
+    const timer = window.setTimeout(
+      () => setShowSlowLoadingText(true),
+      SLOW_LOADING_THRESHOLD_MS,
+    );
+    return () => {
+      window.clearTimeout(timer);
+      setShowSlowLoadingText(false);
+    };
+  }, [isLoading]);
+
+  useEffect(() => {
+    if (isLoading || !hasTrips || hasError) {
+      lastDisplayedSecondRef.current = null;
+      setDateStr('');
+      setTimeStr('--:--:--');
+      return;
+    }
+
+    const update = () => {
       const ms = timeMsRef.current;
-      if (!hasTrips || !ms) {
-        setDateStr('');
-        setTimeStr('--:--:--');
-        return;
-      }
-      setDateStr(
-        new Intl.DateTimeFormat('en-US', {
-          timeZone: TORONTO_TZ,
-          weekday: 'short',
-          month: 'short',
-          day: 'numeric',
-          year: 'numeric',
-        }).format(new Date(ms)),
-      );
-      setTimeStr(
-        new Intl.DateTimeFormat('en-US', {
-          timeZone: TORONTO_TZ,
-          hour: 'numeric',
-          minute: '2-digit',
-          second: '2-digit',
-          hour12: true,
-        }).format(new Date(ms)),
-      );
-    }, 50);
-    return () => clearInterval(id);
-  }, [timeMsRef, hasTrips]);
+      if (!ms) return;
+
+      // Only update when the displayed second changes.
+      const nextSecond = Math.floor(ms / 1000);
+      if (lastDisplayedSecondRef.current === nextSecond) return;
+      lastDisplayedSecondRef.current = nextSecond;
+
+      const d = new Date(nextSecond * 1000);
+      setDateStr(dateFormatter.format(d));
+      setTimeStr(timeFormatter.format(d));
+    };
+
+    update();
+    const id = window.setInterval(update, 50);
+    return () => window.clearInterval(id);
+  }, [timeMsRef, hasTrips, isLoading, hasError, dateFormatter, timeFormatter]);
 
   return (
     <div className="bs-map-hud-clock">
-      <div className="bs-map-hud-date">{dateStr || '—'}</div>
-      <div className="bs-map-hud-time">{timeStr}</div>
+      <div
+        className={
+          showOverlay
+            ? 'bs-map-hud-clock__content bs-map-hud-clock__content--blur'
+            : 'bs-map-hud-clock__content'
+        }
+      >
+        <div className="bs-map-hud-date">{dateStr || '—'}</div>
+        <div className="bs-map-hud-time">{timeStr}</div>
+      </div>
+
+      {showOverlay && (
+        <div className="bs-map-hud-clock__overlay" aria-hidden>
+          {isLoading && (
+            <>
+              <div className="bs-map-hud-clock__loading-bar" />
+              {showSlowLoadingText && (
+                <div className="bs-map-hud-clock__slow-text">
+                  <div>This could take ~20s</div>
+                  <div>depending on connection</div>
+                </div>
+              )}
+            </>
+          )}
+
+          {hasError && !isLoading && (
+            <div className="bs-map-hud-clock__error">
+              <span className="bs-map-hud-clock__error-dot" />
+              <span>Failed to load :(</span>
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }
@@ -296,6 +375,8 @@ export default function BikeShareTorontoPage() {
             <MapFloatingClock
               timeMsRef={playbackTimeMsRef}
               hasTrips={trips.length > 0}
+              isLoading={isLoading}
+              loadError={error}
             />
             <div className="bs-map-hud-right">
               <div className="bs-map-hud-stat">
