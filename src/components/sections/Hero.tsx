@@ -37,11 +37,11 @@ const Hero: React.FC<HeroProps> = ({ onScrollTo }) => {
               </li>
               <li className="flex items-start">
                 <span className="mr-2">•</span>
-                <span>Trying to send fewer 'this is a silly idea but hear me out' messages...and usually failing.</span>
+                <span>Being a community member in the growing tech community in Toronto.</span>
               </li>
               <li className="flex items-start">
                 <span className="mr-2">•</span>
-                <span>Eating delicious food in Uganda on holiday with my family.</span>
+                <span>Enjoying quality time with my family and friends in South Africa.</span>
               </li>
             </ul>
           </div>
@@ -50,6 +50,10 @@ const Hero: React.FC<HeroProps> = ({ onScrollTo }) => {
           <div className="space-y-3">
             <h2 className="text-sm font-medium uppercase tracking-[0.2em] text-foreground/60">A FEW THINGS I'VE DONE</h2>
             <ul className="space-y-2 text-sm md:text-base text-foreground leading-relaxed">
+            <li className="flex items-start">
+                <span className="mr-2">•</span>
+                <span>Shipped an end-to-end immigration case management platform that streamlined O-1/EB-1 evidence collection for <strong>Compass Visas.</strong></span>
+              </li>
               <li className="flex items-start">
                 <span className="mr-2">•</span>
                 <span>Shipped AI-powered tools that cut search and sorting time for legal teams by hours each week at <strong>Avanade.</strong></span>
@@ -58,10 +62,7 @@ const Hero: React.FC<HeroProps> = ({ onScrollTo }) => {
                 <span className="mr-2">•</span>
                 <span>Helped migrate large workloads to Azure and automate infra with Terraform, Docker, and Kubernetes for <strong>Microsoft.</strong></span>
               </li>
-              <li className="flex items-start">
-                <span className="mr-2">•</span>
-                <span>Built interfaces that make complex systems feel simple for non-technical users.</span>
-              </li>
+              
              
             </ul>
           </div>

@@ -23,6 +23,7 @@ The map reads it in `src/pages/bike-share-toronto/MapView.tsx` via `import.meta.
 
 ## Features
 
+
 ###  **Design & User Experience**
 
 - **Dark/Light Mode Toggle**: Seamless theme switching with persistent user preferences
