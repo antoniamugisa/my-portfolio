@@ -176,10 +176,37 @@ const Photos = () => {
     setCamY(tileW / 2 - viewportH / 2);
   }, [tileW, viewportW, viewportH]);
 
+  const animationRef = useRef<number | null>(null);
+
   const recenter = useCallback(() => {
-    setCamX(tileW / 2 - viewportW / 2);
-    setCamY(tileW / 2 - viewportH / 2);
-  }, [tileW, viewportW, viewportH]);
+    if (animationRef.current) {
+      cancelAnimationFrame(animationRef.current);
+    }
+
+    const targetX = tileW / 2 - viewportW / 2;
+    const targetY = tileW / 2 - viewportH / 2;
+    const startX = camX;
+    const startY = camY;
+    const duration = 400;
+    const startTime = performance.now();
+
+    const animate = (currentTime: number) => {
+      const elapsed = currentTime - startTime;
+      const progress = Math.min(elapsed / duration, 1);
+      const eased = 1 - Math.pow(1 - progress, 3);
+
+      setCamX(startX + (targetX - startX) * eased);
+      setCamY(startY + (targetY - startY) * eased);
+
+      if (progress < 1) {
+        animationRef.current = requestAnimationFrame(animate);
+      } else {
+        animationRef.current = null;
+      }
+    };
+
+    animationRef.current = requestAnimationFrame(animate);
+  }, [tileW, viewportW, viewportH, camX, camY]);
 
   useEffect(() => {
     const el = containerRef.current;
