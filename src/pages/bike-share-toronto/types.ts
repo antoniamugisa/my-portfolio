@@ -95,6 +95,12 @@ export const STATIONS: Station[] = [
   {id:7151,lat:43.6408,lng:-79.4350,name:"Lansdowne / Queen W",cap:15},
 ];
 
+/** Sample for the active-rides time-series chart (simulated clock × active trip count). */
+export type GraphDataPoint = {
+  simTimeMs: number;
+  count: number;
+};
+
 export interface DeckTrip {
   /** Stable row id from parquet (for spotlight / random trip). */
   id: string;

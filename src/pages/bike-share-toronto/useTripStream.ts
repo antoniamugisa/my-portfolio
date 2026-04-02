@@ -4,7 +4,7 @@ import duckdb_wasm from '@duckdb/duckdb-wasm/dist/duckdb-mvp.wasm?url';
 import duckdb_wasm_eh from '@duckdb/duckdb-wasm/dist/duckdb-eh.wasm?url';
 import mvp_worker from '@duckdb/duckdb-wasm/dist/duckdb-browser-mvp.worker.js?url';
 import eh_worker from '@duckdb/duckdb-wasm/dist/duckdb-browser-eh.worker.js?url';
-import type { DeckTrip } from './types';
+import { MAP_BOUNDS, type DeckTrip } from './types';
 import { isPublishedParquetMonth } from './publishedMonths';
 import {
   getPlaybackHourWindow,
@@ -114,7 +114,16 @@ export async function ensureMonthLoaded(db: duckdb.AsyncDuckDB, month: string) {
 }
 
 function toEpochMs(v: unknown): number {
-  if (typeof v === 'number' && Number.isFinite(v)) return v;
+  if (v == null) return NaN;
+  if (typeof v === 'bigint') {
+    const n = Number(v);
+    return n > 1e15 ? Math.floor(n / 1000) : n;
+  }
+  if (typeof v === 'number' && Number.isFinite(v)) {
+    if (v > 1e15) return Math.floor(v / 1000);
+    return v;
+  }
+  if (v instanceof Date) return v.getTime();
   if (typeof v === 'string') return new Date(v).getTime();
   return new Date(String(v)).getTime();
 }
@@ -140,12 +149,24 @@ function pathLengthMeters(coords: [number, number][]): number {
   return m;
 }
 
-function decodePolyline(encoded: string): [number, number][] {
+/** Padding so routes that clip the bbox still score the correct precision. */
+const SERVICE_AREA_PAD_DEG = 0.12;
+
+function vertexInServiceArea(lng: number, lat: number): boolean {
+  const { minLat, maxLat, minLng, maxLng } = MAP_BOUNDS;
+  return (
+    lat >= minLat - SERVICE_AREA_PAD_DEG &&
+    lat <= maxLat + SERVICE_AREA_PAD_DEG &&
+    lng >= minLng - SERVICE_AREA_PAD_DEG &&
+    lng <= maxLng + SERVICE_AREA_PAD_DEG
+  );
+}
+
+function decodePolylineFactor(encoded: string, factor: number): [number, number][] {
   const coords: [number, number][] = [];
   let index = 0;
   let lat = 0;
   let lng = 0;
-  const factor = 1e5;
 
   while (index < encoded.length) {
     let shift = 0;
@@ -172,6 +193,32 @@ function decodePolyline(encoded: string): [number, number][] {
   return coords;
 }
 
+/** How many vertices land in the Toronto service bbox (parquet may be polyline5 or polyline6). */
+function scorePathForToronto(coords: [number, number][]): number {
+  let score = 0;
+  for (const [lng, lat] of coords) {
+    if (!Number.isFinite(lng) || !Number.isFinite(lat)) return -1;
+    if (Math.abs(lat) > 90 || Math.abs(lng) > 180) return -1;
+    if (vertexInServiceArea(lng, lat)) score++;
+  }
+  return score;
+}
+
+function decodePolyline(encoded: string): [number, number][] {
+  const d5 = decodePolylineFactor(encoded, 1e5);
+  const d6 = decodePolylineFactor(encoded, 1e6);
+  const ok5 = d5.length >= 2;
+  const ok6 = d6.length >= 2;
+  if (!ok5 && !ok6) return d5.length ? d5 : d6;
+  const s5 = ok5 ? scorePathForToronto(d5) : -1;
+  const s6 = ok6 ? scorePathForToronto(d6) : -1;
+  if (s6 > s5) return d6;
+  if (s5 > s6) return d5;
+  if (ok6 && s6 >= 0) return d6;
+  if (ok5 && s5 >= 0) return d5;
+  return ok6 ? d6 : d5;
+}
+
 function rowToDeckTrip(
   row: Record<string, unknown>,
   canonicalHourStartMs: number,
@@ -184,16 +231,23 @@ function rowToDeckTrip(
 
   const startMs = toEpochMs(row.startedAt);
   const endMs = toEpochMs(row.endedAt);
+  if (!Number.isFinite(startMs) || !Number.isFinite(endMs)) return null;
 
   /** Map real trip times into one synthetic Toronto hour so playback sweeps 0–60 min. */
   const startOfHour = hourStartTorontoMs(startMs);
   const offsetStart = offsetMsIntoHourToronto(startMs);
-  const tripCanonicalStart = canonicalHourStartMs + offsetStart;
+  let tripCanonicalStart = canonicalHourStartMs + offsetStart;
   const endOffsetFromHourStart = endMs - startOfHour;
-  const tripCanonicalEnd = Math.min(
+  let tripCanonicalEnd = Math.min(
     canonicalHourStartMs + 3600000,
     canonicalHourStartMs + endOffsetFromHourStart,
   );
+  if (tripCanonicalEnd <= tripCanonicalStart) {
+    const dur = Math.max(60_000, Math.min(3600000, endMs - startMs));
+    const safeStart = Math.min(Math.max(0, offsetStart), 3600000 - dur);
+    tripCanonicalStart = canonicalHourStartMs + safeStart;
+    tripCanonicalEnd = tripCanonicalStart + dur;
+  }
   if (tripCanonicalEnd <= tripCanonicalStart) return null;
   /** Relative ms [0, 3600000] — TripsLayer uses float32; epoch-ms breaks time comparisons in the shader. */
   const tripStartRel = tripCanonicalStart - canonicalHourStartMs;

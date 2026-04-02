@@ -4,13 +4,14 @@ import {
   useCallback,
   useRef,
   useMemo,
-  useId,
   type MutableRefObject,
 } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { Clock, Pause, Play, Search, Shuffle, X } from 'lucide-react';
 import MapView from './MapView';
-import { type DeckTrip, HOUR_PROFILE, STATIONS } from './types';
+import { ActiveRidesPanel } from './ActiveRidesPanel';
+import { SIM_GRAPH_WINDOW_SIZE_MS } from './activeRidesConfig';
+import { type DeckTrip, type GraphDataPoint, HOUR_PROFILE, STATIONS } from './types';
 import {
   deckTripFromDuckRow,
   ensureMonthLoaded,
@@ -27,35 +28,11 @@ function timeTravelParseErrorMessage(p: ParsedTimeTravel): string | null {
   if (p.ok === false) return p.message;
   return null;
 }
-import { PUBLISHED_MONTHS } from './publishedMonths';
+import { isPublishedParquetMonth, PUBLISHED_MONTHS } from './publishedMonths';
 import './bikeshare.css';
 
 const SPEEDS = [1, 2, 4];
 const TORONTO_TZ = 'America/Toronto';
-const RIDES_SPARK_HOURS = 4;
-
-/** Smooth cubic path through 2+ points (Catmull–Rom–style tangents → Bézier segments). */
-function cubicBezierPathThrough(points: { x: number; y: number }[]): string {
-  if (points.length === 0) return '';
-  if (points.length === 1) {
-    const p = points[0]!;
-    return `M ${p.x} ${p.y}`;
-  }
-  const n = points.length;
-  let d = `M ${points[0]!.x} ${points[0]!.y}`;
-  for (let i = 0; i < n - 1; i++) {
-    const p0 = points[i]!;
-    const p1 = points[i + 1]!;
-    const pm = points[i - 1] ?? p0;
-    const pp = points[i + 2] ?? p1;
-    const cp1x = p0.x + (p1.x - pm.x) / 6;
-    const cp1y = p0.y + (p1.y - pm.y) / 6;
-    const cp2x = p1.x - (pp.x - p0.x) / 6;
-    const cp2y = p1.y - (pp.y - p0.y) / 6;
-    d += ` C ${cp1x} ${cp1y}, ${cp2x} ${cp2y}, ${p1.x} ${p1.y}`;
-  }
-  return d;
-}
 
 type SearchMode = 'time' | 'ride';
 
@@ -244,7 +221,6 @@ export default function BikeShareTorontoPage({
   const [playing, setPlaying] = useState(false);
   const [speedIdx, setSpeedIdx] = useState(0);
   const [tripCount, setTripCount] = useState(0);
-  const [ridesByHour, setRidesByHour] = useState<number[]>(() => Array(24).fill(0));
   const [currentMonth, setCurrentMonth] = useState(DEFAULT_MONTH);
   const [mapTimelinePaused, setMapTimelinePaused] = useState(false);
   const [mapFps, setMapFps] = useState(0);
@@ -260,13 +236,12 @@ export default function BikeShareTorontoPage({
     lat: number;
   } | null>(null);
   const [rideResults, setRideResults] = useState<RideSearchResult[]>([]);
-  const [rideResultsQuery, setRideResultsQuery] = useState('');
-  const [stationSearchQuery, setStationSearchQuery] = useState('');
+  const [findRideTimeText, setFindRideTimeText] = useState(timeTravelText);
+  const [findRideStartFilter, setFindRideStartFilter] = useState('');
+  const [findRideEndFilter, setFindRideEndFilter] = useState('');
+  const [findRideStartName, setFindRideStartName] = useState<string | null>(null);
   const [rideSearchLoading, setRideSearchLoading] = useState(false);
   const [rideSearchError, setRideSearchError] = useState<string | null>(null);
-  const [selectedSearchStation, setSelectedSearchStation] = useState<string | null>(
-    null,
-  );
   const [stationStats, setStationStats] = useState<{
     startsInHour: number;
     endsInHour: number;
@@ -280,8 +255,15 @@ export default function BikeShareTorontoPage({
     id: number;
   } | null>(null);
   const timeTravelTextareaRef = useRef<HTMLTextAreaElement | null>(null);
-  const rideResultsInputRef = useRef<HTMLInputElement | null>(null);
-  const sparkGradId = useId().replace(/:/g, '');
+  const findRideTimeTextareaRef = useRef<HTMLTextAreaElement | null>(null);
+  const findRideEndFilterRef = useRef<HTMLInputElement | null>(null);
+  const [rideGraphData, setRideGraphData] = useState<GraphDataPoint[]>([]);
+  const [simTimeForGraph, setSimTimeForGraph] = useState(0);
+  const [mapBearing, setMapBearing] = useState(0);
+  const tripCountForGraphRef = useRef(0);
+  tripCountForGraphRef.current = tripCount;
+
+  const exploreModalWasOpenRef = useRef(false);
 
   const playIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const playbackTimeMsRef = useRef(0);
@@ -333,14 +315,27 @@ export default function BikeShareTorontoPage({
 
   const handleTripCountChange = useCallback((count: number) => {
     setTripCount(count);
-    // Active rides at the simulated clock (updates as the map hour plays).
-    setRidesByHour((prev) => {
-      if (prev[currentHour] === count) return prev;
-      const next = prev.slice();
-      next[currentHour] = count;
-      return next;
-    });
-  }, [currentHour]);
+  }, []);
+
+  useEffect(() => {
+    if (trips.length === 0) {
+      setRideGraphData([]);
+      return;
+    }
+    const id = window.setInterval(() => {
+      const sim = playbackTimeMsRef.current;
+      setSimTimeForGraph(sim);
+      setRideGraphData((prev) => {
+        const next = [
+          ...prev,
+          { simTimeMs: sim, count: tripCountForGraphRef.current },
+        ];
+        const cutoff = sim - SIM_GRAPH_WINDOW_SIZE_MS * 4;
+        return next.filter((d) => d.simTimeMs >= cutoff);
+      });
+    }, 400);
+    return () => clearInterval(id);
+  }, [trips.length]);
 
   const parsedTimeTravel = useMemo(
     () => parseTimeTravelQuery(timeTravelText),
@@ -368,6 +363,46 @@ export default function BikeShareTorontoPage({
     return { monthKey: `${year}-${month}`, hour: Number(hourStr) };
   }, [parsedSearchMs]);
 
+  const parsedFindRide = useMemo(
+    () => parseTimeTravelQuery(findRideTimeText),
+    [findRideTimeText],
+  );
+  const parsedFindRideMs = parsedFindRide.ok ? parsedFindRide.atMs : null;
+  const parsedFindRideMonthHour = useMemo(() => {
+    if (!parsedFindRideMs) return null;
+    const dtf = new Intl.DateTimeFormat('en-CA', {
+      timeZone: TORONTO_TZ,
+      year: 'numeric',
+      month: '2-digit',
+      hour: '2-digit',
+      hour12: false,
+    });
+    const parts = dtf.formatToParts(new Date(parsedFindRideMs));
+    const g = (type: Intl.DateTimeFormatPartTypes) =>
+      parts.find((p) => p.type === type)?.value;
+    const year = g('year');
+    const month = g('month');
+    const hourStr = g('hour');
+    if (!year || !month || !hourStr) return null;
+    return { monthKey: `${year}-${month}`, hour: Number(hourStr) };
+  }, [parsedFindRideMs]);
+
+  const findRideMonthPublished =
+    parsedFindRideMonthHour !== null &&
+    isPublishedParquetMonth(parsedFindRideMonthHour.monthKey);
+
+  const findRideSearchKey = parsedFindRide.ok
+    ? `${parsedFindRide.atMs}|${parsedFindRide.windowHalfMs}`
+    : '';
+
+  useEffect(() => {
+    setFindRideStartName(null);
+    setRideResults([]);
+    setStationStats(null);
+    setFindRideEndFilter('');
+    setRideSearchError(null);
+  }, [findRideSearchKey]);
+
   const jumpToSearchTime = useCallback(() => {
     if (!parsedSearchMonthHour) return;
     setCurrentMonth(parsedSearchMonthHour.monthKey);
@@ -384,9 +419,7 @@ export default function BikeShareTorontoPage({
   }, [trips]);
 
   const runStationStats = useCallback(
-    async (stationName: string) => {
-      if (!parsedSearchMonthHour) return;
-      const { monthKey, hour } = parsedSearchMonthHour;
+    async (stationName: string, monthKey: string, hour: number) => {
       setStationStats(null);
       setRideSearchError(null);
       try {
@@ -429,24 +462,18 @@ export default function BikeShareTorontoPage({
         );
       }
     },
-    [parsedSearchMonthHour],
+    [],
   );
 
   const runRideSearchFromStation = useCallback(
-    async (stationName: string) => {
-      if (!parsedSearchMonthHour || !parsedSearchMs) {
-        setRideSearchError('Set a valid time in Time travel first.');
-        return;
-      }
-      const { monthKey, hour } = parsedSearchMonthHour;
-      const baseMs = parsedSearchMs;
-      const windowHalfMs = parsedTimeTravel.ok
-        ? parsedTimeTravel.windowHalfMs
-        : 30 * 60 * 1000;
+    async (
+      stationName: string,
+      ctx: { monthKey: string; hour: number; baseMs: number; windowHalfMs: number },
+    ) => {
+      const { monthKey, hour, baseMs, windowHalfMs } = ctx;
       setRideSearchLoading(true);
       setRideSearchError(null);
       setRideResults([]);
-      setRideResultsQuery('');
       try {
         const db = await getDB();
         await ensureMonthLoaded(db, monthKey);
@@ -469,18 +496,23 @@ export default function BikeShareTorontoPage({
           const rows = res
             .toArray()
             .map((r: { toJSON: () => Record<string, unknown> }) => r.toJSON());
-          const mapped: RideSearchResult[] = rows.map((row) => ({
-            row,
-            id: String(row.id ?? ''),
-            startName: String(row.startName ?? ''),
-            endName: String(row.endName ?? ''),
-            startedAtMs: new Date(String(row.startedAt)).getTime(),
-            endedAtMs: new Date(String(row.endedAt)).getTime(),
-            memberCasual: (String(row.memberCasual) === 'member' ? 'member' : 'casual') as
-              | 'member'
-              | 'casual',
-            bikeType: String(row.bikeType ?? ''),
-          }));
+          const mapped: RideSearchResult[] = rows
+            .map((row) => ({
+              row,
+              id: String(row.id ?? ''),
+              startName: String(row.startName ?? ''),
+              endName: String(row.endName ?? ''),
+              startedAtMs: new Date(String(row.startedAt)).getTime(),
+              endedAtMs: new Date(String(row.endedAt)).getTime(),
+              memberCasual: (String(row.memberCasual) === 'member' ? 'member' : 'casual') as
+                | 'member'
+                | 'casual',
+              bikeType: String(row.bikeType ?? ''),
+            }))
+            .filter((r) => {
+              const t = deckTripFromDuckRow(r.row, monthKey, hour);
+              return t !== null;
+            });
           setRideResults(mapped);
         } finally {
           await conn.close();
@@ -493,13 +525,11 @@ export default function BikeShareTorontoPage({
         setRideSearchLoading(false);
       }
     },
-    [parsedSearchMonthHour, parsedSearchMs, parsedTimeTravel],
+    [],
   );
 
   const handleSelectRideResult = useCallback(
-    (r: RideSearchResult) => {
-      if (!parsedSearchMonthHour) return;
-      const { monthKey, hour } = parsedSearchMonthHour;
+    (r: RideSearchResult, monthKey: string, hour: number) => {
       const trip = deckTripFromDuckRow(r.row, monthKey, hour);
       if (!trip) return;
       setCurrentMonth(monthKey);
@@ -507,8 +537,34 @@ export default function BikeShareTorontoPage({
       bumpPlaybackReset();
       setSpotlightTrip(trip);
       setStationSearchOpen(false);
+      setSelectedStationPin(null);
+      setFindRideStartName(null);
+      setRideResults([]);
+      setFindRideEndFilter('');
     },
-    [parsedSearchMonthHour, bumpPlaybackReset],
+    [bumpPlaybackReset],
+  );
+
+  const handlePickEndStation = useCallback(
+    (endName: string, monthKey: string, hour: number, targetMs: number) => {
+      const candidates = rideResults.filter((r) => r.endName === endName);
+      if (candidates.length === 0) return;
+      if (candidates.length === 1) {
+        handleSelectRideResult(candidates[0]!, monthKey, hour);
+        return;
+      }
+      let best = candidates[0]!;
+      let bestD = Infinity;
+      for (const c of candidates) {
+        const d = Math.abs(c.startedAtMs - targetMs);
+        if (d < bestD) {
+          bestD = d;
+          best = c;
+        }
+      }
+      handleSelectRideResult(best, monthKey, hour);
+    },
+    [rideResults, handleSelectRideResult],
   );
 
   useEffect(() => {
@@ -532,11 +588,25 @@ export default function BikeShareTorontoPage({
     [],
   );
 
-  const filteredStations = useMemo(() => {
-    const q = stationSearchQuery.trim().toLowerCase();
+  const filteredFindRideStartStations = useMemo(() => {
+    const q = findRideStartFilter.trim().toLowerCase();
     if (!q) return sortedStations;
     return sortedStations.filter((s) => s.name.toLowerCase().includes(q));
-  }, [sortedStations, stationSearchQuery]);
+  }, [sortedStations, findRideStartFilter]);
+
+  const distinctFindRideEndNames = useMemo(() => {
+    const set = new Set<string>();
+    for (const r of rideResults) {
+      if (r.endName) set.add(r.endName);
+    }
+    return [...set].sort((a, b) => a.localeCompare(b));
+  }, [rideResults]);
+
+  const filteredFindRideEndNames = useMemo(() => {
+    const q = findRideEndFilter.trim().toLowerCase();
+    if (!q) return distinctFindRideEndNames;
+    return distinctFindRideEndNames.filter((n) => n.toLowerCase().includes(q));
+  }, [distinctFindRideEndNames, findRideEndFilter]);
 
   const dataRangeLabel = useMemo(() => {
     const first = PUBLISHED_MONTHS[0];
@@ -549,33 +619,46 @@ export default function BikeShareTorontoPage({
     return `${fmt(fy, fm)} – ${fmt(ly, lm)}`;
   }, []);
 
-  const filteredRideResults = useMemo(() => {
-    const q = rideResultsQuery.trim().toLowerCase();
-    if (!q) return rideResults;
-    return rideResults.filter((r) => r.endName.toLowerCase().includes(q));
-  }, [rideResults, rideResultsQuery]);
-
   useEffect(() => {
     if (!stationSearchOpen) return;
     const id = window.requestAnimationFrame(() => {
       if (searchMode === 'time') {
         timeTravelTextareaRef.current?.focus();
         timeTravelTextareaRef.current?.select();
+      } else {
+        findRideTimeTextareaRef.current?.focus();
       }
     });
     return () => window.cancelAnimationFrame(id);
   }, [stationSearchOpen, searchMode]);
 
   useEffect(() => {
-    if (!stationSearchOpen) return;
-    setRideSearchError(null);
-    setRideSearchLoading(false);
-    setRideResults([]);
-    setRideResultsQuery('');
-    setStationSearchQuery('');
-    setSelectedSearchStation(null);
-    setStationStats(null);
-  }, [stationSearchOpen]);
+    if (!stationSearchOpen || searchMode !== 'ride') return;
+    if (!findRideStartName || rideSearchLoading) return;
+    const id = window.requestAnimationFrame(() => {
+      findRideEndFilterRef.current?.focus();
+    });
+    return () => window.cancelAnimationFrame(id);
+  }, [findRideStartName, rideSearchLoading, stationSearchOpen, searchMode]);
+
+  useEffect(() => {
+    if (!stationSearchOpen) {
+      exploreModalWasOpenRef.current = false;
+      return;
+    }
+    const justOpened = !exploreModalWasOpenRef.current;
+    exploreModalWasOpenRef.current = true;
+    if (justOpened) {
+      setRideSearchError(null);
+      setRideSearchLoading(false);
+      setRideResults([]);
+      setFindRideTimeText(timeTravelText);
+      setFindRideStartFilter('');
+      setFindRideEndFilter('');
+      setFindRideStartName(null);
+      setStationStats(null);
+    }
+  }, [stationSearchOpen, timeTravelText]);
 
   useEffect(() => {
     const typingTarget = (t: EventTarget | null) => {
@@ -605,7 +688,6 @@ export default function BikeShareTorontoPage({
         }
         if (stationSearchOpen) {
           e.preventDefault();
-          setStationSearchOpen(false);
           return;
         }
         if (onRequestProjectDetails) {
@@ -650,16 +732,6 @@ export default function BikeShareTorontoPage({
     bumpPlaybackReset();
   }, [bumpPlaybackReset]);
 
-  // When the hour jumps (slider/click/autoplay), seed that hour with the latest live count.
-  useEffect(() => {
-    setRidesByHour((prev) => {
-      if (prev[currentHour] === tripCount) return prev;
-      const next = prev.slice();
-      next[currentHour] = tripCount;
-      return next;
-    });
-  }, [currentHour, tripCount]);
-
   useEffect(() => {
     if (playing) {
       const msPerSimHour = 60000 / SPEEDS[speedIdx];
@@ -699,45 +771,6 @@ export default function BikeShareTorontoPage({
 
     return { memberPct, ebikePct };
   }, [trips]);
-
-  const spark = useMemo(() => {
-    const endHour = currentHour;
-    const hours = Array.from({ length: RIDES_SPARK_HOURS }, (_, i) => (endHour - (RIDES_SPARK_HOURS - 1 - i) + 24) % 24);
-    const values = hours.map((h) => ridesByHour[h] ?? 0);
-    const max = Math.max(1, ...values);
-
-    const w = 140;
-    const h = 44;
-    const pad = 3;
-    const innerW = w - pad * 2;
-    const innerH = h - pad * 2;
-    const dx = innerW / (values.length - 1);
-    const basePoints = values.map((v, i) => {
-      const x = pad + i * dx;
-      const y = pad + (1 - v / max) * innerH;
-      return { x, y };
-    });
-
-    const linePathD = cubicBezierPathThrough(basePoints);
-    const bottom = h - pad;
-    const first = basePoints[0]!;
-    const last = basePoints[basePoints.length - 1]!;
-    const areaPathD =
-      linePathD.length > 0 ? `${linePathD} L ${last.x} ${bottom} L ${first.x} ${bottom} Z` : '';
-
-    const labels = Array.from({ length: RIDES_SPARK_HOURS }, (_, i) => {
-      const delta = RIDES_SPARK_HOURS - 1 - i;
-      return delta === 0 ? 'Now' : `-${delta}h`;
-    });
-
-    return {
-      linePathD,
-      areaPathD,
-      lastX: last.x,
-      lastY: last.y,
-      labels,
-    };
-  }, [ridesByHour, currentHour]);
 
   return (
     <>
@@ -785,6 +818,7 @@ export default function BikeShareTorontoPage({
             spotlightTrip={spotlightTrip}
             flyTo={mapFlyTo}
             selectedStationPin={selectedStationPin}
+            onBearingChange={setMapBearing}
           />
 
           <div className="bs-map-clock-slot">
@@ -834,65 +868,14 @@ export default function BikeShareTorontoPage({
           </div>
 
             <div className="bs-map-banners-stack">
-            <div className="bs-rides-spark" aria-label="Rides over hours">
-              <div className="bs-rides-spark__top">
-                <div className="bs-rides-spark__stat">
-                  <div className="bs-rides-spark__val">{tripCount}</div>
-                  <div className="bs-rides-spark__lbl">Rides</div>
-                </div>
-                <div className="bs-rides-spark__fps">{trips.length > 0 ? `${mapFps} FPS` : '—'}</div>
-              </div>
-              <svg
-                className="bs-rides-spark__svg"
-                viewBox="0 0 140 44"
-                role="img"
-                aria-hidden
-              >
-                <defs>
-                  <linearGradient
-                    id={sparkGradId}
-                    x1="0"
-                    y1="0"
-                    x2="0"
-                    y2="1"
-                  >
-                    <stop offset="0%" stopColor="rgba(0,229,255,0.45)" />
-                    <stop offset="48%" stopColor="rgba(0,229,255,0.12)" />
-                    <stop offset="100%" stopColor="rgba(0,229,255,0)" />
-                  </linearGradient>
-                </defs>
-                {spark.areaPathD ? (
-                  <path
-                    className="bs-rides-spark__area"
-                    d={spark.areaPathD}
-                    fill={`url(#${sparkGradId})`}
-                  />
-                ) : null}
-                {spark.linePathD ? (
-                  <path
-                    className="bs-rides-spark__stroke"
-                    d={spark.linePathD}
-                    fill="none"
-                    strokeWidth="1.85"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    vectorEffect="nonScalingStroke"
-                  />
-                ) : null}
-                <circle
-                  className="bs-rides-spark__dot"
-                  cx={spark.lastX}
-                  cy={spark.lastY}
-                  r={3}
-                />
-              </svg>
-              <div className="bs-rides-spark__axis">
-                {spark.labels.map((t) => (
-                  <span key={t} className="bs-rides-spark__tick">
-                    {t}
-                  </span>
-                ))}
-              </div>
+            <div className="bs-active-rides-wrap" aria-label="Active rides">
+              <ActiveRidesPanel
+                graphData={rideGraphData}
+                simTimeMs={simTimeForGraph}
+                bearing={mapBearing}
+                ridesCount={tripCount}
+                fps={trips.length > 0 ? mapFps : null}
+              />
             </div>
 
             <div className="bs-insights-banner" aria-label="Data insights">
@@ -1052,19 +1035,7 @@ export default function BikeShareTorontoPage({
               aria-labelledby="bs-search-title"
               onClick={() => setStationSearchOpen(false)}
             >
-              <div
-                className="bs-search-modal"
-                onClick={(e) => e.stopPropagation()}
-                onKeyDown={(e) => {
-                  if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
-                  const el = e.target as HTMLElement;
-                  if (el.tagName === 'TEXTAREA' || el.tagName === 'INPUT') return;
-                  if (el.closest('[role="tablist"]')) {
-                    e.preventDefault();
-                    setSearchMode((m) => (m === 'time' ? 'ride' : 'time'));
-                  }
-                }}
-              >
+              <div className="bs-search-modal" onClick={(e) => e.stopPropagation()}>
                 <div className="bs-search-modal__head">
                   <div className="bs-search-modal__title" id="bs-search-title">
                     Explore
@@ -1110,9 +1081,6 @@ export default function BikeShareTorontoPage({
                       <span>Find ride</span>
                     </button>
                   </div>
-                  <span className="bs-search-modal__tab-hint">
-                    <kbd className="bs-kbd">Tab</kbd> to switch
-                  </span>
                 </div>
 
                 {searchMode === 'time' && (
@@ -1157,8 +1125,9 @@ export default function BikeShareTorontoPage({
                       </p>
                       <p className="bs-search-modal__footer-line bs-search-modal__footer-examples">
                         Try: <code>Jan 1 2025 4pm</code> or{' '}
-                        <code>July 4, 2019 8pm — last 3 hours</code> (window centers on that moment;
-                        wider window = more rides loaded around it in Find ride).
+                        <code>July 4, 2019 8pm — last 3 hours</code>. The optional “last N hours”
+                        clause sets how wide the time window is when you search for a ride on the other
+                        tab.
                       </p>
                     </div>
                   </div>
@@ -1171,20 +1140,95 @@ export default function BikeShareTorontoPage({
                     role="tabpanel"
                     aria-labelledby="bs-tab-ride"
                   >
-                    <p className="bs-search-modal__ride-intro">
-                      Pick a station from the list — a{' '}
-                      <span className="bs-search-modal__green-dot-label">green dot</span> marks it on
-                      the map. Set the time window in <strong>Time travel</strong> first; ride search
-                      uses that instant plus the optional “last N hours” span from your text.
-                    </p>
-
-                    {selectedSearchStation && (
-                      <p className="bs-search-modal__hint bs-search-modal__hint--selected">
-                        Selected station: {selectedSearchStation}
+                    <label className="bs-search-modal__prompt" htmlFor="bs-find-ride-time">
+                      1. When did the trip start? (Toronto local time)
+                    </label>
+                    <textarea
+                      ref={findRideTimeTextareaRef}
+                      id="bs-find-ride-time"
+                      className="bs-search-modal__textarea"
+                      rows={2}
+                      autoComplete="off"
+                      spellCheck={false}
+                      placeholder="e.g. 2025-01-01 4pm — last 2 hours"
+                      value={findRideTimeText}
+                      onChange={(e) => setFindRideTimeText(e.target.value)}
+                    />
+                    {findRideTimeText.trim().length > 0 && !parsedFindRide.ok && (
+                      <p className="bs-search-modal__parse-error" role="status">
+                        {timeTravelParseErrorMessage(parsedFindRide)}
                       </p>
                     )}
 
-                    {stationStats && (
+                    {parsedFindRide.ok && parsedFindRideMonthHour && !findRideMonthPublished && (
+                      <p className="bs-search-modal__empty bs-search-modal__error" role="status">
+                        That month is outside the published trip dataset (
+                        {dataRangeLabel || 'see published range'}).
+                      </p>
+                    )}
+
+                    {parsedFindRide.ok &&
+                      parsedFindRideMonthHour &&
+                      findRideMonthPublished &&
+                      !findRideStartName && (
+                        <>
+                          <p className="bs-search-modal__ride-intro">
+                            2. Choose a <strong>start</strong> station. A{' '}
+                            <span className="bs-search-modal__green-dot-label">green dot</span> marks
+                            it on the map. Add <code>— last N hours</code> above for a wider search
+                            window around that moment.
+                          </p>
+                          <input
+                            className="bs-search-modal__input"
+                            type="search"
+                            autoComplete="off"
+                            placeholder="Filter start stations…"
+                            value={findRideStartFilter}
+                            onChange={(e) => setFindRideStartFilter(e.target.value)}
+                          />
+                        </>
+                      )}
+
+                    {parsedFindRide.ok &&
+                      parsedFindRideMonthHour &&
+                      findRideMonthPublished &&
+                      findRideStartName && (
+                        <>
+                          <div className="bs-search-modal__find-ride-step-head">
+                            <p className="bs-search-modal__hint bs-search-modal__hint--selected">
+                              From: {findRideStartName}
+                            </p>
+                            <button
+                              type="button"
+                              className="bs-search-modal__text-btn"
+                              onClick={() => {
+                                setFindRideStartName(null);
+                                setRideResults([]);
+                                setStationStats(null);
+                                setFindRideEndFilter('');
+                                setRideSearchError(null);
+                              }}
+                            >
+                              Change start
+                            </button>
+                          </div>
+                          <p className="bs-search-modal__ride-intro">
+                            3. Choose an <strong>end</strong> station. The ride closest to your time
+                            is highlighted on the map.
+                          </p>
+                          <input
+                            ref={findRideEndFilterRef}
+                            className="bs-search-modal__input"
+                            type="search"
+                            autoComplete="off"
+                            placeholder="Filter end stations…"
+                            value={findRideEndFilter}
+                            onChange={(e) => setFindRideEndFilter(e.target.value)}
+                          />
+                        </>
+                      )}
+
+                    {stationStats && findRideStartName && (
                       <div className="bs-search-modal__stats">
                         <div className="bs-search-modal__stats-row">
                           <span>Starts this hour</span>
@@ -1217,39 +1261,21 @@ export default function BikeShareTorontoPage({
                       <p className="bs-search-modal__empty bs-search-modal__error">{rideSearchError}</p>
                     )}
 
-                    {rideResults.length > 0 && (
-                      <input
-                        ref={rideResultsInputRef}
-                        className="bs-search-modal__input"
-                        type="search"
-                        autoComplete="off"
-                        placeholder="Filter results by end station…"
-                        value={rideResultsQuery}
-                        onChange={(e) => setRideResultsQuery(e.target.value)}
-                      />
-                    )}
-
-                    {rideResults.length === 0 && (
-                      <input
-                        className="bs-search-modal__input"
-                        type="search"
-                        autoComplete="off"
-                        placeholder="Filter stations…"
-                        value={stationSearchQuery}
-                        onChange={(e) => setStationSearchQuery(e.target.value)}
-                      />
-                    )}
-
                     <ul className="bs-search-modal__list bs-search-modal__list--stations" role="listbox">
-                      {rideResults.length === 0 &&
-                        filteredStations.map((s) => (
+                      {parsedFindRide.ok &&
+                        parsedFindRideMonthHour &&
+                        findRideMonthPublished &&
+                        !findRideStartName &&
+                        filteredFindRideStartStations.map((s) => (
                           <li key={s.id} role="none">
                             <button
                               type="button"
                               className={`bs-search-modal__row${selectedStationPin?.id === s.id ? ' bs-search-modal__row--station-active' : ''}`}
                               role="option"
+                              disabled={rideSearchLoading}
                               onClick={() => {
-                                setSelectedSearchStation(s.name);
+                                if (!parsedFindRideMs) return;
+                                setFindRideStartName(s.name);
                                 setSelectedStationPin({
                                   id: s.id,
                                   lng: s.lng,
@@ -1261,40 +1287,44 @@ export default function BikeShareTorontoPage({
                                   zoom: 14,
                                   id: Date.now(),
                                 });
-                                runStationStats(s.name);
-                                runRideSearchFromStation(s.name);
+                                void runStationStats(
+                                  s.name,
+                                  parsedFindRideMonthHour.monthKey,
+                                  parsedFindRideMonthHour.hour,
+                                );
+                                void runRideSearchFromStation(s.name, {
+                                  monthKey: parsedFindRideMonthHour.monthKey,
+                                  hour: parsedFindRideMonthHour.hour,
+                                  baseMs: parsedFindRideMs,
+                                  windowHalfMs: parsedFindRide.windowHalfMs,
+                                });
                               }}
-                              disabled={!parsedTimeTravel.ok || rideSearchLoading}
-                              title={
-                                !parsedTimeTravel.ok
-                                  ? 'Enter a valid time in Time travel first'
-                                  : undefined
-                              }
                             >
                               {s.name}
                             </button>
                           </li>
                         ))}
 
-                      {rideResults.length > 0 &&
-                        filteredRideResults.map((r) => (
-                          <li key={r.id} role="none">
+                      {findRideStartName &&
+                        parsedFindRideMonthHour &&
+                        parsedFindRideMs &&
+                        filteredFindRideEndNames.map((endName) => (
+                          <li key={endName} role="none">
                             <button
                               type="button"
                               className="bs-search-modal__row"
                               role="option"
-                              onClick={() => handleSelectRideResult(r)}
+                              disabled={rideSearchLoading}
+                              onClick={() =>
+                                handlePickEndStation(
+                                  endName,
+                                  parsedFindRideMonthHour.monthKey,
+                                  parsedFindRideMonthHour.hour,
+                                  parsedFindRideMs,
+                                )
+                              }
                             >
-                              <div className="bs-search-modal__ride-result">
-                                <span className="bs-search-modal__ride-end">{r.endName}</span>
-                                <span className="bs-search-modal__ride-time">
-                                  {new Intl.DateTimeFormat('en-US', {
-                                    timeZone: TORONTO_TZ,
-                                    hour: 'numeric',
-                                    minute: '2-digit',
-                                  }).format(new Date(r.startedAtMs))}
-                                </span>
-                              </div>
+                              {endName}
                             </button>
                           </li>
                         ))}
@@ -1304,23 +1334,35 @@ export default function BikeShareTorontoPage({
                       <p className="bs-search-modal__empty">Searching…</p>
                     )}
 
-                    {rideResults.length > 0 && filteredRideResults.length === 0 && (
-                      <p className="bs-search-modal__empty">No rides match that filter.</p>
-                    )}
+                    {findRideStartName &&
+                      !rideSearchLoading &&
+                      rideResults.length === 0 &&
+                      !rideSearchError && (
+                        <p className="bs-search-modal__empty">
+                          No rides from that start in this time window. Try widening the window (
+                          <code>— last 3 hours</code>) or another time.
+                        </p>
+                      )}
 
-                    {rideResults.length === 0 &&
-                      filteredStations.length === 0 &&
-                      stationSearchQuery.trim() !== '' && (
+                    {findRideStartName &&
+                      rideResults.length > 0 &&
+                      filteredFindRideEndNames.length === 0 && (
+                        <p className="bs-search-modal__empty">No end stations match that filter.</p>
+                      )}
+
+                    {parsedFindRide.ok &&
+                      parsedFindRideMonthHour &&
+                      findRideMonthPublished &&
+                      !findRideStartName &&
+                      filteredFindRideStartStations.length === 0 &&
+                      findRideStartFilter.trim() !== '' && (
                         <p className="bs-search-modal__empty">No stations match that filter.</p>
                       )}
                   </div>
                 )}
 
                 <p className="bs-search-modal__hint bs-search-modal__hint--dismiss">
-                  <span className="bs-search-hint-desktop">
-                    <kbd className="bs-kbd">Esc</kbd> to close
-                  </span>
-                  <span className="bs-search-hint-mobile">Tap outside to close</span>
+                  Tap outside or use × to close
                 </p>
               </div>
             </div>

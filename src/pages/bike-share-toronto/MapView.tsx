@@ -15,6 +15,8 @@ import { TripsLayer } from "@deck.gl/geo-layers";
 import { PathLayer, ScatterplotLayer } from "@deck.gl/layers";
 import "mapbox-gl/dist/mapbox-gl.css";
 import type { DeckTrip } from "./types";
+import { MAP_BOUNDS } from "./types";
+import { createThrottledSampler } from "./createThrottledSampler";
 import {
   buildSpotlightHeadPoint,
   buildTripHeadPoints,
@@ -47,6 +49,8 @@ interface MapViewProps {
   flyTo?: { lng: number; lat: number; zoom?: number; id: number } | null;
   /** Selected station from the list — shown as a green dot on the map. */
   selectedStationPin?: { lng: number; lat: number; id: number } | null;
+  /** Map rotation (degrees) for HUD compass. */
+  onBearingChange?: (bearing: number) => void;
 }
 
 /** Trail behind the head (simulated ms); shorter buckets for longer trips so dense routes stay readable. */
@@ -120,6 +124,7 @@ export default function MapView({
   spotlightTrip,
   flyTo,
   selectedStationPin = null,
+  onBearingChange,
 }: MapViewProps) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<mapboxgl.Map | null>(null);
@@ -154,11 +159,16 @@ export default function MapView({
 
   const fpsEmaRef = useRef(60);
   const lastFrameTRef = useRef<number | null>(null);
-  const lastFpsEmitRef = useRef(0);
+  const fpsSamplerRef = useRef<ReturnType<typeof createThrottledSampler> | null>(null);
+  if (fpsSamplerRef.current === null) {
+    fpsSamplerRef.current = createThrottledSampler({ intervalMs: FPS_EMIT_MS });
+  }
   /** Last value sent to parent — avoid redundant setState when active count unchanged. */
   const lastActiveTripCountRef = useRef<number | null>(null);
   const selectedStationPinRef = useRef<typeof selectedStationPin>(null);
   selectedStationPinRef.current = selectedStationPin;
+  const onBearingChangeRef = useRef(onBearingChange);
+  onBearingChangeRef.current = onBearingChange;
 
   const createStationPinLayer = useCallback(
     (pin: { lng: number; lat: number }) =>
@@ -341,9 +351,10 @@ export default function MapView({
     }
     lastFrameTRef.current = now;
 
-    if (onFpsChange && now - lastFpsEmitRef.current >= FPS_EMIT_MS) {
-      lastFpsEmitRef.current = now;
-      onFpsChange(Math.round(fpsEmaRef.current));
+    if (onFpsChange) {
+      fpsSamplerRef.current?.sample(() => {
+        onFpsChange(Math.round(fpsEmaRef.current));
+      });
     }
 
     if (
@@ -458,6 +469,7 @@ export default function MapView({
       currentTimeRelRef.current = 0;
       playbackTimeMsRef.current = 0;
       lastActiveTripCountRef.current = null;
+      fpsSamplerRef.current?.reset();
       onTripCountChange(0);
       return;
     }
@@ -477,12 +489,72 @@ export default function MapView({
     }
 
     playbackTimeMsRef.current = simEpochMsRef.current;
-    const rel = Math.min(
+    let rel = Math.min(
       3600000,
       Math.max(0, simEpochMsRef.current - playbackWindow.min),
     );
+    /**
+     * TripsLayer only draws where `currentTime` intersects each trip’s timestamp range. If rel is 0
+     * but every trip starts later in the synthetic hour, nothing draws (often when paused). Nudge to
+     * the earliest trip start. If that still yields zero active trips, try the densest minute in the
+     * hour so something is usually on-screen near Toronto.
+     */
+    let minTripStart = Infinity;
+    for (const tr of trips) {
+      const ts = tr.timestamps;
+      if (ts.length >= 2) minTripStart = Math.min(minTripStart, ts[0]!);
+    }
+    if (Number.isFinite(minTripStart) && rel < minTripStart) {
+      rel = minTripStart;
+      simEpochMsRef.current = playbackWindow.min + rel;
+      playbackTimeMsRef.current = simEpochMsRef.current;
+    }
+    let active = countActiveTrips(trips, rel);
+    if (active === 0 && trips.length > 0) {
+      const { minLat, maxLat, minLng, maxLng } = MAP_BOUNDS;
+      const pad = 0.15;
+      let bestT = rel;
+      let bestCount = 0;
+      for (let step = 0; step < 60; step++) {
+        const t = (step / 59) * 3600000;
+        let n = 0;
+        for (const tr of trips) {
+          const ts = tr.timestamps;
+          const path = tr.path;
+          if (ts.length < 2 || path.length < 2) continue;
+          if (t < ts[0]! || t > ts[ts.length - 1]! + 500) continue;
+          let i = 0;
+          while (i < ts.length - 2 && ts[i + 1]! < t) i++;
+          i = Math.min(i, path.length - 2);
+          const p0 = path[i]!;
+          const p1 = path[i + 1]!;
+          const t0 = ts[i]!;
+          const t1 = ts[i + 1]!;
+          const u = t1 <= t0 ? 0 : (t - t0) / (t1 - t0);
+          const lng = p0[0] + u * (p1[0] - p0[0]);
+          const lat = p0[1] + u * (p1[1] - p0[1]);
+          if (
+            lat >= minLat - pad &&
+            lat <= maxLat + pad &&
+            lng >= minLng - pad &&
+            lng <= maxLng + pad
+          ) {
+            n++;
+          }
+        }
+        if (n > bestCount) {
+          bestCount = n;
+          bestT = t;
+        }
+      }
+      if (bestCount > 0) {
+        rel = bestT;
+        simEpochMsRef.current = playbackWindow.min + rel;
+        playbackTimeMsRef.current = simEpochMsRef.current;
+        active = bestCount;
+      }
+    }
     currentTimeRelRef.current = rel;
-    const active = countActiveTrips(trips, rel);
     lastActiveTripCountRef.current = active;
     onTripCountChange(active);
   }, [
@@ -591,6 +663,13 @@ export default function MapView({
 
       map.addControl(overlay);
       overlayRef.current = overlay;
+
+      const emitBearing = () => {
+        onBearingChangeRef.current?.(map.getBearing());
+      };
+      map.on("rotate", emitBearing);
+      map.on("pitch", emitBearing);
+      emitBearing();
 
       map.resize();
       pushLayer();
