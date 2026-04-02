@@ -8,11 +8,11 @@ export const bikeShareTorontoProject: Project = {
   image: '/images/projects/bike-share-toronto.png', // add a screenshot here
   technologies: ['React', 'TypeScript', 'Canvas API', 'Open Toronto Data', 'Vite'],
   category: 'Data Visualization',
-  demoUrl: '/projects/bike-share-toronto',
+  demoUrl: '#bike-share-demo',
   githubUrl: 'https://github.com/antoniamugisa/bike-share-toronto', // update if needed
   featured: true,
-  date: '2024',
-  tags: ['data viz', 'open data', 'Toronto', 'canvas', 'animation'],
+  date: '2026-04-02',
+  tags: ['Data Viz', 'Open Data', 'Toronto'],
   status: 'Ongoing',
   longDescription:
     'An interactive canvas-based flow map of Toronto Bike Share trips, built with the Open Toronto CKAN API. ' +

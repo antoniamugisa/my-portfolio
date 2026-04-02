@@ -3,6 +3,10 @@ import react from "@vitejs/plugin-react-swc";
 import path from "path";
 import { componentTagger } from "lovable-tagger";
 
+/** Public Bike Share monthly Parquets; proxied in dev so DuckDB wasm can fetch without browser CORS. */
+const BIKESHARE_R2_ORIGIN =
+  "https://pub-6bbf91ee23654c1c827ccee439375a87.r2.dev";
+
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => ({
   optimizeDeps: {
@@ -52,6 +56,11 @@ export default defineConfig(({ mode }) => ({
         target: 'https://tor.publicbikesystem.net',
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api\/gbfs/, ''),
+      },
+      '/bikeshare-r2': {
+        target: BIKESHARE_R2_ORIGIN,
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/bikeshare-r2/, ''),
       },
     },
   },

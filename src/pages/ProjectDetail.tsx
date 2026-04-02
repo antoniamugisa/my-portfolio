@@ -1,17 +1,49 @@
-import React from 'react';
-import { useParams, Link, Navigate } from 'react-router-dom';
+import React, { useCallback, useEffect, useState } from 'react';
+import { createPortal } from 'react-dom';
+import { useParams, Navigate } from 'react-router-dom';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { ExternalLink, Github, Calendar, Clock, User } from 'lucide-react';
+import { ExternalLink, Github, Calendar, Play } from 'lucide-react';
 import { projects } from '@/data/portfolio';
 import { Project } from '@/data/projects';
+import BikeShareTorontoPage from '@/pages/bike-share-toronto/page';
 
 const ProjectDetail = () => {
   const { id } = useParams<{ id: string }>();
-  
+  const [bikeDemoOpen, setBikeDemoOpen] = useState(false);
+
   // Find the project by ID
-  const project = projects.find(p => p.id === id) as Project;
-  
+  const project = projects.find(p => p.id === id) as Project | undefined;
+
+  const closeBikeDemo = useCallback(() => {
+    setBikeDemoOpen(false);
+    if (window.location.hash === '#bike-share-demo') {
+      window.history.replaceState(null, '', `${window.location.pathname}${window.location.search}`);
+    }
+    window.requestAnimationFrame(() => {
+      document.getElementById('project-detail-top')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+  }, []);
+
+  useEffect(() => {
+    if (id !== 'bike-share-toronto') setBikeDemoOpen(false);
+  }, [id]);
+
+  useEffect(() => {
+    if (project?.id !== 'bike-share-toronto') return;
+    if (window.location.hash !== '#bike-share-demo') return;
+    setBikeDemoOpen(true);
+  }, [project?.id]);
+
+  useEffect(() => {
+    if (!bikeDemoOpen) return;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.body.style.overflow = prev;
+    };
+  }, [bikeDemoOpen]);
+
   // If project not found, redirect to projects page
   if (!project) {
     return <Navigate to="/projects" replace />;
@@ -29,7 +61,7 @@ const ProjectDetail = () => {
   return (
     <div className="min-h-screen bg-background md:ml-56 md:mr-32 pt-24 md:pt-16">
       {/* Project Header */}
-      <article className="container mx-auto px-6 max-w-5xl">
+      <article id="project-detail-top" className="container mx-auto px-6 max-w-5xl scroll-mt-24">
         {/* Hero Image with Overlay */}
         <div className="relative aspect-[4/3] md:aspect-[21/9] min-h-[250px] md:min-h-[400px] overflow-hidden rounded-lg mb-8 shadow-card bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-900">
           <img 
@@ -112,12 +144,42 @@ const ProjectDetail = () => {
             
             <div className="flex gap-3">
               {project.demoUrl && project.demoUrl !== "#" && (
-                <Button asChild className="bg-primary hover:shadow-glow transition-all duration-300">
-                  <a href={project.demoUrl} target="_blank" rel="noopener noreferrer">
-                    <ExternalLink className="w-4 h-4 mr-2" />
-                    Live Demo
-                  </a>
-                </Button>
+                project.demoUrl.startsWith('#') ? (
+                  project.id === 'bike-share-toronto' ? (
+                    <Button
+                      type="button"
+                      className="bg-primary hover:shadow-glow transition-all duration-300"
+                      onClick={() => {
+                        setBikeDemoOpen(true);
+                        window.history.replaceState(null, '', `${window.location.pathname}${window.location.search}#bike-share-demo`);
+                      }}
+                    >
+                      <Play className="w-4 h-4 mr-2" />
+                      Live Demo
+                    </Button>
+                  ) : (
+                    <Button asChild className="bg-primary hover:shadow-glow transition-all duration-300">
+                      <a
+                        href={project.demoUrl}
+                        onClick={(e) => {
+                          e.preventDefault();
+                          const elId = project.demoUrl.slice(1);
+                          document.getElementById(elId)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                        }}
+                      >
+                        <Play className="w-4 h-4 mr-2" />
+                        Live Demo
+                      </a>
+                    </Button>
+                  )
+                ) : (
+                  <Button asChild className="bg-primary hover:shadow-glow transition-all duration-300">
+                    <a href={project.demoUrl} target="_blank" rel="noopener noreferrer">
+                      <ExternalLink className="w-4 h-4 mr-2" />
+                      Live Demo
+                    </a>
+                  </Button>
+                )
               )}
               {project.githubUrl && project.githubUrl !== "#" && (
                 <Button variant="outline" asChild>
@@ -304,6 +366,24 @@ const ProjectDetail = () => {
           </span>
         </div>
       </footer>
+
+      {bikeDemoOpen &&
+        project.id === 'bike-share-toronto' &&
+        createPortal(
+          <div
+            className="fixed inset-0 z-[100] bg-[#050505]"
+            role="dialog"
+            aria-modal="true"
+            aria-label="Bike Share Toronto live demo"
+          >
+            <BikeShareTorontoPage
+              embedded={false}
+              portalFullscreen
+              onRequestProjectDetails={closeBikeDemo}
+            />
+          </div>,
+          document.body,
+        )}
     </div>
   );
 };

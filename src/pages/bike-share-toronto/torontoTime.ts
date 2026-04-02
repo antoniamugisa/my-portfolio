@@ -108,12 +108,12 @@ export function offsetMsIntoHourToronto(timeMs: number): number {
   return timeMs - hourStartTorontoMs(timeMs);
 }
 
-/** One simulated hour for playback + deck timestamps (anchor day = 15th of selected month). */
+/** One simulated hour for playback + deck timestamps (anchor = 1st of selected month, Toronto). */
 export function getPlaybackHourWindow(
   monthKey: string,
   hour: number,
 ): { min: number; max: number } {
   const [y, m] = monthKey.split("-").map(Number);
-  const min = torontoWallClockToUtcMs(y, m, 15, hour, 0, 0);
+  const min = torontoWallClockToUtcMs(y, m, 1, hour, 0, 0);
   return { min, max: min + 3600000 };
 }

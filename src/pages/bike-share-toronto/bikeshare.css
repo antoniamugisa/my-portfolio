@@ -33,83 +33,84 @@
   font-weight: 500;
   overflow: hidden;
   -webkit-font-smoothing: antialiased;
+  overscroll-behavior: none;
 }
 
-/* ── Header ─────────────────────────────────────────────────────────────── */
-.bs-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 12px 20px;
-  border-bottom: 1px solid var(--bs-border);
-  background: var(--bs-surface);
-  flex-shrink: 0;
-  z-index: 10;
+/* Embedded in project detail — in document flow, not a separate full-screen route */
+.bs-page--embedded {
+  position: relative;
+  inset: auto;
+  z-index: 1;
+  width: 100%;
+  height: min(85dvh, 920px);
+  min-height: min(420px, 70svh);
+  border-radius: 12px;
+  border: 1px solid var(--bs-border);
+  overflow: hidden;
+  isolation: isolate;
 }
 
-.bs-logo {
-  display: flex;
-  align-items: center;
-  gap: 12px;
+@media (max-width: 767px) {
+  .bs-page--embedded {
+    height: min(78dvh, 720px);
+    min-height: 280px;
+    border-radius: 10px;
+  }
 }
 
-.bs-logo-icon {
-  width: 32px;
-  height: 32px;
-  background: transparent;
-  border: 1px solid var(--bs-border-strong);
-  border-radius: 50%;
+/* Site mobile nav is z-50; sit below it so users can leave the map. */
+@media (max-width: 767px) {
+  .bs-page:not(.bs-page--embedded) {
+    z-index: 40;
+    top: calc(48px + env(safe-area-inset-top, 0px));
+    right: 0;
+    bottom: env(safe-area-inset-bottom, 0px);
+    left: 0;
+  }
+
+  /* Fullscreen portal: cover the whole screen (not the strip below site nav). */
+  .bs-page.bs-page--fullscreen {
+    z-index: 50;
+    top: 0;
+    right: 0;
+    bottom: env(safe-area-inset-bottom, 0px);
+    left: 0;
+  }
+}
+
+/* Fullscreen demo — above map chrome, respects safe area */
+.bs-fullscreen-exit {
+  position: fixed;
+  top: calc(12px + env(safe-area-inset-top, 0px));
+  right: calc(12px + env(safe-area-inset-right, 0px));
+  z-index: 60;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 15px;
-  flex-shrink: 0;
+  width: 44px;
+  height: 44px;
+  margin: 0;
+  padding: 0;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 12px;
+  background: rgba(10, 10, 10, 0.88);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+  color: rgba(255, 255, 255, 0.92);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  transition: background 0.15s ease, border-color 0.15s ease;
 }
 
-.bs-title {
-  font-family: 'Manrope', system-ui, sans-serif;
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--bs-text);
-  line-height: 1.2;
+.bs-fullscreen-exit:hover {
+  background: rgba(22, 22, 22, 0.95);
+  border-color: rgba(255, 255, 255, 0.22);
 }
 
-.bs-subtitle {
-  font-size: 11px;
-  font-weight: 500;
-  color: var(--bs-muted);
-  letter-spacing: 0.02em;
-  margin-top: 2px;
-}
-
-.bs-stats-row {
-  display: flex;
-  gap: 28px;
-  align-items: flex-end;
-}
-
-.bs-stat {
-  text-align: right;
-}
-
-.bs-stat-value {
-  font-family: 'IBM Plex Mono', ui-monospace, monospace;
-  font-size: 18px;
-  font-weight: 600;
-  color: var(--bs-text);
-  line-height: 1;
-  font-variant-numeric: tabular-nums;
-}
-
-.bs-stat-label {
-  font-size: 10px;
-  font-weight: 600;
-  color: var(--bs-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  margin-top: 4px;
+.bs-fullscreen-exit__icon {
+  width: 20px;
+  height: 20px;
 }
 
 /* ── Main layout ────────────────────────────────────────────────────────── */
@@ -135,89 +136,6 @@
 .bs-map-view-root--spotlight-dim .mapboxgl-canvas {
   filter: brightness(0.32) saturate(0.78);
   transition: filter 0.45s ease;
-}
-
-/* ── Sidebar shell + toggle ───────────────────────────────────────────── */
-.bs-sidebar-shell {
-  display: flex;
-  flex-direction: row;
-  flex-shrink: 0;
-  align-items: stretch;
-  position: relative;
-  z-index: 6;
-  background: var(--bs-surface);
-  border-left: 1px solid var(--bs-border);
-}
-
-.bs-sidebar-toggle {
-  flex-shrink: 0;
-  width: 36px;
-  margin: 0;
-  padding: 0;
-  border: none;
-  border-right: 1px solid var(--bs-border);
-  background: var(--bs-panel);
-  color: var(--bs-muted);
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: background 0.2s ease, color 0.2s ease;
-}
-
-.bs-sidebar-toggle:hover {
-  background: #141414;
-  color: var(--bs-text);
-}
-
-.bs-sidebar-toggle:focus-visible {
-  outline: 2px solid var(--bs-text);
-  outline-offset: -2px;
-}
-
-.bs-sidebar-toggle-icon {
-  width: 18px;
-  height: 18px;
-}
-
-/* Animate clip width only — inner panel stays 264px so content doesn’t reflow/jitter */
-.bs-sidebar-clip {
-  flex-shrink: 0;
-  width: var(--bs-sidebar-panel-w, 264px);
-  max-width: var(--bs-sidebar-panel-w, 264px);
-  overflow: hidden;
-  transition: width 0.32s cubic-bezier(0.25, 0.46, 0.45, 0.94),
-    max-width 0.32s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-}
-
-.bs-sidebar-shell--collapsed .bs-sidebar-clip {
-  width: 0;
-  max-width: 0;
-  pointer-events: none;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .bs-sidebar-clip {
-    transition-duration: 0.01ms;
-  }
-}
-
-/* ── Sidebar ───────────────────────────────────────────────────────────── */
-.bs-sidebar {
-  width: var(--bs-sidebar-panel-w, 264px);
-  min-width: var(--bs-sidebar-panel-w, 264px);
-  max-width: var(--bs-sidebar-panel-w, 264px);
-  box-sizing: border-box;
-  background: var(--bs-surface);
-  display: flex;
-  flex-direction: column;
-  padding: 16px;
-  gap: 20px;
-  overflow-y: auto;
-  overflow-x: hidden;
-  min-height: 0;
-  scrollbar-width: thin;
-  scrollbar-color: var(--bs-border) transparent;
 }
 
 .bs-section-title {
@@ -482,34 +400,6 @@
   color: var(--bs-muted);
 }
 
-/* ── Footer ─────────────────────────────────────────────────────────────── */
-.bs-footer {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 10px 20px;
-  background: var(--bs-surface);
-  border-top: 1px solid var(--bs-border);
-  flex-shrink: 0;
-  gap: 12px;
-}
-
-.bs-footer-note {
-  font-size: 10px;
-  font-weight: 500;
-  color: var(--bs-muted);
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.bs-footer-right {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  flex-shrink: 0;
-}
-
 .bs-back-link {
   font-size: 11px;
   font-weight: 600;
@@ -521,29 +411,6 @@
 
 .bs-back-link:hover {
   opacity: 0.65;
-}
-
-/* ── Pulse dot ──────────────────────────────────────────────────────────── */
-.bs-pulse {
-  display: inline-block;
-  width: 6px;
-  height: 6px;
-  background: var(--bs-text);
-  border-radius: 50%;
-  animation: bs-pulse 2s ease-in-out infinite;
-  flex-shrink: 0;
-}
-
-@keyframes bs-pulse {
-  0%,
-  100% {
-    opacity: 1;
-    box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.25);
-  }
-  50% {
-    opacity: 0.55;
-    box-shadow: 0 0 0 6px rgba(255, 255, 255, 0);
-  }
 }
 
 /* ── Map HUD ───────────────────────────────────────────────────────────── */
@@ -559,9 +426,14 @@
   gap: 12px;
 }
 
+/*
+ * Left/right HUD columns are empty placeholders; `pointer-events: auto` here
+ * covered the full side of the map and stole clicks from `.bs-rides-panel`
+ * (tool buttons sit below this layer when z-index is lower).
+ */
 .bs-map-hud-left,
 .bs-map-hud-right {
-  pointer-events: auto;
+  pointer-events: none;
   display: flex;
   align-items: center;
   gap: 8px;
@@ -616,6 +488,711 @@
   color: var(--bs-dim);
   letter-spacing: 0.06em;
   text-transform: uppercase;
+}
+
+/* Time / date — top center */
+.bs-map-clock-slot {
+  position: absolute;
+  top: 14px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 18;
+  pointer-events: none;
+}
+
+/* Bottom row: search, pause, random only */
+.bs-map-controls-row {
+  position: absolute;
+  inset: 0;
+  z-index: 18;
+  pointer-events: none;
+}
+
+.bs-page--fullscreen .bs-map-clock-slot,
+.bs-page--embedded .bs-map-clock-slot {
+  top: max(14px, env(safe-area-inset-top, 0px));
+}
+
+/* Fullscreen: original narrow banners (200px) just below the X */
+.bs-page--fullscreen .bs-map-banners-stack {
+  --bs-map-banner-w: 200px;
+  --bs-map-banner-h: 168px;
+  --bs-insights-banner-min-h: 320px;
+  top: calc(56px + env(safe-area-inset-top, 0px));
+  right: max(16px, env(safe-area-inset-right, 0px));
+  left: auto;
+  width: var(--bs-map-banner-w);
+  max-width: min(200px, calc(100vw - 24px));
+  margin: 0;
+  gap: 8px;
+}
+
+.bs-page--fullscreen .bs-map-controls-row {
+  top: auto;
+  bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+  left: max(16px, env(safe-area-inset-left, 0px));
+  right: max(16px, env(safe-area-inset-right, 0px));
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.bs-page--fullscreen .bs-map-controls-row .bs-rides-panel__tools {
+  position: static;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+  pointer-events: auto;
+}
+
+/* Embedded: clock top; banners top-right original size; icons bottom */
+.bs-page--embedded .bs-map-banners-stack {
+  top: 16px;
+  right: 16px;
+  left: auto;
+  width: var(--bs-map-banner-w);
+  max-width: min(200px, calc(100% - 32px));
+}
+
+.bs-page--embedded .bs-map-controls-row {
+  top: auto;
+  bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+  left: max(16px, env(safe-area-inset-left, 0px));
+  right: max(16px, env(safe-area-inset-right, 0px));
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.bs-page--embedded .bs-map-controls-row .bs-rides-panel__tools {
+  position: static;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+  pointer-events: auto;
+}
+
+/* Stacked map banners: live rides + data insights — default top-right (unused when fullscreen) */
+.bs-map-banners-stack {
+  --bs-map-banner-w: 200px;
+  --bs-map-banner-h: 168px;
+  /** Taller than rides spark so Data Insights + legend fit without clipping */
+  --bs-insights-banner-min-h: 320px;
+  position: absolute;
+  right: 16px;
+  top: 16px;
+  z-index: 18;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 8px;
+  width: var(--bs-map-banner-w);
+  pointer-events: none;
+}
+
+.bs-map-banners-stack > * {
+  pointer-events: auto;
+}
+
+/* Pill controls (icon-only variant below) */
+.bs-tool-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 42px;
+  padding: 0 12px;
+  margin: 0;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 999px;
+  background: rgba(14, 14, 14, 0.92);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.45);
+  cursor: pointer;
+  color: inherit;
+  text-align: center;
+  transition:
+    background 0.15s ease,
+    border-color 0.15s ease,
+    opacity 0.15s ease;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+.bs-tool-pill--icon-only {
+  width: 44px;
+  min-width: 44px;
+  height: 44px;
+  padding: 0;
+  border-radius: 12px;
+}
+
+.bs-tool-pill:hover {
+  background: rgba(22, 22, 22, 0.96);
+  border-color: rgba(255, 255, 255, 0.18);
+}
+
+.bs-tool-pill:disabled {
+  opacity: 0.38;
+  cursor: not-allowed;
+}
+
+.bs-tool-pill__glyph {
+  width: 20px;
+  height: 20px;
+  opacity: 0.92;
+  flex-shrink: 0;
+}
+
+/* ── Live rides sparkline panel ──────────────────────────────────────── */
+.bs-rides-spark {
+  box-sizing: border-box;
+  width: 100%;
+  height: var(--bs-map-banner-h, 168px);
+  padding: 10px 12px 8px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(12, 12, 12, 0.72);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  box-shadow:
+    0 18px 50px rgba(0, 0, 0, 0.55),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  display: flex;
+  flex-direction: column;
+  flex: 0 0 auto;
+}
+
+.bs-rides-spark__top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 6px;
+  flex-shrink: 0;
+}
+
+.bs-rides-spark__val {
+  font-family: 'IBM Plex Mono', ui-monospace, monospace;
+  font-size: 22px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  color: var(--bs-text);
+  line-height: 1.05;
+}
+
+.bs-rides-spark__lbl {
+  margin-top: 2px;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.55);
+}
+
+.bs-rides-spark__fps {
+  font-family: 'IBM Plex Mono', ui-monospace, monospace;
+  font-size: 10px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.55);
+  padding-top: 2px;
+  white-space: nowrap;
+}
+
+.bs-rides-spark__svg {
+  width: 100%;
+  flex: 1 1 auto;
+  min-height: 0;
+  max-height: 48px;
+  height: auto;
+  display: block;
+}
+
+.bs-rides-spark__stroke {
+  stroke: var(--bs-member-path);
+  filter: drop-shadow(0 0 3px rgba(0, 229, 255, 0.4));
+}
+
+.bs-rides-spark__dot {
+  fill: var(--bs-member-path);
+  stroke: rgba(0, 0, 0, 0.4);
+  stroke-width: 0.6px;
+}
+
+.bs-rides-spark__axis {
+  margin-top: 4px;
+  display: flex;
+  justify-content: space-between;
+  font-family: 'IBM Plex Mono', ui-monospace, monospace;
+  font-size: 10px;
+  color: rgba(255, 255, 255, 0.45);
+}
+
+/* ── Station search palette ───────────────────────────────────────────── */
+.bs-search-modal-wrap {
+  position: absolute;
+  inset: 0;
+  z-index: 32;
+  background: rgba(0, 0, 0, 0.55);
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 72px 18px 18px;
+  padding-bottom: max(18px, env(safe-area-inset-bottom, 0px));
+  -webkit-overflow-scrolling: touch;
+}
+
+.bs-search-modal {
+  width: min(420px, 100%);
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(12, 12, 12, 0.94);
+  -webkit-backdrop-filter: blur(14px);
+  backdrop-filter: blur(14px);
+  box-shadow: 0 28px 80px rgba(0, 0, 0, 0.72);
+  padding: 12px 12px 10px;
+}
+
+.bs-search-modal__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.bs-search-modal__title {
+  font-family: 'Manrope', system-ui, sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.72);
+}
+
+.bs-search-modal__close {
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(8, 8, 8, 0.72);
+  color: rgba(255, 255, 255, 0.88);
+  cursor: pointer;
+  font-size: 18px;
+  line-height: 1;
+}
+
+.bs-search-modal__input {
+  width: 100%;
+  box-sizing: border-box;
+  margin-bottom: 8px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(0, 0, 0, 0.45);
+  color: var(--bs-text);
+  font-family: 'Manrope', system-ui, sans-serif;
+  font-size: 14px;
+  outline: none;
+}
+
+.bs-search-modal__input:focus {
+  border-color: rgba(255, 255, 255, 0.28);
+}
+
+.bs-search-modal__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  max-height: min(45vh, 320px);
+  overflow-y: auto;
+}
+
+.bs-search-modal__row {
+  width: 100%;
+  text-align: left;
+  padding: 9px 10px;
+  margin: 0;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.86);
+  font-family: 'Manrope', system-ui, sans-serif;
+  font-size: 13px;
+  cursor: pointer;
+  transition: background 0.12s ease;
+}
+
+.bs-search-modal__row:hover {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.bs-search-modal__empty {
+  margin: 8px 0 0;
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.45);
+}
+
+.bs-search-modal__hint {
+  margin: 10px 0 0;
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.45);
+}
+
+.bs-search-modal__hint--dismiss {
+  margin-top: 14px;
+  padding-top: 8px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.bs-search-modal__hint--selected {
+  color: rgba(255, 255, 255, 0.65);
+}
+
+.bs-search-modal__tab-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+}
+
+.bs-search-modal__tablist {
+  display: flex;
+  gap: 8px;
+  flex: 1;
+  min-width: 0;
+}
+
+.bs-search-modal__tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex: 1;
+  justify-content: center;
+  min-height: 40px;
+  padding: 0 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: transparent;
+  color: rgba(255, 255, 255, 0.78);
+  font-family: 'Manrope', system-ui, sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    background 0.12s ease,
+    border-color 0.12s ease;
+}
+
+.bs-search-modal__tab--active {
+  border-color: rgba(255, 255, 255, 0.42);
+  background: rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.95);
+}
+
+.bs-search-modal__tab-icon {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  opacity: 0.9;
+}
+
+.bs-search-modal__tab-hint {
+  font-size: 10px;
+  color: rgba(255, 255, 255, 0.4);
+  white-space: nowrap;
+}
+
+.bs-search-modal__tab-panel {
+  margin-top: 4px;
+}
+
+.bs-search-modal__prompt {
+  display: block;
+  font-family: 'Manrope', system-ui, sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.88);
+  margin-bottom: 8px;
+}
+
+.bs-search-modal__textarea {
+  width: 100%;
+  box-sizing: border-box;
+  margin: 0 0 8px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(0, 0, 0, 0.45);
+  color: var(--bs-text);
+  font-family: 'Manrope', system-ui, sans-serif;
+  font-size: 14px;
+  line-height: 1.45;
+  resize: vertical;
+  min-height: 72px;
+  outline: none;
+}
+
+.bs-search-modal__textarea:focus {
+  border-color: rgba(255, 255, 255, 0.28);
+}
+
+.bs-search-modal__parse-error {
+  margin: 0 0 8px;
+  font-size: 12px;
+  line-height: 1.35;
+  color: rgba(255, 160, 140, 0.92);
+}
+
+.bs-search-modal__primary {
+  width: 100%;
+  margin-top: 4px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.92);
+  font-family: 'Manrope', system-ui, sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.12s ease;
+}
+
+.bs-search-modal__primary:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.bs-search-modal__primary:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.bs-search-modal__footer {
+  margin-top: 14px;
+  padding-top: 10px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.bs-search-modal__footer-line {
+  margin: 0 0 8px;
+  font-size: 11px;
+  line-height: 1.45;
+  color: rgba(255, 255, 255, 0.42);
+}
+
+.bs-search-modal__footer-examples {
+  margin-bottom: 0;
+}
+
+.bs-search-modal__footer-line code {
+  font-family: 'IBM Plex Mono', ui-monospace, monospace;
+  font-size: 10px;
+  color: rgba(255, 255, 255, 0.55);
+  background: rgba(255, 255, 255, 0.06);
+  padding: 2px 5px;
+  border-radius: 4px;
+}
+
+.bs-search-modal__brand {
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  color: rgba(255, 255, 255, 0.55);
+}
+
+.bs-search-modal__ride-intro {
+  margin: 0 0 10px;
+  font-size: 12px;
+  line-height: 1.45;
+  color: rgba(255, 255, 255, 0.55);
+}
+
+.bs-search-modal__green-dot-label {
+  color: rgb(34, 197, 94);
+  font-weight: 600;
+}
+
+.bs-search-modal__stats {
+  margin: 8px 0 10px;
+  padding: 8px 10px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.04);
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.78);
+  line-height: 1.35;
+}
+
+.bs-search-modal__stats-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.bs-search-modal__stats-row + .bs-search-modal__stats-row {
+  margin-top: 4px;
+}
+
+.bs-search-modal__stats-val {
+  font-family: 'IBM Plex Mono', ui-monospace, monospace;
+  font-size: 11px;
+}
+
+.bs-search-modal__error {
+  color: rgba(255, 140, 130, 0.95);
+}
+
+.bs-search-modal__ride-result {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  width: 100%;
+}
+
+.bs-search-modal__ride-end {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.bs-search-modal__ride-time {
+  font-family: 'IBM Plex Mono', ui-monospace, monospace;
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.55);
+  flex-shrink: 0;
+}
+
+.bs-search-modal__row--station-active {
+  background: rgba(34, 197, 94, 0.12);
+  box-shadow: inset 0 0 0 1px rgba(34, 197, 94, 0.45);
+}
+
+.bs-search-modal__list--stations {
+  max-height: min(38vh, 280px);
+  margin-top: 8px;
+}
+
+.bs-search-hint-mobile {
+  display: none;
+}
+
+@media (max-width: 767px) {
+  .bs-search-hint-desktop {
+    display: none;
+  }
+
+  .bs-search-hint-mobile {
+    display: inline;
+  }
+}
+
+/* ── Info modal ───────────────────────────────────────────────────────── */
+.bs-info-modal-wrap {
+  position: absolute;
+  inset: 0;
+  z-index: 30;
+  background: rgba(0, 0, 0, 0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 18px;
+}
+
+.bs-info-modal {
+  width: min(560px, 100%);
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(12, 12, 12, 0.9);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+  box-shadow: 0 28px 80px rgba(0, 0, 0, 0.7);
+  position: relative;
+  padding: 16px 16px 14px;
+}
+
+.bs-info-modal-dismiss {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(8, 8, 8, 0.72);
+  color: rgba(255, 255, 255, 0.9);
+  cursor: pointer;
+  font-size: 18px;
+  line-height: 1;
+}
+
+.bs-info-modal-head {
+  padding-right: 44px;
+}
+
+.bs-info-modal-title {
+  font-family: 'Manrope', system-ui, sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.bs-info-modal-sub {
+  margin-top: 6px;
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.62);
+  line-height: 1.45;
+}
+
+.bs-info-modal-body {
+  margin-top: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.bs-info-modal-row {
+  display: grid;
+  grid-template-columns: 92px 1fr;
+  gap: 10px;
+  align-items: start;
+}
+
+.bs-info-k {
+  font-family: 'IBM Plex Mono', ui-monospace, monospace;
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.52);
+}
+
+.bs-info-v {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.76);
+  line-height: 1.45;
+}
+
+.bs-info-mono {
+  font-family: 'IBM Plex Mono', ui-monospace, monospace;
+  font-size: 11px;
+}
+
+.bs-info-modal-foot {
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  display: flex;
+  justify-content: flex-end;
 }
 
 .bs-map-hud-clock {
@@ -752,13 +1329,6 @@
   letter-spacing: 0.1em;
 }
 
-.bs-sidebar-live-hint {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  margin-bottom: 10px;
-}
-
 .bs-muted-small {
   font-size: 10px;
   font-weight: 500;
@@ -780,6 +1350,11 @@
   pointer-events: none;
 }
 
+.bs-page--fullscreen .bs-trip-card-wrap,
+.bs-page--embedded .bs-trip-card-wrap {
+  bottom: calc(72px + env(safe-area-inset-bottom, 0px));
+}
+
 .bs-trip-card {
   pointer-events: auto;
   position: relative;
@@ -795,8 +1370,10 @@
   position: absolute;
   top: 8px;
   right: 10px;
-  width: 34px;
-  height: 34px;
+  min-width: 44px;
+  min-height: 44px;
+  width: 44px;
+  height: 44px;
   border: none;
   border-radius: 8px;
   background: transparent;
@@ -895,6 +1472,20 @@
   color: var(--bs-muted);
 }
 
+.bs-trip-card-hint-mobile {
+  display: none;
+}
+
+@media (max-width: 767px) {
+  .bs-trip-card-hint-desktop {
+    display: none;
+  }
+
+  .bs-trip-card-hint-mobile {
+    display: inline;
+  }
+}
+
 .bs-kbd {
   display: inline-block;
   padding: 2px 8px;
@@ -906,26 +1497,6 @@
   font-size: 10px;
   font-weight: 500;
   color: var(--bs-text);
-}
-
-@media (max-width: 768px) {
-  .bs-map-hud {
-    grid-template-columns: 1fr;
-    justify-items: center;
-    padding-top: 10px;
-  }
-  .bs-map-hud-left,
-  .bs-map-hud-right {
-    justify-self: center;
-    flex-direction: row;
-  }
-  .bs-map-hud-right {
-    flex-direction: row;
-    gap: 10px;
-  }
-  .bs-map-hud-time {
-    font-size: 18px;
-  }
 }
 
 /* ── Loading overlay ──────────────────────────────────────────────────── */
@@ -972,41 +1543,6 @@
   color: var(--bs-danger);
   max-width: 90%;
   text-align: center;
-}
-
-/* ── Month select ────────────────────────────────────────────────────── */
-.bs-month-select {
-  width: 100%;
-  padding: 8px 11px;
-  background: var(--bs-bg);
-  border: 1px solid var(--bs-border);
-  border-radius: 6px;
-  color: var(--bs-text);
-  font-family: 'Manrope', system-ui, sans-serif;
-  font-size: 12px;
-  font-weight: 500;
-  cursor: pointer;
-  outline: none;
-  margin-bottom: 8px;
-  appearance: none;
-  -webkit-appearance: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%238c8c8c'/%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: right 11px center;
-}
-
-.bs-month-select:hover {
-  border-color: var(--bs-border-strong);
-}
-
-.bs-month-select:disabled {
-  opacity: 0.45;
-  cursor: not-allowed;
-}
-
-.bs-month-select option {
-  background: var(--bs-bg);
-  color: var(--bs-text);
 }
 
 .bs-data-status {
@@ -1078,20 +1614,267 @@
   font-variant-numeric: tabular-nums;
 }
 
+/* Data insights — taller than spark panel so rider split, bike type, and legend fit */
+.bs-insights-banner {
+  box-sizing: border-box;
+  width: 100%;
+  min-height: var(--bs-insights-banner-min-h, 320px);
+  height: auto;
+  padding: 10px 12px 12px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(12, 12, 12, 0.72);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  box-shadow:
+    0 18px 50px rgba(0, 0, 0, 0.55),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  overflow-x: hidden;
+  overflow-y: visible;
+  flex: 0 0 auto;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
+}
+
+.bs-insights-banner__title {
+  font-family: 'Manrope', system-ui, sans-serif;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.72);
+}
+
+.bs-insights-banner__legend {
+  margin-top: 6px;
+  padding-top: 6px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.bs-insights-banner__legend-title {
+  font-family: 'Manrope', system-ui, sans-serif;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.62);
+  margin-bottom: 4px;
+}
+
+.bs-insights-banner__legend-items .bs-legend-item {
+  margin-bottom: 4px;
+}
+
+.bs-insights-banner__legend-items .bs-legend-sub {
+  opacity: 0.8;
+}
+
+.bs-insights-banner .bs-insights-row {
+  margin-bottom: 1px;
+}
+
+.bs-insights-banner .bs-stat-bar {
+  margin: 3px 0 5px;
+}
+
 /* ── Mobile ─────────────────────────────────────────────────────────────── */
-@media (max-width: 768px) {
-  .bs-sidebar-shell {
+@media (max-width: 767px) {
+  .bs-map-hud-time {
+    font-size: 17px;
+  }
+
+  /*
+   * Clock: compact centered pill — capped width so it doesn’t stretch toward the X.
+   * max width uses 100vw − 132px so a centered pill’s edges stay clear of both sides + X.
+   */
+  .bs-page--fullscreen .bs-map-clock-slot {
+    top: max(10px, env(safe-area-inset-top, 0px));
+    left: 50%;
+    transform: translateX(-50%);
+    width: min(
+      200px,
+      calc(
+        100vw - 132px - env(safe-area-inset-left, 0px) -
+          env(safe-area-inset-right, 0px)
+      )
+    );
+    max-width: min(
+      200px,
+      calc(
+        100vw - 132px - env(safe-area-inset-left, 0px) -
+          env(safe-area-inset-right, 0px)
+      )
+    );
+    box-sizing: border-box;
+  }
+
+  .bs-page--fullscreen .bs-map-hud-clock {
+    padding: 7px 10px 9px;
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+
+  .bs-page--fullscreen .bs-map-hud-date {
+    font-size: 10px;
+    margin-bottom: 3px;
+  }
+
+  .bs-page--fullscreen .bs-map-hud-time {
+    font-size: 16px;
+  }
+
+  .bs-page--embedded .bs-map-clock-slot {
+    top: max(10px, env(safe-area-inset-top, 0px));
+  }
+
+  /*
+   * Mobile: one horizontal strip above the bottom dock — rides spark | insights.
+   * Frees the map; keeps stats one thumb-reach above search / pause / random.
+   */
+  .bs-page--fullscreen .bs-map-banners-stack,
+  .bs-page--embedded .bs-map-banners-stack {
+    --bs-map-banner-h: 96px;
+    --bs-insights-banner-min-h: 0;
+    top: auto;
+    bottom: calc(64px + env(safe-area-inset-bottom, 0px));
+    left: 12px;
+    right: 12px;
+    flex-direction: row;
+    align-items: flex-start;
+    width: auto;
+    max-width: none;
+    margin: 0;
+    gap: 8px;
+    z-index: 21;
+    transform: none;
+  }
+
+  .bs-page--fullscreen .bs-rides-spark,
+  .bs-page--embedded .bs-rides-spark {
+    flex: 1 1 44%;
+    min-width: 0;
+    width: auto;
+    height: auto;
+    min-height: 0;
+    max-height: 104px;
+    padding: 6px 8px 5px;
+  }
+
+  .bs-page--fullscreen .bs-rides-spark__top,
+  .bs-page--embedded .bs-rides-spark__top {
+    margin-bottom: 4px;
+  }
+
+  .bs-page--fullscreen .bs-rides-spark__val,
+  .bs-page--embedded .bs-rides-spark__val {
+    font-size: 17px;
+  }
+
+  .bs-page--fullscreen .bs-rides-spark__fps,
+  .bs-page--embedded .bs-rides-spark__fps {
+    font-size: 9px;
+  }
+
+  .bs-page--fullscreen .bs-rides-spark__svg,
+  .bs-page--embedded .bs-rides-spark__svg {
+    max-height: 28px;
+  }
+
+  .bs-page--fullscreen .bs-rides-spark__axis,
+  .bs-page--embedded .bs-rides-spark__axis {
+    font-size: 8px;
+    margin-top: 2px;
+  }
+
+  .bs-page--fullscreen .bs-insights-banner,
+  .bs-page--embedded .bs-insights-banner {
+    flex: 1 1 56%;
+    min-width: 0;
+    min-height: 0;
+    max-height: none;
+    padding: 6px 8px 6px;
+    overflow: visible;
+  }
+
+  .bs-page--fullscreen .bs-insights-banner__legend,
+  .bs-page--embedded .bs-insights-banner__legend {
     display: none;
   }
-  .bs-stats-row {
-    gap: 14px;
+
+  /* Hide “Rider split” / “Bike type” header-only rows — keeps the strip compact */
+  .bs-page--fullscreen .bs-insights-banner .bs-insights-row:not(:has(.bs-insights-value)),
+  .bs-page--embedded .bs-insights-banner .bs-insights-row:not(:has(.bs-insights-value)) {
+    display: none;
   }
-  .bs-stat-value {
-    font-size: 15px;
+
+  .bs-page--fullscreen .bs-insights-banner__title,
+  .bs-page--embedded .bs-insights-banner__title {
+    font-size: 8px;
+    letter-spacing: 0.1em;
+    margin-bottom: 2px;
   }
-  .bs-footer {
-    flex-direction: column;
-    gap: 6px;
-    align-items: flex-start;
+
+  .bs-page--fullscreen .bs-insights-banner .bs-insights-label,
+  .bs-page--embedded .bs-insights-banner .bs-insights-label {
+    font-size: 9px;
   }
+
+  .bs-page--fullscreen .bs-insights-banner .bs-insights-value,
+  .bs-page--embedded .bs-insights-banner .bs-insights-value {
+    font-size: 9px;
+  }
+
+  .bs-page--fullscreen .bs-insights-banner .bs-stat-bar,
+  .bs-page--embedded .bs-insights-banner .bs-stat-bar {
+    height: 2px;
+    margin: 2px 0 3px;
+  }
+
+  .bs-page--fullscreen .bs-map-controls-row,
+  .bs-page--embedded .bs-map-controls-row {
+    bottom: calc(12px + env(safe-area-inset-bottom, 0px));
+    left: 12px;
+    right: 12px;
+    z-index: 22;
+  }
+
+  /* Bottom icon cluster: reads as one docked control */
+  .bs-page--fullscreen .bs-map-controls-row .bs-rides-panel__tools,
+  .bs-page--embedded .bs-map-controls-row .bs-rides-panel__tools {
+    background: rgba(8, 8, 8, 0.88);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 999px;
+    padding: 6px 10px;
+    -webkit-backdrop-filter: blur(14px);
+    backdrop-filter: blur(14px);
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.45);
+  }
+
+  .bs-insights-banner {
+    max-height: min(280px, 36vh);
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Mapbox compact “i” — above bottom dock + horizontal stats strip (insights not scroll-capped) */
+  .bs-map-view-root .mapboxgl-ctrl-bottom-right {
+    bottom: calc(200px + env(safe-area-inset-bottom, 0px)) !important;
+  }
+
+  .bs-search-modal-wrap {
+    padding: 12px 12px max(12px, env(safe-area-inset-bottom, 0px));
+    align-items: stretch;
+  }
+
+  .bs-search-modal__close {
+    min-width: 44px;
+    min-height: 44px;
+  }
+
+  .bs-search-modal__row {
+    min-height: 44px;
+    padding: 10px 12px;
+  }
+
 }
+

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, useLocation, Navigate } from 'react-router-dom';
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -11,7 +11,6 @@ import Blog from "./pages/Blog";
 import BlogPost from "./pages/BlogPost";
 import Projects from "./pages/Projects";
 import ProjectDetail from "./pages/ProjectDetail";
-import BikeShareTorontoPage from "./pages/bike-share-toronto/page";
 import Experience from "./pages/Experience";
 import Interests from "./pages/Interests";
 import Photos from "./pages/Photos";
@@ -68,6 +67,13 @@ const AppContent = () => {
     if (location.pathname === '/' && location.hash) {
       return;
     }
+    // Bike Share project scrolls to #bike-share-demo from ProjectDetail after mount
+    if (
+      location.pathname === '/projects/bike-share-toronto' &&
+      location.hash === '#bike-share-demo'
+    ) {
+      return;
+    }
     window.scrollTo(0, 0);
   }, [location.pathname, location.hash]);
 
@@ -85,7 +91,10 @@ const AppContent = () => {
           <Route path="/blog" element={<Blog />} />
           <Route path="/blog/:id" element={<BlogPost />} />
           <Route path="/projects" element={<Projects />} />
-          <Route path="/projects/bike-share-toronto" element={<BikeShareTorontoPage />} />
+          <Route
+            path="/projects/bike-share-toronto/map"
+            element={<Navigate to="/projects/bike-share-toronto#bike-share-demo" replace />}
+          />
           <Route path="/projects/:id" element={<ProjectDetail />} />
           <Route path="/experience" element={<Experience />} />
           <Route path="/interests" element={<Interests />} />

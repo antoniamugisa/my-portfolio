@@ -8,6 +8,8 @@ import {
   type MutableRefObject,
 } from "react";
 import mapboxgl from "mapbox-gl";
+import type { Layer } from "@deck.gl/core";
+import type { Parameters as LumaParameters } from "@luma.gl/core";
 import { MapboxOverlay } from "@deck.gl/mapbox";
 import { TripsLayer } from "@deck.gl/geo-layers";
 import { PathLayer, ScatterplotLayer } from "@deck.gl/layers";
@@ -16,12 +18,13 @@ import type { DeckTrip } from "./types";
 import {
   buildSpotlightHeadPoint,
   buildTripHeadPoints,
+  countActiveTrips,
   type TripHeadPoint,
 } from "./tripHeads";
 
 interface MapViewProps {
   trips: DeckTrip[];
-  /** Synthetic hour window (canonical Toronto clock on the 15th of the month). */
+  /** Synthetic hour window (canonical Toronto clock on the 1st of the month). */
   playbackWindow: { min: number; max: number };
   onTripCountChange: (count: number) => void;
   /** Updated every animation frame: absolute simulated epoch ms (Toronto wall time). */
@@ -32,10 +35,18 @@ interface MapViewProps {
   onFpsChange?: (fps: number) => void;
   /** Increment when the user changes month or hour so playback snaps to that window start. */
   playbackResetNonce: number;
-  /** Called when simulated time reaches the end of the current hour window (→ next hour, no loop). */
-  onAdvanceHour?: () => void;
+  /** Called when simulated time reaches the end of the current hour window (→ next hour, no loop). May return a Promise (e.g. prefetch next hour before React state updates). */
+  onAdvanceHour?: () => void | Promise<void>;
+  /** Fire once per simulated hour after ~20% playback so the next hour can be prefetched before the rollover. */
+  onWarmNextHour?: () => void | Promise<void>;
   /** When set, full start→end path plus same head dot as normal view; other trips dimmed. */
   spotlightTrip: DeckTrip | null;
+  /**
+   * Fly the map when `id` changes (e.g. station picked from search). `id` should be unique per request.
+   */
+  flyTo?: { lng: number; lat: number; zoom?: number; id: number } | null;
+  /** Selected station from the list — shown as a green dot on the map. */
+  selectedStationPin?: { lng: number; lat: number; id: number } | null;
 }
 
 /** Trail behind the head (simulated ms); shorter buckets for longer trips so dense routes stay readable. */
@@ -50,6 +61,12 @@ const REAL_MS_PER_SIM_HOUR = 45_000;
 const SIM_MS_PER_REAL_MS = 3600000 / REAL_MS_PER_SIM_HOUR;
 const FPS_EMIT_MS = 250;
 const MAX_FRAME_MS = 80;
+
+/** luma.gl v9 uses WebGPU-style depth state (replaces `depthTest` / `depthMask`). */
+const LAYER_PARAMS_NO_DEPTH: LumaParameters = {
+  depthWriteEnabled: false,
+  depthCompare: "always",
+};
 
 function tripSpanMs(d: DeckTrip): number {
   const ts = d.timestamps;
@@ -86,10 +103,7 @@ function buildSpotlightFullPathLayer(spot: DeckTrip): PathLayer<DeckTrip> {
     capRounded: true,
     opacity: 0.95,
     pickable: false,
-    parameters: {
-      depthTest: false,
-      depthMask: false,
-    },
+    parameters: LAYER_PARAMS_NO_DEPTH,
   });
 }
 
@@ -102,7 +116,10 @@ export default function MapView({
   onFpsChange,
   playbackResetNonce,
   onAdvanceHour,
+  onWarmNextHour,
   spotlightTrip,
+  flyTo,
+  selectedStationPin = null,
 }: MapViewProps) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<mapboxgl.Map | null>(null);
@@ -128,6 +145,8 @@ export default function MapView({
   const headsLayerRef = useRef<ScatterplotLayer<TripHeadPoint> | null>(null);
   const pausedRef = useRef(paused);
   const onAdvanceHourRef = useRef(onAdvanceHour);
+  const onWarmNextHourRef = useRef(onWarmNextHour);
+  const lastWarmPlaybackMinRef = useRef<number | null>(null);
   const nonceAppliedRef = useRef(-1);
   const lastPwMinRef = useRef<number | null>(null);
   const lastRealTRef = useRef<number | null>(null);
@@ -136,6 +155,36 @@ export default function MapView({
   const fpsEmaRef = useRef(60);
   const lastFrameTRef = useRef<number | null>(null);
   const lastFpsEmitRef = useRef(0);
+  /** Last value sent to parent — avoid redundant setState when active count unchanged. */
+  const lastActiveTripCountRef = useRef<number | null>(null);
+  const selectedStationPinRef = useRef<typeof selectedStationPin>(null);
+  selectedStationPinRef.current = selectedStationPin;
+
+  const createStationPinLayer = useCallback(
+    (pin: { lng: number; lat: number }) =>
+      new ScatterplotLayer<{ position: [number, number] }>({
+        id: "station-pick-pin",
+        data: [{ position: [pin.lng, pin.lat] }],
+        getPosition: (d) => d.position,
+        getFillColor: [34, 197, 94, 255],
+        getRadius: 10,
+        radiusUnits: "pixels",
+        stroked: false,
+        billboard: true,
+        pickable: false,
+        parameters: LAYER_PARAMS_NO_DEPTH,
+      }),
+    [],
+  );
+
+  const appendStationPin = useCallback(
+    (layers: Layer[]): Layer[] => {
+      const pin = selectedStationPinRef.current;
+      if (!pin) return layers;
+      return [...layers, createStationPinLayer(pin)];
+    },
+    [createStationPinLayer],
+  );
 
   useEffect(() => {
     pausedRef.current = paused;
@@ -144,6 +193,10 @@ export default function MapView({
   useEffect(() => {
     onAdvanceHourRef.current = onAdvanceHour;
   }, [onAdvanceHour]);
+
+  useEffect(() => {
+    onWarmNextHourRef.current = onWarmNextHour;
+  }, [onWarmNextHour]);
 
   useEffect(() => {
     const prevMin = lastPwMinRef.current;
@@ -158,6 +211,7 @@ export default function MapView({
      */
     if (prevMin == null || nextMin !== prevMin) {
       advanceScheduledRef.current = false;
+      lastWarmPlaybackMinRef.current = null;
     }
 
     if (
@@ -167,7 +221,7 @@ export default function MapView({
     ) {
       simEpochMsRef.current = playbackWindow.min;
     }
-  }, [playbackWindow]);
+  }, [playbackWindow.min]);
 
   const createTripsLayers = useCallback((): TripsLayer<DeckTrip>[] => {
     const all = tripsRef.current;
@@ -206,10 +260,7 @@ export default function MapView({
           opacity: spotlightTripRef.current ? 0.38 : 0.95,
           fadeTrail: true,
           pickable: false,
-          parameters: {
-            depthTest: false,
-            depthMask: false,
-          },
+          parameters: LAYER_PARAMS_NO_DEPTH,
         }),
       );
     }
@@ -227,10 +278,7 @@ export default function MapView({
       billboard: true,
       stroked: false,
       pickable: false,
-      parameters: {
-        depthTest: false,
-        depthMask: false,
-      },
+      parameters: LAYER_PARAMS_NO_DEPTH,
     });
   }, []);
 
@@ -243,7 +291,10 @@ export default function MapView({
       headsLayerRef.current = null;
       spotlightPathLayerRef.current = null;
       playbackTimeMsRef.current = 0;
-      overlay.setProps({ layers: [] });
+      const pin = selectedStationPinRef.current;
+      overlay.setProps({
+        layers: pin ? [createStationPinLayer(pin)] : [],
+      });
       return;
     }
 
@@ -268,8 +319,14 @@ export default function MapView({
       pathFull != null
         ? [...tLayers, pathFull, hLayer]
         : [...tLayers, hLayer];
-    overlay.setProps({ layers: stack });
-  }, [createTripsLayers, createHeadsLayer, playbackTimeMsRef]);
+    overlay.setProps({ layers: appendStationPin(stack) });
+  }, [
+    appendStationPin,
+    createStationPinLayer,
+    createTripsLayers,
+    createHeadsLayer,
+    playbackTimeMsRef,
+  ]);
 
   const animate = useCallback(() => {
     const now = performance.now();
@@ -306,7 +363,9 @@ export default function MapView({
       if (sim >= pw.max) {
         if (onAdvanceHourRef.current && !advanceScheduledRef.current) {
           advanceScheduledRef.current = true;
-          onAdvanceHourRef.current();
+          void Promise.resolve(onAdvanceHourRef.current()).catch(() => {
+            advanceScheduledRef.current = false;
+          });
         }
         sim = Math.min(sim, pw.max - 0.001);
       }
@@ -315,9 +374,33 @@ export default function MapView({
 
       const rel = sim - pw.min;
       currentTimeRelRef.current = Math.min(3600000, Math.max(0, rel));
+
+      // Prefetch the next hour long before the simulated hour ends so rollover hits the cache
+      // (avoids an empty deck + dark map while DuckDB runs the next query).
+      const ctRel = currentTimeRelRef.current;
+      const warmFn = onWarmNextHourRef.current;
+      if (
+        warmFn &&
+        pw.max > pw.min &&
+        ctRel > 0.2 * 3600000 &&
+        lastWarmPlaybackMinRef.current !== pw.min
+      ) {
+        lastWarmPlaybackMinRef.current = pw.min;
+        void Promise.resolve(warmFn()).catch(() => {});
+      }
     }
 
     playbackTimeMsRef.current = simEpochMsRef.current;
+
+    const ctForCount = currentTimeRelRef.current;
+    const allTrips = tripsRef.current;
+    if (allTrips.length > 0) {
+      const active = countActiveTrips(allTrips, ctForCount);
+      if (lastActiveTripCountRef.current !== active) {
+        lastActiveTripCountRef.current = active;
+        onTripCountChange(active);
+      }
+    }
 
     const prevTripLayers = tripsLayersRef.current;
     const prevH = headsLayerRef.current;
@@ -358,15 +441,15 @@ export default function MapView({
       tripsLayersRef.current = nextTripLayers;
       const nextH = prevH.clone({ data: headData });
       headsLayerRef.current = nextH;
-      const stack =
+      const baseStack =
         pathFull != null && hasSpotlight
           ? [...nextTripLayers, pathFull, nextH]
           : [...nextTripLayers, nextH];
-      overlay.setProps({ layers: stack });
+      overlay.setProps({ layers: appendStationPin(baseStack) });
     }
 
     animFrameRef.current = requestAnimationFrame(animate);
-  }, [playbackTimeMsRef, onFpsChange]);
+  }, [appendStationPin, playbackTimeMsRef, onFpsChange, onTripCountChange]);
 
   useEffect(() => {
     if (trips.length === 0) {
@@ -374,6 +457,7 @@ export default function MapView({
        *  currentTimeRel clamp to 0 forever (sim can never catch up to epoch-scale pw.min). */
       currentTimeRelRef.current = 0;
       playbackTimeMsRef.current = 0;
+      lastActiveTripCountRef.current = null;
       onTripCountChange(0);
       return;
     }
@@ -393,20 +477,27 @@ export default function MapView({
     }
 
     playbackTimeMsRef.current = simEpochMsRef.current;
-    onTripCountChange(trips.length);
+    const rel = Math.min(
+      3600000,
+      Math.max(0, simEpochMsRef.current - playbackWindow.min),
+    );
+    currentTimeRelRef.current = rel;
+    const active = countActiveTrips(trips, rel);
+    lastActiveTripCountRef.current = active;
+    onTripCountChange(active);
   }, [
     trips,
     playbackWindow,
     playbackResetNonce,
-    onTripCountChange,
     playbackTimeMsRef,
+    onTripCountChange,
   ]);
 
   useLayoutEffect(() => {
     if (!overlayRef.current) return;
     pushLayer();
     mapRef.current?.resize();
-  }, [trips, pushLayer, spotlightTrip]);
+  }, [trips, pushLayer, spotlightTrip, selectedStationPin]);
 
   useEffect(() => {
     const map = mapRef.current;
@@ -518,6 +609,28 @@ export default function MapView({
       mapRef.current = null;
     };
   }, [animate, pushLayer, playbackTimeMsRef]);
+
+  useEffect(() => {
+    if (!flyTo) return;
+    const map = mapRef.current;
+    if (!map) return;
+
+    const run = () => {
+      map.flyTo({
+        center: [flyTo.lng, flyTo.lat],
+        zoom: flyTo.zoom ?? 14,
+        duration: 1100,
+        essential: true,
+      });
+    };
+
+    if (map.isStyleLoaded()) run();
+    else map.once("load", run);
+
+    return () => {
+      map.off("load", run);
+    };
+  }, [flyTo]);
 
   useEffect(() => {
     const el = containerRef.current;

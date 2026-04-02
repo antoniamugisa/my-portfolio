@@ -13,6 +13,20 @@ function findSegmentIndex(ts: number[], t: number): number {
   return i;
 }
 
+/** Trips whose synthetic time window contains `currentRelMs` (same rule as visible heads). */
+export function countActiveTrips(trips: DeckTrip[], currentRelMs: number): number {
+  let n = 0;
+  for (const trip of trips) {
+    const ts = trip.timestamps;
+    if (ts.length < 2) continue;
+    const tStart = ts[0]!;
+    const tEnd = ts[ts.length - 1]!;
+    if (currentRelMs < tStart || currentRelMs > tEnd + 500) continue;
+    n++;
+  }
+  return n;
+}
+
 export function buildTripHeadPoints(
   trips: DeckTrip[],
   currentRelMs: number,

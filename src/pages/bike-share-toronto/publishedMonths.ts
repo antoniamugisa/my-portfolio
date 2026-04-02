@@ -1,5 +1,5 @@
 /**
- * Months that exist at `${R2_BASE}/parquets/${month}.parquet`.
+ * Months that exist on the Bike Share Parquet host (`/parquets/${month}.parquet`).
  * Update when you upload new parquets; avoids prefetch / requests for missing files.
  */
 export const PUBLISHED_MONTHS: readonly string[] = [
