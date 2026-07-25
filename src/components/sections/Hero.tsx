@@ -21,14 +21,9 @@ const Hero: React.FC = () => {
 
             <p>
               Currently, I&apos;m building document intelligence and immigration automation at{' '}
-              <strong className="font-semibold text-foreground">Compass Visas</strong>, including an
+              <strong className="font-semibold text-foreground">Compass Visas</strong>, an
               end-to-end immigration case management platform that streamlines O-1/EB-1 evidence
-              collection. I&apos;m also experimenting with{' '}
-              <strong className="font-semibold text-foreground">ML</strong>,{' '}
-              <strong className="font-semibold text-foreground">NLP</strong>,{' '}
-              <strong className="font-semibold text-foreground">RAG</strong>, and{' '}
-              <strong className="font-semibold text-foreground">vector search</strong>, and staying
-              involved in Toronto&apos;s growing tech community.
+              collection. 
             </p>
 
             <p>
