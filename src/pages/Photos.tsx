@@ -308,7 +308,7 @@ const Photos = () => {
 
   if (photos.length === 0) {
     return (
-      <div className="min-h-screen bg-background md:ml-56 md:mr-32 pt-24 md:pt-16 flex flex-col">
+      <div className="min-h-screen bg-background pt-24 md:pt-28 flex flex-col">
         <div className="container mx-auto px-4 md:px-6 max-w-5xl flex-grow flex flex-col items-center justify-center py-20">
           <h1 className="text-4xl font-bold font-heading mb-4 bg-primary bg-clip-text text-transparent text-center">
             Photos
@@ -319,20 +319,12 @@ const Photos = () => {
             <code className="text-xs bg-muted px-2 py-1 rounded">src/data/photos/index.ts</code>
           </p>
         </div>
-        <footer className="py-4 bg-background border-t border-border/40 mt-auto">
-          <div className="container mx-auto px-6 flex justify-center">
-            <span className="inline-flex items-center rounded-full border border-border px-3 py-1 text-xs font-medium text-foreground/70 bg-background/60">
-              Version: <span className="ml-1 mr-1.5 font-semibold">v3</span>| Last updated:{' '}
-              <span className="ml-1 font-semibold">01/04/2026</span>
-            </span>
-          </div>
-        </footer>
       </div>
     );
   }
 
   return (
-    <div className="h-[100dvh] min-h-0 bg-background md:ml-56 md:mr-32 flex flex-col overflow-hidden relative">
+    <div className="h-[100dvh] min-h-0 bg-background pt-16 md:pt-24 flex flex-col overflow-hidden relative">
       <div
         ref={containerRef}
         className="flex-1 min-h-0 w-full overflow-hidden cursor-grab active:cursor-grabbing touch-none select-none"
@@ -453,15 +445,6 @@ const Photos = () => {
           </div>
         </div>
       )}
-
-      <footer className="py-4 bg-background border-t border-border/40 shrink-0">
-        <div className="container mx-auto px-6 flex flex-col items-center gap-2 text-center md:flex-row md:justify-between md:text-left">
-          <span className="inline-flex items-center rounded-full border border-border px-3 py-1 text-xs font-medium text-foreground/70 bg-background/60">
-            Version: <span className="ml-1 mr-1.5 font-semibold">v3</span>| Last updated:{' '}
-            <span className="ml-1 font-semibold">01/04/2026</span>
-          </span>
-        </div>
-      </footer>
     </div>
   );
 };

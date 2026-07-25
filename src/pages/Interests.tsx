@@ -2,7 +2,7 @@ import React from 'react';
 import { interestsData, type MediaItem } from '@/data/interests';
 
 const Interests = () => {
-  const allItems = interestsData.flatMap(category => category.items);
+  const allItems = interestsData.flatMap((category) => category.items);
 
   const getTypeHighlight = (type: MediaItem['type']) => {
     switch (type) {
@@ -24,68 +24,42 @@ const Interests = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background md:ml-56 md:mr-32 pt-24 md:pt-16 flex flex-col">
-      {/* Main Layout */}
-      <div className="container mx-auto px-4 md:px-6 max-w-5xl flex-grow">
-        <div className="grid lg:grid-cols-12 gap-4 md:gap-8">
-          {/* Left Side - Title Section */}
-          <div className="lg:col-span-3 py-8 md:py-12">
-            <div className="sticky top-20 md:top-24 pb-2 md:pb-12">
-              <h1 className="text-4xl lg:text-5xl xl:text-6xl font-bold font-heading mb-4 md:mb-6 bg-primary bg-clip-text text-transparent leading-[1.2] pb-2">
-                Media Worth Your Time
-              </h1>
-              <p className="text-base md:text-lg text-foreground/70 leading-relaxed">
-                What I'm watching, listening to and reading right now that I highly recommend you check out
-              </p>
-            </div>
-          </div>
-
-          {/* Right Side - Content Section */}
-          <div className="lg:col-span-9">
-            {/* Content Section */}
-            <section className="py-8 md:py-12">
-              <ul className="space-y-2 md:space-y-3">
-                {allItems.map((item) => (
-                  <li key={item.id} className="py-3 md:py-2">
-                    <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2 md:gap-0">
-                      <div className="flex-1">
-                        {item.url ? (
-                          <a 
-                            href={item.url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className={`font-medium px-2 py-1 rounded text-sm ${getTypeHighlight(item.type)} hover:brightness-75 transition-all cursor-pointer`}
-                          >
-                            {item.title}
-                            {item.author && ` – ${item.author}`}
-                          </a>
-                        ) : (
-                          <span className={`font-medium px-2 py-1 rounded text-sm ${getTypeHighlight(item.type)}`}>
-                            {item.title}
-                            {item.author && ` – ${item.author}`}
-                          </span>
-                        )}
-                      </div>
-                      <span className="text-sm italic text-foreground md:text-right">
-                        – {item.description}
+    <div className="min-h-screen bg-background pt-24 md:pt-28 flex flex-col">
+      <div className="mx-auto w-full max-w-5xl px-4 md:px-6 flex-grow">
+        <section className="py-8 md:py-12">
+          <ul className="space-y-2 md:space-y-3">
+            {allItems.map((item) => (
+              <li key={item.id} className="py-3 md:py-2">
+                <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2 md:gap-0">
+                  <div className="flex-1">
+                    {item.url ? (
+                      <a
+                        href={item.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className={`font-medium px-2 py-1 rounded text-sm ${getTypeHighlight(item.type)} hover:brightness-75 transition-all cursor-pointer`}
+                      >
+                        {item.title}
+                        {item.author && ` – ${item.author}`}
+                      </a>
+                    ) : (
+                      <span
+                        className={`font-medium px-2 py-1 rounded text-sm ${getTypeHighlight(item.type)}`}
+                      >
+                        {item.title}
+                        {item.author && ` – ${item.author}`}
                       </span>
-                    </div>
-                  </li>
-                ))}
-              </ul>
-            </section>
-          </div>
-        </div>
+                    )}
+                  </div>
+                  <span className="text-sm italic text-foreground md:text-right">
+                    – {item.description}
+                  </span>
+                </div>
+              </li>
+            ))}
+          </ul>
+        </section>
       </div>
-
-      {/* Footer */}
-      <footer className="py-6 bg-background pb-24 md:pb-12 mt-auto">
-        <div className="container mx-auto px-6 flex flex-col items-center gap-2 text-center md:flex-row md:justify-between md:text-left">
-          <span className="inline-flex items-center rounded-full border border-border px-3 py-1 text-xs font-medium text-foreground/70 bg-background/60">
-            Version: <span className="ml-1 mr-1.5 font-semibold">v3</span>| Last updated: <span className="ml-1 font-semibold">01/04/2026</span>
-          </span>
-        </div>
-      </footer>
     </div>
   );
 };
