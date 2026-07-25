@@ -324,7 +324,7 @@ const Photos = () => {
   }
 
   return (
-    <div className="h-[100dvh] min-h-0 bg-background pt-16 md:pt-24 flex flex-col overflow-hidden relative">
+    <div className="h-[100dvh] min-h-0 bg-background flex flex-col overflow-hidden relative">
       <div
         ref={containerRef}
         className="flex-1 min-h-0 w-full overflow-hidden cursor-grab active:cursor-grabbing touch-none select-none"

@@ -4,14 +4,14 @@ import { XLogo } from '@/components/ui/x-logo';
 
 const Hero: React.FC = () => {
   return (
-    <section id="home" className="relative min-h-screen bg-background py-24 md:pt-32 md:pb-24">
+    <section id="home" className="relative min-h-screen bg-background pt-32 pb-24 md:pt-32">
       <div className="mx-auto w-full max-w-3xl px-4 md:px-6">
         <div className="space-y-10">
           <div className="space-y-2">
-            <h1 className="text-xl md:text-2xl font-bold font-heading text-foreground leading-tight tracking-tight">
+            <h1 className="text-[15px] md:text-base font-normal text-foreground leading-relaxed">
               Hi, I&apos;m Antonia.
             </h1>
-            <p className="text-base md:text-lg text-foreground/50">Software engineer</p>
+            <p className="text-base md:text-lg text-foreground/50">Software Engineer</p>
           </div>
 
           <div className="space-y-6 text-[15px] md:text-base text-foreground/70 leading-relaxed">

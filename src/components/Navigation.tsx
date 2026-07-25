@@ -15,11 +15,17 @@ const Navigation = () => {
   ];
 
   const isAboutActive = location.pathname === '/';
-
   const isItemActive = (path: string) => location.pathname.startsWith(path);
 
   const linkClass = (active: boolean) =>
     `whitespace-nowrap rounded-full px-3 py-1.5 text-sm font-medium transition-colors ${
+      active
+        ? 'bg-foreground text-background'
+        : 'text-foreground/70 hover:text-foreground hover:bg-muted/60'
+    }`;
+
+  const iconClass = (active: boolean) =>
+    `flex items-center justify-center rounded-full p-2 transition-colors ${
       active
         ? 'bg-foreground text-background'
         : 'text-foreground/70 hover:text-foreground hover:bg-muted/60'
@@ -54,53 +60,35 @@ const Navigation = () => {
         </div>
       </nav>
 
-      {/* Mobile top navigation */}
-      <nav className="md:hidden fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-md border-b border-border shadow-lg pt-safe">
-        <div className="flex items-center justify-center px-2 py-3">
-          <div className="flex items-center justify-center space-x-3">
-            <Link
-              to="/"
-              className={`flex flex-col items-center justify-center p-1 transition-all duration-200 ${
-                isAboutActive ? 'text-primary' : 'text-foreground/70'
-              }`}
-              aria-label="About"
-            >
-              <div
-                className={`px-2 py-1.5 rounded-full text-xs font-bold tracking-tight transition-all duration-200 ${
-                  isAboutActive ? 'bg-primary/10' : 'hover:bg-muted/50'
-                }`}
+      {/* Mobile centered pill navigation */}
+      <nav className="md:hidden fixed top-6 left-1/2 z-50 w-[calc(100%-1.5rem)] max-w-md -translate-x-1/2 pt-safe">
+        <div className="flex items-center justify-between gap-0.5 rounded-full border border-border/60 bg-background/80 px-1.5 py-1.5 shadow-sm backdrop-blur-md">
+          <Link
+            to="/"
+            className={`${linkClass(isAboutActive)} px-2.5 py-1.5 text-xs font-bold tracking-tight`}
+            aria-label="About"
+          >
+            AM
+          </Link>
+
+          {navItems.map((item) => {
+            const IconComponent = item.icon;
+            const active = isItemActive(item.path);
+
+            return (
+              <Link
+                key={item.path}
+                to={item.path}
+                className={iconClass(active)}
+                aria-label={item.name}
               >
-                AM
-              </div>
-            </Link>
+                <IconComponent size={16} strokeWidth={1.75} />
+              </Link>
+            );
+          })}
 
-            {navItems.map((item) => {
-              const IconComponent = item.icon;
-              const active = isItemActive(item.path);
-
-              return (
-                <Link
-                  key={item.path}
-                  to={item.path}
-                  className={`flex flex-col items-center justify-center p-1 transition-all duration-200 ${
-                    active ? 'text-primary' : 'text-foreground/70'
-                  }`}
-                >
-                  <div
-                    className={`p-1.5 rounded-full transition-all duration-200 ${
-                      active ? 'bg-primary/10' : 'hover:bg-muted/50'
-                    }`}
-                  >
-                    <IconComponent size={16} />
-                  </div>
-                </Link>
-              );
-            })}
-            <div className="flex flex-col items-center justify-center p-1">
-              <div className="p-1.5 rounded-full hover:bg-muted/50 transition-all duration-200">
-                <ThemeToggle />
-              </div>
-            </div>
+          <div className="flex items-center border-l border-border/50 pl-0.5">
+            <ThemeToggle />
           </div>
         </div>
       </nav>
