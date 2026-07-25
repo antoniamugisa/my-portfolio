@@ -21,38 +21,36 @@ const Hero: React.FC = () => {
 
             <p>
               Currently, I&apos;m building document intelligence and immigration automation at{' '}
-              <strong className="font-semibold text-foreground">Compass Visas</strong>, an
-              end-to-end immigration case management platform that streamlines O-1/EB-1 evidence
-              collection. 
+              <strong className="font-semibold text-foreground">Compass Visas</strong> in Toronto.
             </p>
 
             <p>
-              Before that, I interned at{' '}
+              I interned at{' '}
               <strong className="font-semibold text-foreground">Avanade</strong>, where I built a{' '}
               <strong className="font-semibold text-foreground">RAG</strong> pipeline with Azure
               Cognitive Search and OpenAI, and an AI-powered lease document reader that cut search time
-              from minutes to under 10 seconds, lifting QA accuracy from 80% to 95%.
+              from minutes to under 10 seconds.
             </p>
 
             <p>
               On a <strong className="font-semibold text-foreground">Microsoft</strong> engagement, I
               scaled Azure infra to process 5,000+ legal documents daily and automated deployments with
-              Kubernetes, Docker, and Terraform, cutting deploy time from 2 hours to under 15 minutes.
+              Kubernetes, Docker, and Terraform.
             </p>
 
             <p>
-              I love all things AI, interfaces, and playful side projects. Recently I&apos;ve been into
+              I love all things tech, interfaces, and playful side projects. Recently I&apos;ve been into
               open-data visualizations, anime recommendation systems, and building tools that feel a
               little more human.
             </p>
 
             <p>
-              Outside of engineering, you can find me shooting film photography, deep in anime and
-              games, or spending time with my family and friends in South Africa.
+              Outside of software, you can find me shooting film, deep in anime and
+              games, and spending time with my family in South Africa.
             </p>
           </div>
 
-          <div className="flex gap-3 pt-2">
+          <div className="flex gap-3 pt-8">
             <a
               href="mailto:antoniamugisa@gmail.com"
               className="flex h-9 w-9 items-center justify-center rounded-full border border-border transition-colors hover:bg-secondary"
