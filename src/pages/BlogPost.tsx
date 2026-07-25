@@ -154,7 +154,7 @@ const BlogPost: React.FC = () => {
   return (
     <div className="min-h-screen bg-background pt-24 md:pt-28">
       {/* Article Header */}
-      <article className="container mx-auto px-6 max-w-5xl">
+      <article className="mx-auto w-full max-w-5xl px-4 md:px-6">
         {/* Hero Image */}
         <div className="relative h-[520px] sm:h-[600px] md:h-auto md:aspect-[21/9] overflow-hidden rounded-lg mb-8 shadow-card">
           <img src={post.image} alt={post.title} className="w-full h-full object-cover" />

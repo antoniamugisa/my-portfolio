@@ -25,7 +25,7 @@ const Interests = () => {
 
   return (
     <div className="min-h-screen bg-background pt-24 md:pt-28 flex flex-col">
-      <div className="mx-auto w-full max-w-5xl px-4 md:px-6 flex-grow">
+      <div className="mx-auto w-full max-w-3xl px-4 md:px-6 flex-grow">
         <section className="py-8 md:py-12">
           <ul className="space-y-2 md:space-y-3">
             {allItems.map((item) => (
