@@ -6,15 +6,14 @@ const Hero: React.FC = () => {
   return (
     <section id="home" className="relative min-h-screen bg-background pt-32 pb-24 md:pt-32">
       <div className="mx-auto w-full max-w-3xl px-4 md:px-6">
-        <div className="space-y-10">
-          <div className="space-y-2">
-            <h1 className="text-[15px] md:text-base font-normal text-foreground leading-relaxed">
+        <div className="space-y-6 text-[15px] md:text-base text-foreground/70 leading-relaxed">
+          <div>
+            <h1 className="font-normal text-foreground leading-relaxed">
               Hi, I&apos;m Antonia.
             </h1>
-            <p className="text-base md:text-lg text-foreground/50">Software Engineer</p>
+            <p className="font-normal text-foreground leading-relaxed">Software Engineer</p>
           </div>
 
-          <div className="space-y-6 text-[15px] md:text-base text-foreground/70 leading-relaxed">
             <p>
               I love shipping thoughtful, well-crafted tools; from AI-powered systems to interfaces
               that feel as good as they look.
@@ -22,8 +21,9 @@ const Hero: React.FC = () => {
 
             <p>
               Currently, I&apos;m building document intelligence and immigration automation at{' '}
-              <strong className="font-semibold text-foreground">Compass Visas</strong>. I&apos;m also
-              experimenting with{' '}
+              <strong className="font-semibold text-foreground">Compass Visas</strong>, including an
+              end-to-end immigration case management platform that streamlines O-1/EB-1 evidence
+              collection. I&apos;m also experimenting with{' '}
               <strong className="font-semibold text-foreground">ML</strong>,{' '}
               <strong className="font-semibold text-foreground">NLP</strong>,{' '}
               <strong className="font-semibold text-foreground">RAG</strong>, and{' '}
@@ -32,18 +32,28 @@ const Hero: React.FC = () => {
             </p>
 
             <p>
-              Before that, I shipped an end-to-end immigration case management platform that
-              streamlined O-1/EB-1 evidence collection for{' '}
-              <strong className="font-semibold text-foreground">Compass Visas</strong>. At{' '}
-              <strong className="font-semibold text-foreground">Avanade</strong>, I built AI-powered
-              tools that cut search and sorting time for legal teams by hours each week. Earlier at{' '}
-              <strong className="font-semibold text-foreground">Microsoft</strong>, I helped migrate
-              large workloads to Azure and automate infra with Terraform, Docker, and Kubernetes.
+              Before that, I interned at{' '}
+              <strong className="font-semibold text-foreground">Avanade</strong>, where I built a{' '}
+              <strong className="font-semibold text-foreground">RAG</strong> pipeline with Azure
+              Cognitive Search and OpenAI, and an AI-powered lease document reader that cut search time
+              from minutes to under 10 seconds, lifting QA accuracy from 80% to 95%.
             </p>
 
             <p>
-              Currently, I'm enjoying quality time with my family and friends in
-              South Africa.
+              On a <strong className="font-semibold text-foreground">Microsoft</strong> engagement, I
+              scaled Azure infra to process 5,000+ legal documents daily and automated deployments with
+              Kubernetes, Docker, and Terraform, cutting deploy time from 2 hours to under 15 minutes.
+            </p>
+
+            <p>
+              I love all things AI, interfaces, and playful side projects. Recently I&apos;ve been into
+              open-data visualizations, anime recommendation systems, and building tools that feel a
+              little more human.
+            </p>
+
+            <p>
+              Outside of engineering, you can find me shooting film photography, deep in anime and
+              games, or spending time with my family and friends in South Africa.
             </p>
           </div>
 
@@ -88,7 +98,6 @@ const Hero: React.FC = () => {
               <Download className="h-4 w-4 text-foreground" />
             </a>
           </div>
-        </div>
       </div>
     </section>
   );
