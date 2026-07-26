@@ -24,10 +24,10 @@ const Projects = () => {
                   />
                 </div>
 
-                <p className="mt-2 text-sm text-foreground/45">
+                <p className="mt-2 text-[15px] md:text-base font-normal text-foreground/45 leading-relaxed">
                   {getYear(project.date)} / {project.category}
                 </p>
-                <h2 className="mt-0.5 text-[15px] md:text-base text-foreground leading-snug">
+                <h2 className="mt-0.5 text-[15px] md:text-base font-normal text-foreground leading-relaxed">
                   {project.title}
                 </h2>
               </Link>

@@ -618,13 +618,21 @@ export default function MapView({
     const token = import.meta.env.VITE_MAPBOX_TOKEN as string | undefined;
     if (!container || !token) return;
 
+    const isCoarsePointer =
+      typeof window !== "undefined" &&
+      window.matchMedia("(pointer: coarse)").matches;
+
     const map = new mapboxgl.Map({
       container,
       style: "mapbox://styles/mapbox/dark-v11",
       center: [-79.385, 43.655],
       zoom: 12,
-      antialias: true,
+      antialias: !isCoarsePointer,
       accessToken: token,
+      // Simpler touch: pinch-zoom + pan; no accidental tilt/rotate on phones.
+      dragRotate: !isCoarsePointer,
+      touchPitch: false,
+      pitchWithRotate: false,
     });
 
     mapRef.current = map;
@@ -636,6 +644,14 @@ export default function MapView({
     });
 
     map.on("load", () => {
+      if (isCoarsePointer) {
+        try {
+          map.touchZoomRotate.disableRotation();
+        } catch {
+          /* older mapbox builds */
+        }
+      }
+
       const layersToCheck = map.getStyle()?.layers ?? [];
       const layerIds = new Set(layersToCheck.map((l) => l.id));
 

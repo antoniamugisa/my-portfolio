@@ -40,7 +40,7 @@ const markdownComponents: Components = {
   // Paragraphs
   p({ children, ...props }) {
     return (
-      <p className="mb-4 text-foreground/80 leading-relaxed" {...props}>
+      <p className="mb-4 font-normal text-[15px] md:text-base text-foreground/70 leading-relaxed" {...props}>
         {children}
       </p>
     );
@@ -48,28 +48,28 @@ const markdownComponents: Components = {
   // Headings
   h1({ children, ...props }) {
     return (
-      <h1 className="text-4xl font-bold mt-8 mb-4" {...props}>
+      <h1 className="mt-8 mb-4 font-normal text-[15px] md:text-base text-foreground leading-relaxed" {...props}>
         {children}
       </h1>
     );
   },
   h2({ children, ...props }) {
     return (
-      <h2 className="text-3xl font-semibold mt-8 mb-4" {...props}>
+      <h2 className="mt-8 mb-4 font-normal text-[15px] md:text-base text-foreground leading-relaxed" {...props}>
         {children}
       </h2>
     );
   },
   h3({ children, ...props }) {
     return (
-      <h3 className="text-2xl font-medium mt-6 mb-3" {...props}>
+      <h3 className="mt-6 mb-3 font-normal text-[15px] md:text-base text-foreground leading-relaxed" {...props}>
         {children}
       </h3>
     );
   },
   li({ children, ...props }) {
     return (
-      <li className="ml-6 mb-2 list-disc" {...props}>
+      <li className="ml-6 mb-2 list-disc font-normal text-[15px] md:text-base text-foreground/70 leading-relaxed" {...props}>
         {children}
       </li>
     );
@@ -177,11 +177,11 @@ const BlogPost: React.FC = () => {
             </div>
 
             {/* Title & Description */}
-            <div className="space-y-3">
-              <div className="text-white/90 text-sm font-medium">{formatDate(post.date)}</div>
-              <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white leading-tight">{post.title}</h1>
+            <div className="space-y-3 text-[15px] md:text-base leading-relaxed">
+              <div className="text-white/90 font-normal">{formatDate(post.date)}</div>
+              <h1 className="font-normal text-white leading-relaxed">{post.title}</h1>
               <p
-                className="text-white/90 text-base md:text-lg leading-relaxed max-w-2xl"
+                className="text-white/90 font-normal leading-relaxed max-w-2xl"
                 dangerouslySetInnerHTML={{ __html: post.description }}
               />
             </div>
@@ -189,16 +189,16 @@ const BlogPost: React.FC = () => {
         </div>
 
         {/* Article Meta */}
-        <div className="mb-8">
+        <div className="mb-8 text-[15px] md:text-base">
           <div className="flex items-center justify-between border-b border-border pb-6">
-            <div className="flex flex-wrap items-center gap-6 text-muted-foreground">
+            <div className="flex flex-wrap items-center gap-6 text-foreground/70">
               <div className="flex items-center gap-2">
                 <User className="w-4 h-4" />
-                <span>{post.author}</span>
+                <span className="font-normal">{post.author}</span>
               </div>
               <div className="flex items-center gap-2">
                 <Clock className="w-4 h-4" />
-                <span>{post.readTime} min read</span>
+                <span className="font-normal">{post.readTime} min read</span>
               </div>
             </div>
 
@@ -210,7 +210,7 @@ const BlogPost: React.FC = () => {
         </div>
 
         {/* Article Content */}
-        <div className="prose prose-lg max-w-none mb-12 pb-16">
+        <div className="max-w-none mb-12 pb-16 text-[15px] md:text-base">
           <ReactMarkdown
             remarkPlugins={[remarkGfm]}
             rehypePlugins={[rehypeRaw]}

@@ -33,10 +33,10 @@ export interface Project {
   tags: string[];
   status: 'Completed' | 'Ongoing' | 'Planned';
   longDescription?: string;
-  keyFeatures?: string[];
-  challenges?: string[];
-  learnings?: string[];
-  futureImprovements?: string[];
+  keyFeatures?: string;
+  challenges?: string;
+  learnings?: string;
+  futureImprovements?: string;
   teamImage?: string;
   teamCaption?: string;
   demoVideo?: string;

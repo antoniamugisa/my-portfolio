@@ -24,35 +24,17 @@ export const emotifProject = {
     The project demonstrates advanced integration of Large Language Models (LLMs) to provide contextual and empathetic responses, making mental health tracking more engaging and insightful. Users can seamlessly log their daily moods, receive AI-generated insights about their emotional patterns, and get personalized recommendations for music and activities that match their current state.
   `,
   
-  keyFeatures: [
-    "AI-powered mood analysis using Gemini AI",
-    "Personalized check-ins and recommendations",
-    "Playlist generation based on emotional state",
-    "Firebase integration for real-time data sync",
-    "Modern React UI with TypeScript",
-    "Responsive design with Tailwind CSS"
-  ],
-  
-  challenges: [
-    "Integrating multiple AI services seamlessly",
-    "Creating intuitive mood tracking interface",
-    "Optimizing LLM responses for emotional context",
-    "Ensuring real-time data synchronization"
-  ],
-  
-  learnings: [
-    "Advanced AI/ML integration techniques.",
-    "User experience design for mental health apps.",
-    "Real-time data management with Firebase.",
-    "Responsive design patterns."
-  ],
-  
-  futureImprovements: [
-    "Add more sophisticated mood prediction algorithms.",
-    "Integrate with more music streaming services.",
-    "Add social features for mood sharing.",
-    "Implement advanced analytics dashboard."
-  ],
+  keyFeatures:
+    'Emotif combines Gemini AI mood analysis with personalized check-ins and playlist recommendations based on how you feel. Moods sync in real time through Firebase, and the interface is a modern React and TypeScript app styled with Tailwind CSS so it stays clear and usable across devices.',
+
+  challenges:
+    'The hardest parts were weaving multiple AI services into one smooth flow, designing a mood tracker that felt natural rather than clinical, shaping LLM responses so they stayed emotionally aware, and keeping Firebase data in sync without lag or conflicting updates.',
+
+  learnings:
+    'Building Emotif pushed me deeper into AI and LLM integration, UX for mental health tools, real-time data with Firebase, and responsive layout patterns that hold up on both desktop and mobile.',
+
+  futureImprovements:
+    'Next I would add stronger mood prediction, support more music streaming services, optional social mood sharing, and a richer analytics dashboard so users can see longer-term emotional patterns.',
   
   teamImage: emotifTeamImage,
   teamCaption: "When we won 3rd place!"

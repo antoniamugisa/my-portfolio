@@ -59,12 +59,12 @@ const Blog = () => {
 
                       {/* Bottom Left - Date, Title, Subtitle */}
                       <div className="space-y-2.5 pb-3">
-                        <div className="text-white/90 text-xs font-medium">
+                        <div className="text-white/90 text-[15px] md:text-base font-normal">
                           {formatDate(post.date)}
                         </div>
 
                         <h3
-                          className="text-lg md:text-xl font-bold text-white leading-[1.5]"
+                          className="text-[15px] md:text-base font-normal text-white leading-[1.5]"
                           style={{
                             display: '-webkit-box',
                             WebkitLineClamp: 2,
@@ -80,7 +80,7 @@ const Blog = () => {
                         </h3>
 
                         <p
-                          className="text-white/90 text-sm leading-[1.6] line-clamp-3 md:line-clamp-2 pb-1"
+                          className="text-white/90 text-[15px] md:text-base font-normal leading-[1.6] line-clamp-3 md:line-clamp-2 pb-1"
                           dangerouslySetInnerHTML={{ __html: post.description }}
                         />
                       </div>

@@ -23,33 +23,16 @@ export const anidojoProject = {
     Built with a robust Python backend using TensorFlow for the ML models and a modern React frontend, Anidojo demonstrates the power of collaborative filtering and content-based recommendation systems. The application processes large datasets of anime metadata, user ratings, and viewing patterns to generate accurate and diverse recommendations.
   `,
   
-  keyFeatures: [
-    "Advanced ML recommendation algorithms",
-    "User preference learning and adaptation",
-    "Comprehensive anime database integration",
-    "Real-time recommendation updates",
-    "Docker containerization for scalability",
-    "MongoDB for efficient data storage"
-  ],
-  
-  challenges: [
-    "Processing large datasets efficiently",
-    "Implementing accurate recommendation algorithms",
-    "Creating intuitive user interface for complex data",
-    "Optimizing model performance for real-time recommendations"
-  ],
-  
-  learnings: [
-    "Machine learning model development and training",
-    "Recommendation system algorithms (collaborative filtering, content-based)",
-    "Large-scale data processing techniques",
-    "Docker containerization and deployment"
-  ],
-  
-  futureImprovements: [
-    "Implement deep learning models for better accuracy",
-    "Add social features for sharing recommendations",
-    "Integrate with streaming platforms",
-    "Add advanced filtering and search capabilities"
-  ]
+  keyFeatures:
+    'Anidojo uses machine learning to learn preferences from viewing history and return tailored anime suggestions, drawing on a broad anime database that updates as tastes change. The stack pairs a TensorFlow-backed Python service with a React frontend, MongoDB for storage, and Docker so the system can scale cleanly.',
+
+  challenges:
+    'The main challenges were processing large datasets without slowing the app down, building recommendation models that stayed accurate and diverse, presenting complex results in a simple interface, and keeping inference fast enough for real-time suggestions.',
+
+  learnings:
+    'This project taught me how to train and ship ML models, apply collaborative filtering and content-based recommendation techniques, work with large-scale data pipelines, and package services with Docker for reliable deployment.',
+
+  futureImprovements:
+    'I would explore deeper neural models for better accuracy, add social sharing around recommendations, connect to streaming platforms, and expand search and filtering so users can explore the catalog with more control.',
 };
+

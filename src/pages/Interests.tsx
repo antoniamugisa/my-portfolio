@@ -26,7 +26,7 @@ const Interests = () => {
   return (
     <div className="min-h-screen bg-background pt-24 md:pt-28 flex flex-col">
       <div className="mx-auto w-full max-w-3xl px-4 md:px-6 flex-grow">
-        <section className="py-8 md:py-12">
+        <section className="py-8 md:py-12 text-[15px] md:text-base leading-relaxed">
           <ul className="space-y-2 md:space-y-3">
             {allItems.map((item) => (
               <li key={item.id} className="py-3 md:py-2">
@@ -37,21 +37,21 @@ const Interests = () => {
                         href={item.url}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className={`font-medium px-2 py-1 rounded text-sm ${getTypeHighlight(item.type)} hover:brightness-75 transition-all cursor-pointer`}
+                        className={`font-normal px-2 py-1 rounded ${getTypeHighlight(item.type)} hover:brightness-75 transition-all cursor-pointer`}
                       >
                         {item.title}
                         {item.author && ` – ${item.author}`}
                       </a>
                     ) : (
                       <span
-                        className={`font-medium px-2 py-1 rounded text-sm ${getTypeHighlight(item.type)}`}
+                        className={`font-normal px-2 py-1 rounded ${getTypeHighlight(item.type)}`}
                       >
                         {item.title}
                         {item.author && ` – ${item.author}`}
                       </span>
                     )}
                   </div>
-                  <span className="text-sm italic text-foreground md:text-right">
+                  <span className="italic text-foreground/70 md:text-right font-normal">
                     – {item.description}
                   </span>
                 </div>

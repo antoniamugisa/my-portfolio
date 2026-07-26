@@ -18,28 +18,12 @@ export const bikeShareTorontoProject: Project = {
     'An interactive canvas-based flow map of Toronto Bike Share trips, built with the Open Toronto CKAN API. ' +
     'Animated arcs and moving dots show real trip patterns across 50 stations, with an hour-by-hour time scrubber ' +
     'revealing the rhythm of the city — from the quiet early hours to the morning and evening rush peaks.',
-  keyFeatures: [
-    'Animated trip arcs with moving dots showing real station-to-station flows',
-    'Hour-by-hour time scrubber with 24-bar activity histogram',
-    'Play/pause with 1×/2×/4× speed control',
-    'Filter by member vs casual riders and e-bike vs classic bike',
-    'Zoom and pan the map canvas',
-    'Real Open Toronto data via CKAN API',
-  ],
-  challenges: [
-    'Porting vanilla JS canvas animation to React refs without losing performance',
-    'Keeping the animation loop decoupled from React re-renders',
-    'Scoping styles so the full-viewport dark page does not clash with the portfolio theme',
-  ],
-  learnings: [
-    'Using ResizeObserver and useRef for performant canvas management in React',
-    'CSS isolation strategies (fixed positioning + z-index + scoped custom properties)',
-    'Open Toronto CKAN API structure and data quirks across years',
-  ],
-  futureImprovements: [
-    'Replace synthetic trip data with real Open Toronto CSV data',
-    'Upgrade to Mapbox GL JS + deck.gl TripsLayer for GPU-accelerated rendering',
-    'Add 10-year historical playback (2014–2025) with daily Parquet files',
-    'Station tooltips showing name, capacity, and trip count',
-  ],
+  keyFeatures:
+    'The map animates real station-to-station Bike Share trips with arcs and moving dots, paired with an hour-by-hour scrubber and a 24-bar activity histogram. You can play or pause at 1×, 2×, or 4× speed, filter by member versus casual riders and e-bike versus classic, zoom and pan the canvas, and pull live Open Toronto data through the CKAN API.',
+  challenges:
+    'Porting the original vanilla JS canvas animation into React without losing frame rate meant careful use of refs, keeping the animation loop separate from React re-renders, and scoping styles so a full-viewport dark experience would not fight the rest of the portfolio theme.',
+  learnings:
+    'I learned to drive canvas with ResizeObserver and useRef for steady performance in React, isolate page styles with fixed positioning, z-index, and scoped custom properties, and work through the quirks of the Open Toronto CKAN API across different years of data.',
+  futureImprovements:
+    'Next steps are swapping synthetic trips for full Open Toronto CSV data, moving to Mapbox GL JS with deck.gl TripsLayer for GPU-accelerated rendering, adding decade-long historical playback with daily Parquet files, and station tooltips for name, capacity, and trip counts.',
 };
