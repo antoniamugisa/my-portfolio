@@ -144,16 +144,27 @@ const Photos = () => {
     camY: number;
     moved: boolean;
     pointerId: number;
+    samples: { t: number; clientX: number; clientY: number }[];
   } | null>(null);
   const skipPhotoOpenRef = useRef(false);
   const rafRef = useRef<number | null>(null);
   const animationRef = useRef<number | null>(null);
+  const inertiaRef = useRef<number | null>(null);
+  const isCoastingRef = useRef(false);
   const pendingCamRef = useRef<{ x: number; y: number } | null>(null);
 
   const applyWorldTransform = useCallback((x: number, y: number) => {
     const world = worldRef.current;
     if (!world) return;
     world.style.transform = `translate3d(${-x}px, ${-y}px, 0)`;
+  }, []);
+
+  const stopInertia = useCallback(() => {
+    if (inertiaRef.current != null) {
+      cancelAnimationFrame(inertiaRef.current);
+      inertiaRef.current = null;
+    }
+    isCoastingRef.current = false;
   }, []);
 
   const commitCamIfNeeded = useCallback((x: number, y: number, force = false) => {
@@ -182,6 +193,49 @@ const Photos = () => {
       commitCamIfNeeded(pending.x, pending.y);
     });
   }, [commitCamIfNeeded]);
+
+  /** Coast after finger lift — matches trackpad inertia on desktop. */
+  const startInertia = useCallback((vx: number, vy: number) => {
+    stopInertia();
+    const speed = Math.hypot(vx, vy);
+    if (speed < 0.05) {
+      commitCamIfNeeded(camRef.current.x, camRef.current.y, true);
+      return;
+    }
+
+    // Cap so a hard fling doesn’t fly forever
+    const maxSpeed = 3.2; // px/ms
+    let velX = (vx / speed) * Math.min(speed, maxSpeed);
+    let velY = (vy / speed) * Math.min(speed, maxSpeed);
+    let lastT = performance.now();
+    isCoastingRef.current = true;
+
+    const step = (now: number) => {
+      const dt = Math.min(32, now - lastT);
+      lastT = now;
+
+      // Exponential friction (~iOS scroll feel)
+      const decay = Math.exp(-0.0032 * dt);
+      velX *= decay;
+      velY *= decay;
+
+      const x = camRef.current.x + velX * dt;
+      const y = camRef.current.y + velY * dt;
+      camRef.current = { x, y };
+      applyWorldTransform(x, y);
+      scheduleCamCommit(x, y);
+
+      if (Math.hypot(velX, velY) > 0.04) {
+        inertiaRef.current = requestAnimationFrame(step);
+      } else {
+        inertiaRef.current = null;
+        isCoastingRef.current = false;
+        commitCamIfNeeded(x, y, true);
+      }
+    };
+
+    inertiaRef.current = requestAnimationFrame(step);
+  }, [stopInertia, applyWorldTransform, scheduleCamCommit, commitCamIfNeeded]);
 
   const dismissHint = useCallback(() => {
     setShowHint(false);
@@ -239,12 +293,13 @@ const Photos = () => {
 
   // Keep transform in sync when React cam state changes (recenter / wrap commits).
   useLayoutEffect(() => {
-    if (panRef.current?.moved) return;
+    if (panRef.current?.moved || isCoastingRef.current) return;
     camRef.current = { x: camX, y: camY };
     applyWorldTransform(camX, camY);
   }, [camX, camY, applyWorldTransform]);
 
   const recenter = useCallback(() => {
+    stopInertia();
     if (animationRef.current) {
       cancelAnimationFrame(animationRef.current);
     }
@@ -276,7 +331,7 @@ const Photos = () => {
     };
 
     animationRef.current = requestAnimationFrame(animate);
-  }, [tileW, viewportW, viewportH, applyWorldTransform, scheduleCamCommit, commitCamIfNeeded]);
+  }, [tileW, viewportW, viewportH, applyWorldTransform, scheduleCamCommit, commitCamIfNeeded, stopInertia]);
 
   useEffect(() => {
     const el = containerRef.current;
@@ -284,6 +339,7 @@ const Photos = () => {
     const handleWheel = (e: WheelEvent) => {
       e.preventDefault();
       e.stopPropagation();
+      stopInertia();
       dismissHint();
       const next = {
         x: camRef.current.x + e.deltaX,
@@ -295,7 +351,7 @@ const Photos = () => {
     };
     el.addEventListener('wheel', handleWheel, { passive: false });
     return () => el.removeEventListener('wheel', handleWheel);
-  }, [dismissHint, applyWorldTransform, scheduleCamCommit]);
+  }, [dismissHint, applyWorldTransform, scheduleCamCommit, stopInertia]);
 
   useEffect(() => {
     if (!showHint) return;
@@ -310,10 +366,12 @@ const Photos = () => {
 
     const onPointerDown = (e: PointerEvent) => {
       if (e.button !== 0) return;
+      stopInertia();
       if (animationRef.current) {
         cancelAnimationFrame(animationRef.current);
         animationRef.current = null;
       }
+      const now = performance.now();
       panRef.current = {
         x: e.clientX,
         y: e.clientY,
@@ -321,6 +379,7 @@ const Photos = () => {
         camY: camRef.current.y,
         moved: false,
         pointerId: e.pointerId,
+        samples: [{ t: now, clientX: e.clientX, clientY: e.clientY }],
       };
     };
 
@@ -340,11 +399,31 @@ const Photos = () => {
       }
       if (!pan.moved) return;
 
+      const now = performance.now();
+      pan.samples.push({ t: now, clientX: e.clientX, clientY: e.clientY });
+      // Keep a short window for velocity (last ~100ms)
+      while (pan.samples.length > 2 && now - pan.samples[0].t > 100) {
+        pan.samples.shift();
+      }
+
       const x = pan.camX - dx;
       const y = pan.camY - dy;
       camRef.current = { x, y };
       applyWorldTransform(x, y);
       scheduleCamCommit(x, y);
+    };
+
+    const velocityFromSamples = (samples: { t: number; clientX: number; clientY: number }[]) => {
+      if (samples.length < 2) return { vx: 0, vy: 0 };
+      const first = samples[0];
+      const last = samples[samples.length - 1];
+      const dt = last.t - first.t;
+      if (dt <= 0) return { vx: 0, vy: 0 };
+      // Finger velocity → camera velocity (opposite of finger)
+      return {
+        vx: -(last.clientX - first.clientX) / dt,
+        vy: -(last.clientY - first.clientY) / dt,
+      };
     };
 
     const endPan = (e: PointerEvent) => {
@@ -357,7 +436,12 @@ const Photos = () => {
         } catch {
           /* ignore */
         }
-        commitCamIfNeeded(camRef.current.x, camRef.current.y, true);
+        // Include final point for a better fling estimate
+        pan.samples.push({ t: performance.now(), clientX: e.clientX, clientY: e.clientY });
+        const { vx, vy } = velocityFromSamples(pan.samples);
+        panRef.current = null;
+        startInertia(vx, vy);
+        return;
       }
       panRef.current = null;
     };
@@ -386,12 +470,13 @@ const Photos = () => {
       el.removeEventListener('pointerup', endPan);
       el.removeEventListener('pointercancel', onPointerCancel);
     };
-  }, [dismissHint, applyWorldTransform, scheduleCamCommit, commitCamIfNeeded]);
+  }, [dismissHint, applyWorldTransform, scheduleCamCommit, commitCamIfNeeded, stopInertia, startInertia]);
 
   useEffect(() => {
     return () => {
       if (rafRef.current != null) cancelAnimationFrame(rafRef.current);
       if (animationRef.current != null) cancelAnimationFrame(animationRef.current);
+      if (inertiaRef.current != null) cancelAnimationFrame(inertiaRef.current);
     };
   }, []);
 
