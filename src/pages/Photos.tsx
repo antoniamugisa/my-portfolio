@@ -19,8 +19,8 @@ function cellPx(tileW: number): number {
 /** One mega-tile of photos (TILE_MACRO × TILE_MACRO grid). */
 const MegaTile = memo(function MegaTile({
   tileW,
-  offsetX,
-  offsetY,
+  worldX,
+  worldY,
   photosList,
   onPhotoClick,
   isCenter,
@@ -28,8 +28,8 @@ const MegaTile = memo(function MegaTile({
   ty,
 }: {
   tileW: number;
-  offsetX: number;
-  offsetY: number;
+  worldX: number;
+  worldY: number;
   photosList: Photo[];
   onPhotoClick: (id: string) => void;
   isCenter: boolean;
@@ -58,10 +58,14 @@ const MegaTile = memo(function MegaTile({
       >
         <div className="aspect-square overflow-hidden bg-background border border-border/40 group-hover:border-primary/50 transition-all duration-300">
           <img
-            src={photo.image}
+            src={photo.thumb || photo.image}
             alt={photo.title}
             className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
             loading="lazy"
+            decoding="async"
+            fetchPriority="low"
+            width={480}
+            height={480}
             draggable={false}
           />
         </div>
@@ -81,8 +85,8 @@ const MegaTile = memo(function MegaTile({
       style={{
         width: tileW,
         height: tileW,
-        left: offsetX,
-        top: offsetY,
+        left: worldX,
+        top: worldY,
         padding: `0 ${GAP_PX}px ${GAP_PX}px 0`,
         gap: GAP_PX,
         gridTemplateColumns: `repeat(${TILE_MACRO}, minmax(0, 1fr))`,
@@ -118,6 +122,7 @@ const Photos = () => {
   const [selectedPhoto, setSelectedPhoto] = useState<string | null>(null);
   const selectedPhotoData = selectedPhoto ? photos.find((p) => p.id === selectedPhoto) : null;
   const containerRef = useRef<HTMLDivElement>(null);
+  const worldRef = useRef<HTMLDivElement>(null);
 
   const [tileW, setTileW] = useState(0);
   const [viewportW, setViewportW] = useState(0);
@@ -129,8 +134,54 @@ const Photos = () => {
   const [camY, setCamY] = useState(0);
   const initializedRef = useRef(false);
 
-  const panRef = useRef<{ x: number; y: number; camX: number; camY: number; moved: boolean; pointerId: number } | null>(null);
+  /** Live camera during drag/wheel — updated without React re-renders for smooth mobile pans. */
+  const camRef = useRef({ x: 0, y: 0 });
+  const baseTileRef = useRef({ x: 0, y: 0 });
+  const panRef = useRef<{
+    x: number;
+    y: number;
+    camX: number;
+    camY: number;
+    moved: boolean;
+    pointerId: number;
+  } | null>(null);
   const skipPhotoOpenRef = useRef(false);
+  const rafRef = useRef<number | null>(null);
+  const animationRef = useRef<number | null>(null);
+  const pendingCamRef = useRef<{ x: number; y: number } | null>(null);
+
+  const applyWorldTransform = useCallback((x: number, y: number) => {
+    const world = worldRef.current;
+    if (!world) return;
+    world.style.transform = `translate3d(${-x}px, ${-y}px, 0)`;
+  }, []);
+
+  const commitCamIfNeeded = useCallback((x: number, y: number, force = false) => {
+    if (tileW <= 0) {
+      setCamX(x);
+      setCamY(y);
+      return;
+    }
+    const bx = Math.round(x / tileW);
+    const by = Math.round(y / tileW);
+    if (force || bx !== baseTileRef.current.x || by !== baseTileRef.current.y) {
+      baseTileRef.current = { x: bx, y: by };
+      setCamX(x);
+      setCamY(y);
+    }
+  }, [tileW]);
+
+  const scheduleCamCommit = useCallback((x: number, y: number) => {
+    pendingCamRef.current = { x, y };
+    if (rafRef.current != null) return;
+    rafRef.current = requestAnimationFrame(() => {
+      rafRef.current = null;
+      const pending = pendingCamRef.current;
+      if (!pending) return;
+      pendingCamRef.current = null;
+      commitCamIfNeeded(pending.x, pending.y);
+    });
+  }, [commitCamIfNeeded]);
 
   const dismissHint = useCallback(() => {
     setShowHint(false);
@@ -177,11 +228,21 @@ const Photos = () => {
   useLayoutEffect(() => {
     if (tileW <= 0 || viewportW <= 0 || viewportH <= 0 || initializedRef.current) return;
     initializedRef.current = true;
-    setCamX(tileW / 2 - viewportW / 2);
-    setCamY(tileW / 2 - viewportH / 2);
-  }, [tileW, viewportW, viewportH]);
+    const x = tileW / 2 - viewportW / 2;
+    const y = tileW / 2 - viewportH / 2;
+    camRef.current = { x, y };
+    baseTileRef.current = { x: Math.round(x / tileW), y: Math.round(y / tileW) };
+    applyWorldTransform(x, y);
+    setCamX(x);
+    setCamY(y);
+  }, [tileW, viewportW, viewportH, applyWorldTransform]);
 
-  const animationRef = useRef<number | null>(null);
+  // Keep transform in sync when React cam state changes (recenter / wrap commits).
+  useLayoutEffect(() => {
+    if (panRef.current?.moved) return;
+    camRef.current = { x: camX, y: camY };
+    applyWorldTransform(camX, camY);
+  }, [camX, camY, applyWorldTransform]);
 
   const recenter = useCallback(() => {
     if (animationRef.current) {
@@ -190,8 +251,8 @@ const Photos = () => {
 
     const targetX = tileW / 2 - viewportW / 2;
     const targetY = tileW / 2 - viewportH / 2;
-    const startX = camX;
-    const startY = camY;
+    const startX = camRef.current.x;
+    const startY = camRef.current.y;
     const duration = 400;
     const startTime = performance.now();
 
@@ -199,19 +260,23 @@ const Photos = () => {
       const elapsed = currentTime - startTime;
       const progress = Math.min(elapsed / duration, 1);
       const eased = 1 - Math.pow(1 - progress, 3);
+      const x = startX + (targetX - startX) * eased;
+      const y = startY + (targetY - startY) * eased;
 
-      setCamX(startX + (targetX - startX) * eased);
-      setCamY(startY + (targetY - startY) * eased);
+      camRef.current = { x, y };
+      applyWorldTransform(x, y);
+      scheduleCamCommit(x, y);
 
       if (progress < 1) {
         animationRef.current = requestAnimationFrame(animate);
       } else {
         animationRef.current = null;
+        commitCamIfNeeded(x, y, true);
       }
     };
 
     animationRef.current = requestAnimationFrame(animate);
-  }, [tileW, viewportW, viewportH, camX, camY]);
+  }, [tileW, viewportW, viewportH, applyWorldTransform, scheduleCamCommit, commitCamIfNeeded]);
 
   useEffect(() => {
     const el = containerRef.current;
@@ -220,12 +285,17 @@ const Photos = () => {
       e.preventDefault();
       e.stopPropagation();
       dismissHint();
-      setCamX((x) => x + e.deltaX);
-      setCamY((y) => y + e.deltaY);
+      const next = {
+        x: camRef.current.x + e.deltaX,
+        y: camRef.current.y + e.deltaY,
+      };
+      camRef.current = next;
+      applyWorldTransform(next.x, next.y);
+      scheduleCamCommit(next.x, next.y);
     };
     el.addEventListener('wheel', handleWheel, { passive: false });
     return () => el.removeEventListener('wheel', handleWheel);
-  }, [dismissHint]);
+  }, [dismissHint, applyWorldTransform, scheduleCamCommit]);
 
   useEffect(() => {
     if (!showHint) return;
@@ -233,49 +303,96 @@ const Photos = () => {
     return () => window.clearTimeout(timer);
   }, [showHint]);
 
-  const handlePointerDown = useCallback((e: React.PointerEvent) => {
-    if (e.button !== 0) return;
-    panRef.current = { x: e.clientX, y: e.clientY, camX, camY, moved: false, pointerId: e.pointerId };
-  }, [camX, camY]);
+  // Native pointer listeners — smoother than React synthetic events on mobile touch.
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
 
-  const handlePointerMove = useCallback((e: React.PointerEvent) => {
-    const pan = panRef.current as { x: number; y: number; camX: number; camY: number; moved: boolean; pointerId: number } | null;
-    if (!pan) return;
-    const dx = e.clientX - pan.x;
-    const dy = e.clientY - pan.y;
-    if (!pan.moved && (Math.abs(dx) > 4 || Math.abs(dy) > 4)) {
-      pan.moved = true;
-      dismissHint();
-      try {
-        containerRef.current?.setPointerCapture(pan.pointerId);
-      } catch {}
-    }
-    if (pan.moved) {
-      setCamX(pan.camX - dx);
-      setCamY(pan.camY - dy);
-    }
-  }, [dismissHint]);
+    const onPointerDown = (e: PointerEvent) => {
+      if (e.button !== 0) return;
+      if (animationRef.current) {
+        cancelAnimationFrame(animationRef.current);
+        animationRef.current = null;
+      }
+      panRef.current = {
+        x: e.clientX,
+        y: e.clientY,
+        camX: camRef.current.x,
+        camY: camRef.current.y,
+        moved: false,
+        pointerId: e.pointerId,
+      };
+    };
 
-  const handlePointerUp = useCallback((e: React.PointerEvent) => {
-    const pan = panRef.current as { x: number; y: number; camX: number; camY: number; moved: boolean; pointerId: number } | null;
-    if (!pan) return;
-    if (pan.moved) {
-      skipPhotoOpenRef.current = true;
-      try {
-        containerRef.current?.releasePointerCapture(pan.pointerId);
-      } catch {}
-    }
-    panRef.current = null;
-  }, []);
+    const onPointerMove = (e: PointerEvent) => {
+      const pan = panRef.current;
+      if (!pan || e.pointerId !== pan.pointerId) return;
+      const dx = e.clientX - pan.x;
+      const dy = e.clientY - pan.y;
+      if (!pan.moved && (Math.abs(dx) > 4 || Math.abs(dy) > 4)) {
+        pan.moved = true;
+        dismissHint();
+        try {
+          el.setPointerCapture(pan.pointerId);
+        } catch {
+          /* ignore */
+        }
+      }
+      if (!pan.moved) return;
 
-  const handlePointerCancel = useCallback(() => {
-    const pan = panRef.current;
-    if (pan?.moved) {
-      try {
-        containerRef.current?.releasePointerCapture(pan.pointerId);
-      } catch {}
-    }
-    panRef.current = null;
+      const x = pan.camX - dx;
+      const y = pan.camY - dy;
+      camRef.current = { x, y };
+      applyWorldTransform(x, y);
+      scheduleCamCommit(x, y);
+    };
+
+    const endPan = (e: PointerEvent) => {
+      const pan = panRef.current;
+      if (!pan || e.pointerId !== pan.pointerId) return;
+      if (pan.moved) {
+        skipPhotoOpenRef.current = true;
+        try {
+          el.releasePointerCapture(pan.pointerId);
+        } catch {
+          /* ignore */
+        }
+        commitCamIfNeeded(camRef.current.x, camRef.current.y, true);
+      }
+      panRef.current = null;
+    };
+
+    const onPointerCancel = (e: PointerEvent) => {
+      const pan = panRef.current;
+      if (!pan || e.pointerId !== pan.pointerId) return;
+      if (pan.moved) {
+        try {
+          el.releasePointerCapture(pan.pointerId);
+        } catch {
+          /* ignore */
+        }
+        commitCamIfNeeded(camRef.current.x, camRef.current.y, true);
+      }
+      panRef.current = null;
+    };
+
+    el.addEventListener('pointerdown', onPointerDown);
+    el.addEventListener('pointermove', onPointerMove);
+    el.addEventListener('pointerup', endPan);
+    el.addEventListener('pointercancel', onPointerCancel);
+    return () => {
+      el.removeEventListener('pointerdown', onPointerDown);
+      el.removeEventListener('pointermove', onPointerMove);
+      el.removeEventListener('pointerup', endPan);
+      el.removeEventListener('pointercancel', onPointerCancel);
+    };
+  }, [dismissHint, applyWorldTransform, scheduleCamCommit, commitCamIfNeeded]);
+
+  useEffect(() => {
+    return () => {
+      if (rafRef.current != null) cancelAnimationFrame(rafRef.current);
+      if (animationRef.current != null) cancelAnimationFrame(animationRef.current);
+    };
   }, []);
 
   useEffect(() => {
@@ -302,7 +419,7 @@ const Photos = () => {
 
   const tiles = useMemo(() => {
     if (tileW <= 0 || photos.length === 0) return [];
-    const result: { tx: number; ty: number; ox: number; oy: number; isCenter: boolean }[] = [];
+    const result: { tx: number; ty: number; worldX: number; worldY: number; isCenter: boolean }[] = [];
     const baseTileX = Math.round(camX / tileW);
     const baseTileY = Math.round(camY / tileW);
     const half = Math.floor(RENDER_TILES / 2);
@@ -310,10 +427,13 @@ const Photos = () => {
       for (let dx = -half; dx <= half; dx++) {
         const tx = baseTileX + dx;
         const ty = baseTileY + dy;
-        const ox = tx * tileW - camX;
-        const oy = ty * tileW - camY;
-        const isCenter = tx === 0 && ty === 0;
-        result.push({ tx, ty, ox, oy, isCenter });
+        result.push({
+          tx,
+          ty,
+          worldX: tx * tileW,
+          worldY: ty * tileW,
+          isCenter: tx === 0 && ty === 0,
+        });
       }
     }
     return result;
@@ -321,7 +441,7 @@ const Photos = () => {
 
   if (photos.length === 0) {
     return (
-      <div className="min-h-screen bg-background pt-24 flex flex-col">
+      <div className="min-h-screen bg-background pt-20 md:pt-24 flex flex-col">
         <div className="container mx-auto px-4 md:px-6 max-w-5xl flex-grow flex flex-col items-center justify-center py-20">
           <h1 className="text-4xl font-bold font-heading mb-4 bg-primary bg-clip-text text-transparent text-center">
             Photos
@@ -341,25 +461,28 @@ const Photos = () => {
       <div
         ref={containerRef}
         className="flex-1 min-h-0 w-full overflow-hidden cursor-grab active:cursor-grabbing touch-none select-none"
-        onPointerDown={handlePointerDown}
-        onPointerMove={handlePointerMove}
-        onPointerUp={handlePointerUp}
-        onPointerCancel={handlePointerCancel}
+        style={{ touchAction: 'none', WebkitUserSelect: 'none' }}
       >
         <div className="relative w-full h-full overflow-hidden">
-          {tiles.map(({ tx, ty, ox, oy, isCenter }) => (
-            <MegaTile
-              key={`${tx},${ty}`}
-              tileW={tileW}
-              offsetX={ox}
-              offsetY={oy}
-              photosList={cyclePhotos}
-              onPhotoClick={openPhoto}
-              isCenter={isCenter}
-              tx={tx}
-              ty={ty}
-            />
-          ))}
+          <div
+            ref={worldRef}
+            className="absolute left-0 top-0 will-change-transform"
+            style={{ transform: `translate3d(${-camX}px, ${-camY}px, 0)` }}
+          >
+            {tiles.map(({ tx, ty, worldX, worldY, isCenter }) => (
+              <MegaTile
+                key={`${tx},${ty}`}
+                tileW={tileW}
+                worldX={worldX}
+                worldY={worldY}
+                photosList={cyclePhotos}
+                onPhotoClick={openPhoto}
+                isCenter={isCenter}
+                tx={tx}
+                ty={ty}
+              />
+            ))}
+          </div>
         </div>
       </div>
 
@@ -434,6 +557,8 @@ const Photos = () => {
                 src={selectedPhotoData.image}
                 alt={selectedPhotoData.title}
                 className="max-w-full max-h-[90vh] object-contain"
+                decoding="async"
+                fetchPriority="high"
               />
 
               <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-6 text-white">

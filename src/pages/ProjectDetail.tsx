@@ -58,7 +58,7 @@ const ProjectDetail = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background pt-24">
+    <div className="min-h-screen bg-background pt-20 md:pt-24">
       {/* Project Header */}
       <article id="project-detail-top" className="mx-auto w-full max-w-5xl px-4 md:px-6 scroll-mt-24">
         {/* Hero Image with Overlay */}
@@ -67,6 +67,11 @@ const ProjectDetail = () => {
             src={project.image} 
             alt={project.title}
             className="w-full h-full object-cover"
+            loading="eager"
+            decoding="async"
+            fetchPriority="high"
+            width={1400}
+            height={600}
           />
           {/* Dark overlay for better text readability */}
           <div className="absolute inset-0 bg-black/50" />

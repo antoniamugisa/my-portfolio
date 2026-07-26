@@ -61,7 +61,7 @@ const Navigation = () => {
       </nav>
 
       {/* Mobile centered pill navigation */}
-      <nav className="md:hidden fixed top-10 left-1/2 z-50 w-[calc(100%-1.5rem)] max-w-md -translate-x-1/2 pt-safe">
+      <nav className="md:hidden fixed top-5 left-1/2 z-50 w-[calc(100%-1.5rem)] max-w-md -translate-x-1/2 pt-safe">
         <div className="flex items-center justify-between gap-0.5 rounded-full border border-border/60 bg-background/80 px-1.5 py-1.5 shadow-sm backdrop-blur-md">
           <Link
             to="/"

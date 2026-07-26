@@ -3,7 +3,10 @@ export interface Photo {
   id: string;
   title: string;
   description?: string;
-  image: string; // Path to image in assets folder
+  /** Full-size image for lightbox */
+  image: string;
+  /** Small grid thumbnail (falls back to image if omitted) */
+  thumb?: string;
   date: string; // YYYY-MM-DD format
   location?: string;
   tags?: string[];

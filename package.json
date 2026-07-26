@@ -8,6 +8,7 @@
     "dev": "vite",
     "clean": "rm -rf dist",
     "fetch-data": "node scripts/fetch-bikeshare-data.mjs",
+    "optimize-images": "bash scripts/optimize-images.sh",
     "build": "npm run clean && tsc && vite build && tsx scripts/generate-blog-html.js",
     "build:dev": "npm run clean && vite build --mode development",
     "lint": "eslint .",
