@@ -17,7 +17,7 @@ const Interests = () => {
       <div className="mx-auto w-full max-w-5xl px-4 md:px-6 flex-grow">
         <section className="py-8 md:py-12 text-[15px] md:text-base leading-relaxed">
           <p className="mb-8 max-w-2xl text-foreground/70">
-            Everything I&apos;m currently consuming and have loved very much.
+            Everything I&apos;m currently consuming and have loved very much. (I'm aiming for this to be a large, living library of content I consume. Stay tuned!)
           </p>
 
           <div className="space-y-5 md:space-y-6">

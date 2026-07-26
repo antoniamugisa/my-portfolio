@@ -1,7 +1,7 @@
-import { ReactNode } from 'react';
 import anidojoImage from '@/assets/anidojo-logo.png';
+import type { Project } from './index';
 
-export const anidojoProject = {
+export const anidojoProject: Project = {
   id: "anidojo",
   title: "Anidojo",
   demoVideo: "/videos/anidojo-demo.mp4",
@@ -15,9 +15,8 @@ export const anidojoProject = {
   featured: true,
   date: "2025-11-27",
   tags: ["Machine Learning", "Recommendation System", "Anime", "Python"],
-  status: "Completed" as const,
+  status: "Completed",
   
-  // Additional project details that can be expanded
   longDescription: `
     Anidojo is a sophisticated machine learning-powered recommendation system designed specifically for anime enthusiasts. The application leverages advanced ML algorithms to analyze user preferences, viewing history, and anime characteristics to provide highly personalized recommendations.
     
@@ -36,4 +35,3 @@ export const anidojoProject = {
   futureImprovements:
     'I would explore deeper neural models for better accuracy, add social sharing around recommendations, connect to streaming platforms, and expand search and filtering so users can explore the catalog with more control.',
 };
-

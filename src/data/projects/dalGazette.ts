@@ -1,11 +1,11 @@
-import { ReactNode } from 'react';
 import dalGazetteImage from '@/assets/dal-gazette-logo.png';
+import type { Project } from './index';
 
-export const dalGazetteProject = {
+export const dalGazetteProject: Project = {
   id: "dal gazette app",
   title: "Dal Gazette App",
   demoVideo: "/videos/dal-gazette-demo.mp4",
-  thumbnailFit: "contain" as const,
+  thumbnailFit: "contain",
   description: "A mobile application for Dalhousie University's campus newspaper using React Native and TypeScript, delivering real-time news articles, event updates, and campus announcements to 5,000+ students.",
   image: dalGazetteImage,
   technologies: ["TypeScript", "Tailwind", "React Native"],
@@ -15,9 +15,8 @@ export const dalGazetteProject = {
   featured: false,
   date: "2024-09-10",
   tags: ["React Native", "TypeScript", "News", "Events", "Campus Announcements"],
-  status: "Ongoing" as const,
+  status: "Ongoing",
   
-  // Additional project details that can be expanded
   longDescription: `
     The Dal Gazette App is a comprehensive mobile application developed for Dalhousie University's official campus newspaper. The app serves over 5,000 students with real-time news articles, campus events, and important announcements, creating a centralized hub for university information and student engagement.
     

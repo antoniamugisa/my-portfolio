@@ -40,9 +40,15 @@ const Hero: React.FC = () => {
             </p>
 
             <p>
-              I love all things tech, interfaces, and playful side projects. Recently I&apos;ve been into
-              open-data visualizations, anime recommendation systems, and building tools that feel a
-              little more human.
+              I love all things tech, interfaces, and playful side{' '}
+              <Link
+                to="/projects"
+                className="text-foreground underline underline-offset-2 decoration-foreground/40 hover:decoration-foreground"
+              >
+                projects
+              </Link>
+              . Recently I&apos;ve been into open-data visualizations, anime recommendation systems,
+              and building tools that feel a little more human.
             </p>
 
             <p>

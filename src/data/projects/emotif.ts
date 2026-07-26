@@ -1,9 +1,9 @@
-import { ReactNode } from 'react';
 import emotifImage from '@/assets/emotif.png';
 // Temporarily use the same image until we can properly upload the team image
 import emotifTeamImage from '@/assets/emotif-team.jpeg';
+import type { Project } from './index';
 
-export const emotifProject = {
+export const emotifProject: Project = {
   id: "emotif",
   title: "Emotif",
   description: "An AI-powered calendar extension with Gemini AI and Firebase allowing users to log moods and receive personalized check-ins and playlist recommendations using LLM-based responses.",
@@ -17,9 +17,8 @@ export const emotifProject = {
   featured: true,
   date: "2025-01-17",
   tags: ["GenAI", "Mood Tracking", "Firebase"],
-  status: "Completed" as const,
+  status: "Completed",
 
-  // Additional project details that can be expanded
   longDescription: `
     Emotif is an innovative AI-powered calendar extension that revolutionizes how users track and understand their emotional well-being. Built with cutting-edge technology including Gemini AI and Firebase, the application provides personalized mood tracking, intelligent check-ins, and curated playlist recommendations based on user's emotional state and patterns.
     

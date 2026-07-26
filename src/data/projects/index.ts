@@ -11,7 +11,7 @@ import { dalGazetteProject } from './dalGazette';
 import { bikeShareTorontoProject } from './bikeShareToronto';
 
 // Export the projects array
-export const projects = [
+export const projects: Project[] = [
   emotifProject,
   anidojoProject,
   dalGazetteProject,
