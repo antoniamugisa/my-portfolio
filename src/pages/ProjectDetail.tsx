@@ -58,7 +58,7 @@ const ProjectDetail = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background pt-24 md:pt-28">
+    <div className="min-h-screen bg-background pt-24">
       {/* Project Header */}
       <article id="project-detail-top" className="mx-auto w-full max-w-5xl px-4 md:px-6 scroll-mt-24">
         {/* Hero Image with Overlay */}

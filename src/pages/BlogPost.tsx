@@ -152,7 +152,7 @@ const BlogPost: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background pt-24 md:pt-28">
+    <div className="min-h-screen bg-background pt-24">
       {/* Article Header */}
       <article className="mx-auto w-full max-w-5xl px-4 md:px-6">
         {/* Hero Image */}

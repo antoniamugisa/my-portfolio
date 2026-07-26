@@ -13,7 +13,7 @@ const Interests = () => {
   );
 
   return (
-    <div className="min-h-screen overflow-x-hidden bg-background pt-24 md:pt-28 flex flex-col">
+    <div className="min-h-screen overflow-x-hidden bg-background pt-24 flex flex-col">
       <div className="mx-auto w-full max-w-5xl px-4 md:px-6 flex-grow">
         <section className="py-8 md:py-12 text-[15px] md:text-base leading-relaxed">
           <p className="mb-8 max-w-2xl text-foreground/70">
