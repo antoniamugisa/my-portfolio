@@ -1,22 +1,19 @@
 // Export all projects
 export { emotifProject } from './emotif';
 export { anidojoProject } from './anidojo';
-export { socialUpProject } from './socialUp';
 export { dalGazetteProject } from './dalGazette';
 export { bikeShareTorontoProject } from './bikeShareToronto';
 
 // Import all projects for the projects array
 import { emotifProject } from './emotif';
 import { anidojoProject } from './anidojo';
-import { socialUpProject } from './socialUp';
 import { dalGazetteProject } from './dalGazette';
 import { bikeShareTorontoProject } from './bikeShareToronto';
 
 // Export the projects array
-export const projects = [
+export const projects: Project[] = [
   emotifProject,
   anidojoProject,
-  socialUpProject,
   dalGazetteProject,
   bikeShareTorontoProject,
 ];
@@ -36,11 +33,17 @@ export interface Project {
   tags: string[];
   status: 'Completed' | 'Ongoing' | 'Planned';
   longDescription?: string;
-  keyFeatures?: string[];
-  challenges?: string[];
-  learnings?: string[];
-  futureImprovements?: string[];
+  keyFeatures?: string;
+  challenges?: string;
+  learnings?: string;
+  futureImprovements?: string;
   teamImage?: string;
   teamCaption?: string;
   demoVideo?: string;
+  /** Short looping preview shown on the projects grid thumbnail */
+  thumbnailVideo?: string;
+  /** Background image behind an inset thumbnail video */
+  thumbnailBackground?: string;
+  /** How the thumbnail video fits the card. Default cover. */
+  thumbnailFit?: 'cover' | 'contain';
 }

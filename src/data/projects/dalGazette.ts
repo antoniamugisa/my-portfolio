@@ -1,10 +1,11 @@
-import { ReactNode } from 'react';
 import dalGazetteImage from '@/assets/dal-gazette-logo.png';
+import type { Project } from './index';
 
-export const dalGazetteProject = {
+export const dalGazetteProject: Project = {
   id: "dal gazette app",
   title: "Dal Gazette App",
   demoVideo: "/videos/dal-gazette-demo.mp4",
+  thumbnailFit: "contain",
   description: "A mobile application for Dalhousie University's campus newspaper using React Native and TypeScript, delivering real-time news articles, event updates, and campus announcements to 5,000+ students.",
   image: dalGazetteImage,
   technologies: ["TypeScript", "Tailwind", "React Native"],
@@ -14,42 +15,23 @@ export const dalGazetteProject = {
   featured: false,
   date: "2024-09-10",
   tags: ["React Native", "TypeScript", "News", "Events", "Campus Announcements"],
-  status: "Ongoing" as const,
+  status: "Ongoing",
   
-  // Additional project details that can be expanded
   longDescription: `
     The Dal Gazette App is a comprehensive mobile application developed for Dalhousie University's official campus newspaper. The app serves over 5,000 students with real-time news articles, campus events, and important announcements, creating a centralized hub for university information and student engagement.
     
     Built with React Native and TypeScript, the application provides a native mobile experience across iOS and Android platforms. The app features real-time content updates, push notifications for breaking news, and an intuitive interface designed specifically for the university community.
   `,
   
-  keyFeatures: [
-    "Real-time news article delivery",
-    "Campus event calendar and updates",
-    "Push notifications for important announcements",
-    "Cross-platform mobile compatibility",
-    "User-friendly interface for students",
-    "Offline reading capabilities"
-  ],
-  
-  challenges: [
-    "Managing real-time content updates for large user base",
-    "Ensuring cross-platform compatibility",
-    "Implementing efficient push notification system",
-    "Designing intuitive interface for diverse student population"
-  ],
-  
-  learnings: [
-    "React Native development and deployment",
-    "Real-time data management",
-    "Mobile app performance optimization",
-    "User experience design for educational institutions"
-  ],
-  
-  futureImprovements: [
-    "Add user authentication and personalization",
-    "Implement social features for student interaction",
-    "Add multimedia content support",
-    "Integrate with university systems for seamless data flow"
-  ]
+  keyFeatures:
+    'The Dal Gazette App delivers campus news in real time, alongside an event calendar and push notifications for important announcements. Built with React Native and TypeScript, it runs on both iOS and Android with a student-friendly interface and offline reading when connectivity drops.',
+
+  challenges:
+    'Supporting thousands of students meant solving reliable real-time updates, keeping behavior consistent across platforms, building an efficient push notification pipeline, and designing an interface that works for a wide range of students.',
+
+  learnings:
+    'I learned React Native development and release workflows, real-time content management on mobile, performance tuning for campus-scale usage, and how to design UX that fits an educational community.',
+
+  futureImprovements:
+    'Future work includes authentication and personalization, light social features for student discussion, richer multimedia in articles, and tighter integration with university systems so content stays in sync automatically.',
 };

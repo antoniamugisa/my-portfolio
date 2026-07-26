@@ -15,9 +15,9 @@ export function ThemeToggle() {
       title={`Currently in ${theme} mode - click to switch`}
     >
       {theme === 'light' ? (
-        <Sun className="h-5 w-5" />
-      ) : (
         <Moon className="h-5 w-5" />
+      ) : (
+        <Sun className="h-5 w-5" />
       )}
     </Button>
   );

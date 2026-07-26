@@ -118,22 +118,54 @@ export const ActiveRidesPanel = memo(
 
       return (
         <>
-          <div className="sm:hidden fixed top-3 right-1 z-10 bg-black/30 backdrop-blur-sm text-white/80 px-1.5 py-1 rounded-lg text-right text-[10px]">
-            <div className="flex items-baseline justify-end gap-0.5">
-              <span ref={mobileRidesRef} className="tabular-nums">
-                {ridesCount}
-              </span>
-              <span className="text-white/50">rides</span>
+          {/* In-flow mobile card — sits in the bottom banners strip (not fixed over the exit button). */}
+          <div className="bs-active-rides-mobile">
+            <div className="bs-active-rides-mobile__stats">
+              <div className="bs-active-rides-mobile__rides">
+                <span ref={mobileRidesRef} className="bs-active-rides-mobile__rides-n">
+                  {ridesCount}
+                </span>
+                <span className="bs-active-rides-mobile__rides-l">rides</span>
+              </div>
+              <div ref={mobileFpsRef} className="bs-active-rides-mobile__fps">
+                {fps == null ? '— fps' : `${fps} fps`}
+              </div>
             </div>
-            <div className="flex items-baseline justify-end gap-0.5 text-white/40">
-              <span ref={mobileFpsRef} className="tabular-nums">
-                {fps == null ? '—' : fps}
-              </span>
-              <span>fps</span>
-            </div>
+            <svg
+              width="100%"
+              height={36}
+              viewBox={`0 0 ${GRAPH_WIDTH} ${GRAPH_HEIGHT}`}
+              preserveAspectRatio="none"
+              className="bs-active-rides-mobile__spark"
+              role="img"
+              aria-hidden
+            >
+              {hasData ? (
+                <path
+                  d={linePath}
+                  fill="none"
+                  stroke="rgba(125, 207, 255, 0.9)"
+                  strokeWidth={1.5}
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  vectorEffect="non-scaling-stroke"
+                />
+              ) : (
+                <text
+                  x={GRAPH_WIDTH / 2}
+                  y={GRAPH_HEIGHT / 2}
+                  textAnchor="middle"
+                  dominantBaseline="middle"
+                  fill="rgba(255, 255, 255, 0.3)"
+                  fontSize={9}
+                >
+                  No data
+                </text>
+              )}
+            </svg>
           </div>
 
-          <div className="hidden sm:block bg-black/45 backdrop-blur-md text-white/90 px-3 py-2 rounded-xl border border-white/10 shadow-[0_0_24px_rgba(0,0,0,0.6)] w-[200px] relative">
+          <div className="bs-active-rides-desktop bg-black/45 backdrop-blur-md text-white/90 px-3 py-2 rounded-xl border border-white/10 shadow-[0_0_24px_rgba(0,0,0,0.6)] w-[200px] relative">
             <div
               className="absolute top-2 right-2"
               style={{ transform: `rotate(${-bearing}deg)` }}

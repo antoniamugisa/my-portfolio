@@ -1,14 +1,13 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { useParams, Navigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Clock, Share2, User, Heart } from 'lucide-react';
+import { Clock, Share2, User } from 'lucide-react';
 import { blogPosts } from '@/data/blog';
 import { useToast } from '@/hooks/use-toast';
 import ReactMarkdown, { Components } from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import rehypeRaw from 'rehype-raw';
 import LinkPreview from '@/components/LinkPreview';
-import { supabase, isSupabaseConfigured, getOrCreateFingerprint } from '@/lib/supabase';
 
 // Define a type for code block props
 type CodeRendererProps = {
@@ -41,7 +40,7 @@ const markdownComponents: Components = {
   // Paragraphs
   p({ children, ...props }) {
     return (
-      <p className="mb-4 text-foreground/80 leading-relaxed" {...props}>
+      <p className="mb-4 font-normal text-[15px] md:text-base text-foreground/70 leading-relaxed" {...props}>
         {children}
       </p>
     );
@@ -49,28 +48,28 @@ const markdownComponents: Components = {
   // Headings
   h1({ children, ...props }) {
     return (
-      <h1 className="text-4xl font-bold mt-8 mb-4" {...props}>
+      <h1 className="mt-8 mb-4 font-normal text-[15px] md:text-base text-foreground leading-relaxed" {...props}>
         {children}
       </h1>
     );
   },
   h2({ children, ...props }) {
     return (
-      <h2 className="text-3xl font-semibold mt-8 mb-4" {...props}>
+      <h2 className="mt-8 mb-4 font-normal text-[15px] md:text-base text-foreground leading-relaxed" {...props}>
         {children}
       </h2>
     );
   },
   h3({ children, ...props }) {
     return (
-      <h3 className="text-2xl font-medium mt-6 mb-3" {...props}>
+      <h3 className="mt-6 mb-3 font-normal text-[15px] md:text-base text-foreground leading-relaxed" {...props}>
         {children}
       </h3>
     );
   },
   li({ children, ...props }) {
     return (
-      <li className="ml-6 mb-2 list-disc" {...props}>
+      <li className="ml-6 mb-2 list-disc font-normal text-[15px] md:text-base text-foreground/70 leading-relaxed" {...props}>
         {children}
       </li>
     );
@@ -114,53 +113,8 @@ const markdownComponents: Components = {
 const BlogPost: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const { toast } = useToast();
-  const [liked, setLiked] = useState(false);
-  const [likeCount, setLikeCount] = useState(0);
-  const [likesLoading, setLikesLoading] = useState(true);
 
   const post = blogPosts.find((p) => p.id === id);
-
-  useEffect(() => {
-    if (!post || !supabase) {
-      setLikesLoading(false);
-      return;
-    }
-    const fingerprint = getOrCreateFingerprint();
-
-    (async () => {
-      try {
-        const [countRes, likeRes] = await Promise.all([
-          supabase.from('blog_likes').select('*', { count: 'exact', head: true }).eq('post_id', post.id),
-          supabase.from('blog_likes').select('post_id').eq('post_id', post.id).eq('fingerprint', fingerprint).maybeSingle(),
-        ]);
-        setLikeCount(countRes.count ?? 0);
-        setLiked(likeRes.data !== null);
-      } catch {
-        setLikeCount(0);
-        setLiked(false);
-      } finally {
-        setLikesLoading(false);
-      }
-    })();
-  }, [post?.id]);
-
-  const handleLike = async () => {
-    if (!post || !supabase) return;
-    const fingerprint = getOrCreateFingerprint();
-    if (liked) {
-      const { error } = await supabase.rpc('delete_my_blog_like', { p_post_id: post.id, p_fingerprint: fingerprint });
-      if (!error) {
-        setLiked(false);
-        setLikeCount((c) => Math.max(0, c - 1));
-      }
-    } else {
-      const { error } = await supabase.rpc('insert_blog_like', { p_post_id: post.id, p_fingerprint: fingerprint });
-      if (!error) {
-        setLiked(true);
-        setLikeCount((c) => c + 1);
-      }
-    }
-  };
 
   if (!post) {
     return <Navigate to="/blog" replace />;
@@ -198,9 +152,9 @@ const BlogPost: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background md:ml-56 md:mr-32 pt-24 md:pt-16">
+    <div className="min-h-screen bg-background pt-24">
       {/* Article Header */}
-      <article className="container mx-auto px-6 max-w-5xl">
+      <article className="mx-auto w-full max-w-5xl px-4 md:px-6">
         {/* Hero Image */}
         <div className="relative h-[520px] sm:h-[600px] md:h-auto md:aspect-[21/9] overflow-hidden rounded-lg mb-8 shadow-card">
           <img src={post.image} alt={post.title} className="w-full h-full object-cover" />
@@ -223,11 +177,11 @@ const BlogPost: React.FC = () => {
             </div>
 
             {/* Title & Description */}
-            <div className="space-y-3">
-              <div className="text-white/90 text-sm font-medium">{formatDate(post.date)}</div>
-              <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white leading-tight">{post.title}</h1>
+            <div className="space-y-3 text-[15px] md:text-base leading-relaxed">
+              <div className="text-white/90 font-normal">{formatDate(post.date)}</div>
+              <h1 className="font-normal text-white leading-relaxed">{post.title}</h1>
               <p
-                className="text-white/90 text-base md:text-lg leading-relaxed max-w-2xl"
+                className="text-white/90 font-normal leading-relaxed max-w-2xl"
                 dangerouslySetInnerHTML={{ __html: post.description }}
               />
             </div>
@@ -235,16 +189,16 @@ const BlogPost: React.FC = () => {
         </div>
 
         {/* Article Meta */}
-        <div className="mb-8">
+        <div className="mb-8 text-[15px] md:text-base">
           <div className="flex items-center justify-between border-b border-border pb-6">
-            <div className="flex flex-wrap items-center gap-6 text-muted-foreground">
+            <div className="flex flex-wrap items-center gap-6 text-foreground/70">
               <div className="flex items-center gap-2">
                 <User className="w-4 h-4" />
-                <span>{post.author}</span>
+                <span className="font-normal">{post.author}</span>
               </div>
               <div className="flex items-center gap-2">
                 <Clock className="w-4 h-4" />
-                <span>{post.readTime} min read</span>
+                <span className="font-normal">{post.readTime} min read</span>
               </div>
             </div>
 
@@ -256,7 +210,7 @@ const BlogPost: React.FC = () => {
         </div>
 
         {/* Article Content */}
-        <div className="prose prose-lg max-w-none mb-12">
+        <div className="max-w-none mb-12 pb-16 text-[15px] md:text-base">
           <ReactMarkdown
             remarkPlugins={[remarkGfm]}
             rehypePlugins={[rehypeRaw]}
@@ -265,36 +219,8 @@ const BlogPost: React.FC = () => {
             {post.content}
           </ReactMarkdown>
         </div>
-
-        {/* Like section at end of article */}
-        {isSupabaseConfigured() ? (
-          <div className="border-t border-border pt-8 pb-16">
-            <div className="flex flex-wrap items-center gap-4">
-              <Button
-                variant="outline"
-                size="default"
-                onClick={handleLike}
-                disabled={likesLoading}
-              >
-                <Heart
-                  className={`w-5 h-5 mr-2 ${liked ? 'fill-rose-500 text-rose-500' : ''}`}
-                />
-                {likesLoading ? '...' : null}
-                <span className="ml-2 tabular-nums">{!likesLoading && likeCount}</span>
-              </Button>
-            </div>
-          </div>
-        ) : null}
       </article>
 
-      {/* Footer */}
-      <footer className="py-6 bg-background pb-16 md:pb-6">
-        <div className="container mx-auto px-6 flex flex-col items-center gap-2 text-center md:flex-row md:justify-between md:text-left">
-          <span className="inline-flex items-center rounded-full border border-border px-3 py-1 text-xs font-medium text-foreground/70 bg-background/60">
-            Version: <span className="ml-1 mr-1.5 font-semibold">v3</span>| Last updated: <span className="ml-1 font-semibold">01/04/2026</span>
-          </span>
-        </div>
-      </footer>
     </div>
   );
 };

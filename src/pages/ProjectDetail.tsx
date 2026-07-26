@@ -1,9 +1,8 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useParams, Navigate } from 'react-router-dom';
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { ExternalLink, Github, Calendar, Play } from 'lucide-react';
+import { ExternalLink, Github, Play } from 'lucide-react';
 import { projects } from '@/data/portfolio';
 import { Project } from '@/data/projects';
 import BikeShareTorontoPage from '@/pages/bike-share-toronto/page';
@@ -59,9 +58,9 @@ const ProjectDetail = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background md:ml-56 md:mr-32 pt-24 md:pt-16">
+    <div className="min-h-screen bg-background pt-24">
       {/* Project Header */}
-      <article id="project-detail-top" className="container mx-auto px-6 max-w-5xl scroll-mt-24">
+      <article id="project-detail-top" className="mx-auto w-full max-w-5xl px-4 md:px-6 scroll-mt-24">
         {/* Hero Image with Overlay */}
         <div className="relative aspect-[4/3] md:aspect-[21/9] min-h-[250px] md:min-h-[400px] overflow-hidden rounded-lg mb-8 shadow-card bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-900">
           <img 
@@ -94,56 +93,28 @@ const ProjectDetail = () => {
             </div>
 
             {/* Bottom Left - Date, Title, Subtitle */}
-            <div className="space-y-2 md:space-y-3">
-              {/* Date */}
-              <div className="text-white/90 text-xs md:text-sm font-medium">
+            <div className="space-y-2 text-[15px] md:text-base leading-relaxed">
+              <div className="text-white/90 font-normal">
                 {formatDate(project.date)}
               </div>
               
-              {/* Title */}
-              <h1 className="text-2xl md:text-4xl lg:text-5xl font-bold text-white leading-tight">
+              <h1 className="font-normal text-white leading-relaxed">
                 {project.title}
               </h1>
               
-              {/* Subtitle/Description */}
-              <p className="text-white/90 text-sm md:text-xl leading-relaxed max-w-2xl">
+              <p className="text-white/90 font-normal leading-relaxed max-w-2xl">
                 {project.description}
               </p>
             </div>
           </div>
         </div>
 
-        {/* Project Meta */}
-        <div className="mb-8">
-          <div className="flex items-center justify-between border-b border-border pb-6">
-            <div className="flex flex-wrap items-center gap-6 text-muted-foreground">
-              <div className="flex items-center gap-2">
-                <Badge variant="secondary" className="bg-primary/10 text-primary border-primary/20">
-                  {project.category}
-                </Badge>
-              </div>
-              <div className="flex items-center gap-2">
-                <Badge 
-                  variant="outline" 
-                  className={`text-sm ${
-                    project.status === 'Completed' 
-                      ? 'border-green-500/50 text-green-600 dark:text-green-400' 
-                      : project.status === 'Ongoing'
-                      ? 'border-yellow-500/50 text-yellow-600 dark:text-yellow-400'
-                      : 'border-blue-500/50 text-blue-600 dark:text-blue-400'
-                  }`}
-                >
-                  {project.status}
-                </Badge>
-              </div>
-              <div className="flex items-center gap-2">
-                <Calendar className="w-4 h-4" />
-                <span>{formatDate(project.date)}</span>
-              </div>
-            </div>
-            
-            <div className="flex gap-3">
-              {project.demoUrl && project.demoUrl !== "#" && (
+        {/* Actions */}
+        {(project.demoUrl && project.demoUrl !== '#') ||
+        (project.githubUrl && project.githubUrl !== '#') ? (
+          <div className="mb-8">
+            <div className="flex flex-wrap items-center gap-3 border-b border-border pb-6">
+              {project.demoUrl && project.demoUrl !== '#' && (
                 project.demoUrl.startsWith('#') ? (
                   project.id === 'bike-share-toronto' ? (
                     <Button
@@ -181,7 +152,7 @@ const ProjectDetail = () => {
                   </Button>
                 )
               )}
-              {project.githubUrl && project.githubUrl !== "#" && (
+              {project.githubUrl && project.githubUrl !== '#' && (
                 <Button variant="outline" asChild>
                   <a href={project.githubUrl} target="_blank" rel="noopener noreferrer">
                     <Github className="w-4 h-4 mr-2" />
@@ -191,70 +162,29 @@ const ProjectDetail = () => {
               )}
             </div>
           </div>
-        </div>
+        ) : null}
 
         {/* Project Details */}
-        <div className="prose prose-lg max-w-none mb-16">
-          {/* Additional Project Information */}
-          <div className="mb-8 p-6 bg-background rounded-lg border border-border/40">
-            <h3 className="text-xl font-semibold mb-4 text-foreground">Project details</h3>
-            <div className="grid md:grid-cols-2 gap-4 text-sm">
-              <div>
-                <span className="font-medium text-foreground">Category:</span>
-                <span className="ml-2 text-foreground/80">{project.category}</span>
-              </div>
-              <div>
-                <span className="font-medium text-foreground">Date:</span>
-                <span className="ml-2 text-foreground/80">{formatDate(project.date)}</span>
-              </div>
-              <div>
-                <span className="font-medium text-foreground">Status:</span>
-                <span className="ml-2 text-foreground/80">{project.status}</span>
-              </div>
-              <div>
-                <span className="font-medium text-foreground">Featured:</span>
-                <span className="ml-2 text-foreground/80">{project.featured ? 'Yes' : 'No'}</span>
-              </div>
-            </div>
-          </div>
-
-          <div className="grid md:grid-cols-2 gap-8">
-            {/* Technologies Used */}
-            <div>
-              <h2 className="text-2xl font-bold mb-4 text-foreground">Technologies Used</h2>
-              <div className="flex flex-wrap gap-2">
-                {project.technologies.map((tech, index) => (
-                  <Badge key={index} variant="outline" className="text-sm">
-                    {tech}
-                  </Badge>
-                ))}
-              </div>
-            </div>
-
-            {/* Project Tags */}
-            <div>
-              <h2 className="text-2xl font-bold mb-4 text-foreground">Tags</h2>
-              <div className="flex flex-wrap gap-2">
-                {project.tags.map((tag, index) => (
-                  <Badge key={index} variant="secondary" className="text-sm">
-                    {tag}
-                  </Badge>
-                ))}
-              </div>
-            </div>
-          </div>
-
+        <div className="mb-16 space-y-8 text-[15px] md:text-base text-foreground/70 leading-relaxed">
           {/* Project Description */}
-          <div className="mt-8">
-            <h2 className="text-2xl font-bold mb-4 text-foreground">About This Project</h2>
-            <p className="text-foreground/80 leading-relaxed text-lg">
-              {project.description}
-            </p>
+          <div>
+            <h2 className="mb-4 font-normal text-foreground leading-relaxed">About This Project</h2>
+            <div className="space-y-4">
+              <p className="font-normal leading-relaxed">
+                {project.description}
+              </p>
+
+              {project.longDescription && (
+                <p className="font-normal leading-relaxed whitespace-pre-line">
+                  {project.longDescription.trim()}
+                </p>
+              )}
+            </div>
 
             {/* Demo Video */}
             {project.demoVideo && (
               <div className="mt-8">
-                <h3 className="text-xl font-semibold mb-4 text-foreground">Demo</h3>
+                <h3 className="mb-4 font-normal text-foreground leading-relaxed">Demo</h3>
                 <video
                   controls
                   className="w-full rounded-lg shadow-md"
@@ -265,113 +195,74 @@ const ProjectDetail = () => {
                 </video>
               </div>
             )}
-            
-            {/* Long Description */}
-            {project.longDescription && (
-              <div className="mt-6">
-                <p className="text-foreground/80 leading-relaxed text-lg whitespace-pre-line">
-                  {project.longDescription}
-                </p>
-              </div>
-            )}
           </div>
-
-
-          {/* Key Features */}
-          {project.keyFeatures && project.keyFeatures.length > 0 && (
-            <div className="mt-8">
-              <h2 className="text-2xl font-bold mb-4 text-foreground">Key Features</h2>
-              <ul className="space-y-2">
-                {project.keyFeatures.map((feature, index) => (
-                  <li key={index} className="flex items-start">
-                    <span className="text-primary mr-3 mt-1">•</span>
-                    <span className="text-foreground/80 leading-relaxed">{feature}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
-
-          {/* Challenges */}
-          {project.challenges && project.challenges.length > 0 && (
-            <div className="mt-8">
-              <h2 className="text-2xl font-bold mb-4 text-foreground">Challenges</h2>
-              <ul className="space-y-2">
-                {project.challenges.map((challenge, index) => (
-                  <li key={index} className="flex items-start">
-                    <span className="text-primary mr-3 mt-1">•</span>
-                    <span className="text-foreground/80 leading-relaxed">{challenge}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
-
-          {/* Learnings */}
-          {project.learnings && project.learnings.length > 0 && (
-            <div className="mt-8">
-              <h2 className="text-2xl font-bold mb-4 text-foreground">What I Learned</h2>
-              <ul className="space-y-2">
-                {project.learnings.map((learning, index) => (
-                  <li key={index} className="flex items-start">
-                    <span className="text-primary mr-3 mt-1">•</span>
-                    <span className="text-foreground/80 leading-relaxed">{learning}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
-
-          {/* Future Improvements */}
-          {project.futureImprovements && project.futureImprovements.length > 0 && (
-            <div className="mt-8">
-              <h2 className="text-2xl font-bold mb-4 text-foreground">Future Improvements</h2>
-              <ul className="space-y-2">
-                {project.futureImprovements.map((improvement, index) => (
-                  <li key={index} className="flex items-start">
-                    <span className="text-primary mr-3 mt-1">•</span>
-                    <span className="text-foreground/80 leading-relaxed">{improvement}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
 
           {/* Team Image */}
           {project.teamImage && (
-            <div className="mt-12">
-              <h2 className="text-2xl font-bold mb-4 text-foreground">The Team</h2>
-              <div className="rounded-lg overflow-hidden shadow-md">
-                <img 
-                  src={project.teamImage} 
+            <div>
+              <h2 className="mb-4 font-normal text-foreground leading-relaxed">The Team</h2>
+              <div className="mx-auto max-w-md">
+                <img
+                  src={project.teamImage}
                   alt={project.teamCaption || `${project.title} team`}
-                  className="w-full h-auto"
+                  className="w-full h-auto rounded-lg"
                 />
                 {project.teamCaption && (
-                  <p className="py-3 px-4 text-center text-sm text-foreground/70 bg-background border-t border-border/40">
+                  <p className="mt-2 text-center text-foreground/70">
                     {project.teamCaption}
                   </p>
                 )}
               </div>
             </div>
           )}
+
+          {/* Key Features */}
+          {project.keyFeatures && (
+            <div>
+              <h2 className="mb-4 font-normal text-foreground leading-relaxed">Key Features</h2>
+              <p className="font-normal leading-relaxed whitespace-pre-line">
+                {project.keyFeatures}
+              </p>
+            </div>
+          )}
+
+          {/* Challenges */}
+          {project.challenges && (
+            <div>
+              <h2 className="mb-4 font-normal text-foreground leading-relaxed">Challenges</h2>
+              <p className="font-normal leading-relaxed whitespace-pre-line">
+                {project.challenges}
+              </p>
+            </div>
+          )}
+
+          {/* Learnings */}
+          {project.learnings && (
+            <div>
+              <h2 className="mb-4 font-normal text-foreground leading-relaxed">What I Learned</h2>
+              <p className="font-normal leading-relaxed whitespace-pre-line">
+                {project.learnings}
+              </p>
+            </div>
+          )}
+
+          {/* Future Improvements */}
+          {project.futureImprovements && (
+            <div>
+              <h2 className="mb-4 font-normal text-foreground leading-relaxed">Future Improvements</h2>
+              <p className="font-normal leading-relaxed whitespace-pre-line">
+                {project.futureImprovements}
+              </p>
+            </div>
+          )}
         </div>
       </article>
-
-      {/* Footer */}
-      <footer className="py-6 bg-background pb-16 md:pb-6">
-        <div className="container mx-auto px-6 flex flex-col items-center gap-2 text-center md:flex-row md:justify-between md:text-left">
-          <span className="inline-flex items-center rounded-full border border-border px-3 py-1 text-xs font-medium text-foreground/70 bg-background/60">
-            Version: <span className="ml-1 mr-1.5 font-semibold">v3</span>| Last updated: <span className="ml-1 font-semibold">01/04/2026</span>
-          </span>
-        </div>
-      </footer>
 
       {bikeDemoOpen &&
         project.id === 'bike-share-toronto' &&
         createPortal(
           <div
-            className="fixed inset-0 z-[100] bg-[#050505]"
+            className="fixed inset-0 z-[100] h-[100dvh] max-h-[100dvh] overflow-hidden bg-[#050505] overscroll-none"
             role="dialog"
             aria-modal="true"
             aria-label="Bike Share Toronto live demo"

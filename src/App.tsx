@@ -6,6 +6,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ThemeProvider } from '@/contexts/ThemeContext';
 import Navigation from "./components/Navigation";
+import VersionMark from "./components/VersionMark";
 import Index from "./pages/Index";
 import Blog from "./pages/Blog";
 import BlogPost from "./pages/BlogPost";
@@ -61,12 +62,8 @@ const AppContent = () => {
     };
   }, []);
 
-  // Scroll to top on route change, but not when navigating to home with a hash
+  // Scroll to top on route change
   useEffect(() => {
-    // Don't scroll to top if navigating to home page with a hash (for section navigation)
-    if (location.pathname === '/' && location.hash) {
-      return;
-    }
     // Bike Share project scrolls to #bike-share-demo from ProjectDetail after mount
     if (
       location.pathname === '/projects/bike-share-toronto' &&
@@ -86,6 +83,7 @@ const AppContent = () => {
         isLoading ? 'opacity-0' : 'opacity-100'
       }`}>
         <Navigation />
+        <VersionMark />
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/blog" element={<Blog />} />
