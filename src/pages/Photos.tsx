@@ -122,6 +122,7 @@ const Photos = () => {
   const [tileW, setTileW] = useState(0);
   const [viewportW, setViewportW] = useState(0);
   const [viewportH, setViewportH] = useState(0);
+  const [showHint, setShowHint] = useState(true);
 
   /** Camera position (top-left of viewport in world coords). Start centered on center tile. */
   const [camX, setCamX] = useState(0);
@@ -130,6 +131,10 @@ const Photos = () => {
 
   const panRef = useRef<{ x: number; y: number; camX: number; camY: number; moved: boolean; pointerId: number } | null>(null);
   const skipPhotoOpenRef = useRef(false);
+
+  const dismissHint = useCallback(() => {
+    setShowHint(false);
+  }, []);
 
   const openPhoto = useCallback((id: string) => {
     if (skipPhotoOpenRef.current) {
@@ -214,12 +219,19 @@ const Photos = () => {
     const handleWheel = (e: WheelEvent) => {
       e.preventDefault();
       e.stopPropagation();
+      dismissHint();
       setCamX((x) => x + e.deltaX);
       setCamY((y) => y + e.deltaY);
     };
     el.addEventListener('wheel', handleWheel, { passive: false });
     return () => el.removeEventListener('wheel', handleWheel);
-  }, []);
+  }, [dismissHint]);
+
+  useEffect(() => {
+    if (!showHint) return;
+    const timer = window.setTimeout(() => setShowHint(false), 4500);
+    return () => window.clearTimeout(timer);
+  }, [showHint]);
 
   const handlePointerDown = useCallback((e: React.PointerEvent) => {
     if (e.button !== 0) return;
@@ -233,6 +245,7 @@ const Photos = () => {
     const dy = e.clientY - pan.y;
     if (!pan.moved && (Math.abs(dx) > 4 || Math.abs(dy) > 4)) {
       pan.moved = true;
+      dismissHint();
       try {
         containerRef.current?.setPointerCapture(pan.pointerId);
       } catch {}
@@ -241,7 +254,7 @@ const Photos = () => {
       setCamX(pan.camX - dx);
       setCamY(pan.camY - dy);
     }
-  }, []);
+  }, [dismissHint]);
 
   const handlePointerUp = useCallback((e: React.PointerEvent) => {
     const pan = panRef.current as { x: number; y: number; camX: number; camY: number; moved: boolean; pointerId: number } | null;
@@ -349,6 +362,17 @@ const Photos = () => {
           ))}
         </div>
       </div>
+
+      {showHint && (
+        <div
+          className="pointer-events-none absolute inset-x-0 bottom-24 z-30 flex justify-center px-4 md:bottom-28"
+          aria-hidden
+        >
+          <p className="rounded-full border border-border/50 bg-background/85 px-4 py-2 text-[13px] md:text-sm text-foreground/70 shadow-sm backdrop-blur-sm animate-in fade-in duration-500">
+            Drag to explore
+          </p>
+        </div>
+      )}
 
       <button
         type="button"
