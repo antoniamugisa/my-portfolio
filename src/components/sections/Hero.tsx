@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { Github, Linkedin, Download, Send } from 'lucide-react';
 import { XLogo } from '@/components/ui/x-logo';
 
@@ -45,8 +46,28 @@ const Hero: React.FC = () => {
             </p>
 
             <p>
-              Outside of software, you can find me shooting film, deep in anime and
-              games, and spending time with my family in South Africa.
+              Outside of software, you can find me shooting{' '}
+              <Link
+                to="/photos"
+                className="text-foreground underline underline-offset-2 decoration-foreground/40 hover:decoration-foreground"
+              >
+                film
+              </Link>
+              , deep in{' '}
+              <Link
+                to="/interests"
+                className="text-foreground underline underline-offset-2 decoration-foreground/40 hover:decoration-foreground"
+              >
+                anime
+              </Link>{' '}
+              and{' '}
+              <Link
+                to="/interests"
+                className="text-foreground underline underline-offset-2 decoration-foreground/40 hover:decoration-foreground"
+              >
+                games
+              </Link>
+              , and spending time with my family in South Africa.
             </p>
           </div>
 

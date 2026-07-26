@@ -517,12 +517,13 @@
   top: max(14px, env(safe-area-inset-top, 0px));
 }
 
-/* Fullscreen: original narrow banners (200px) just below the X */
+/* Fullscreen: narrow banners below the exit button with clear gap */
 .bs-page--fullscreen .bs-map-banners-stack {
   --bs-map-banner-w: 200px;
   --bs-map-banner-h: 168px;
   --bs-insights-banner-min-h: 320px;
-  top: calc(56px + env(safe-area-inset-top, 0px));
+  /* Exit is 44px at top:12 → ends ~56px; leave ~16px breathing room */
+  top: calc(72px + env(safe-area-inset-top, 0px));
   right: max(16px, env(safe-area-inset-right, 0px));
   left: auto;
   width: var(--bs-map-banner-w);
