@@ -8,6 +8,8 @@ export const emotifProject = {
   title: "Emotif",
   description: "An AI-powered calendar extension with Gemini AI and Firebase allowing users to log moods and receive personalized check-ins and playlist recommendations using LLM-based responses.",
   image: emotifImage,
+  thumbnailVideo: "/images/projects/emotif.mp4",
+  thumbnailBackground: "/images/projects/emotif-bg.png",
   technologies: ["React", "TypeScript", "Vite", "Tailwind CSS", "shadcn/ui", "React Router"],
   category: "Frontend",
   demoUrl: "https://devpost.com/software/wits-you-can-change-this-at-any-time",

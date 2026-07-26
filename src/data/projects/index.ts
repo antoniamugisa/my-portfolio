@@ -40,4 +40,10 @@ export interface Project {
   teamImage?: string;
   teamCaption?: string;
   demoVideo?: string;
+  /** Short looping preview shown on the projects grid thumbnail */
+  thumbnailVideo?: string;
+  /** Background image behind an inset thumbnail video */
+  thumbnailBackground?: string;
+  /** How the thumbnail video fits the card. Default cover. */
+  thumbnailFit?: 'cover' | 'contain';
 }

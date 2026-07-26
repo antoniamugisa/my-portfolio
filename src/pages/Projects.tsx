@@ -13,18 +13,61 @@ const Projects = () => {
             Things I&apos;ve built that I&apos;m proud of and still like talking about.
           </p>
           <div className="grid md:grid-cols-2 gap-6 md:gap-8">
-            {projects.map((project) => (
+            {projects.map((project) => {
+              const previewVideo = project.thumbnailVideo || project.demoVideo;
+              const fitToVideo = project.thumbnailFit === 'contain';
+              return (
               <Link
                 key={project.id}
                 to={`/projects/${project.id}`}
                 className="group block"
               >
-                <div className="h-64 md:h-72 overflow-hidden rounded-lg bg-muted/40">
-                  <img
-                    src={project.image}
-                    alt={project.title}
-                    className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.03]"
-                  />
+                <div
+                  className={
+                    fitToVideo
+                      ? 'overflow-hidden rounded-lg bg-muted/40'
+                      : 'relative h-64 md:h-72 overflow-hidden rounded-lg bg-muted/40'
+                  }
+                >
+                  {previewVideo && project.thumbnailBackground ? (
+                    <>
+                      <img
+                        src={project.thumbnailBackground}
+                        alt=""
+                        className="absolute inset-0 h-full w-full object-cover"
+                      />
+                      <div className="absolute inset-0 flex items-center justify-center p-4 md:p-5">
+                        <video
+                          src={previewVideo}
+                          autoPlay
+                          muted
+                          loop
+                          playsInline
+                          className="max-h-full w-full max-w-[94%] rounded-lg object-contain shadow-lg"
+                        />
+                      </div>
+                    </>
+                  ) : previewVideo ? (
+                    <video
+                      src={previewVideo}
+                      poster={project.image}
+                      autoPlay
+                      muted
+                      loop
+                      playsInline
+                      className={
+                        fitToVideo
+                          ? 'block w-full h-auto'
+                          : 'h-full w-full object-cover'
+                      }
+                    />
+                  ) : (
+                    <img
+                      src={project.image}
+                      alt={project.title}
+                      className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.03]"
+                    />
+                  )}
                 </div>
 
                 <p className="mt-2 text-[15px] md:text-base font-normal text-foreground/45 leading-relaxed">
@@ -34,7 +77,8 @@ const Projects = () => {
                   {project.title}
                 </h2>
               </Link>
-            ))}
+              );
+            })}
           </div>
 
           <div className="h-32 md:h-16"></div>

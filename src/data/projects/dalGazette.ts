@@ -5,6 +5,7 @@ export const dalGazetteProject = {
   id: "dal gazette app",
   title: "Dal Gazette App",
   demoVideo: "/videos/dal-gazette-demo.mp4",
+  thumbnailFit: "contain" as const,
   description: "A mobile application for Dalhousie University's campus newspaper using React Native and TypeScript, delivering real-time news articles, event updates, and campus announcements to 5,000+ students.",
   image: dalGazetteImage,
   technologies: ["TypeScript", "Tailwind", "React Native"],

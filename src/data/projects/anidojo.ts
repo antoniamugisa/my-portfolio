@@ -5,6 +5,7 @@ export const anidojoProject = {
   id: "anidojo",
   title: "Anidojo",
   demoVideo: "/videos/anidojo-demo.mp4",
+  thumbnailBackground: "/images/projects/anidojo-bg.png",
   description: "Machine learning-powered recommendation system that suggests anime based on user preferences and viewing history. Built with Python and React.",
   image: anidojoImage,
   technologies: ["Python", "React", "TensorFlow", "MongoDB", "Docker"],
