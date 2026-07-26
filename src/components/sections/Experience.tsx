@@ -6,7 +6,7 @@ const Experience: React.FC = () => {
     <section id="experience" className="bg-background py-8 md:py-12 text-[15px] md:text-base leading-relaxed">
       <div className="mx-auto w-full max-w-3xl px-4 md:px-6">
         <p className="mb-8 max-w-2xl text-foreground/70">
-          Where I&apos;ve been building lately.
+          Where I've worked and what I did there.
         </p>
         <div className="space-y-8 md:space-y-10">
           {experiences.map((exp, index) => (
