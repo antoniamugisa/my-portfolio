@@ -61,7 +61,7 @@ export const mediaItems: MediaItem[] = [
     description: 'Movie',
     author: 'Park Chan-wook',
     url: 'https://www.neonrated.com/film/no-other-choice',
-    image: '/images/recs/no-other-choice.png',
+    image: '/images/recs/no-other-choice.webp',
   },
   {
     id: 'the-bodyguard',
@@ -70,7 +70,7 @@ export const mediaItems: MediaItem[] = [
     description: 'Movie',
     author: 'Mick Jackson',
     url: 'https://www.warnerbros.com/movies/bodyguard',
-    image: '/images/recs/the-bodyguard.png',
+    image: '/images/recs/the-bodyguard.webp',
   },
   {
     id: 'eternity',
@@ -79,7 +79,7 @@ export const mediaItems: MediaItem[] = [
     description: 'Movie',
     author: 'David Freyne',
     url: 'https://a24films.com/films/eternity',
-    image: '/images/recs/eternity.png',
+    image: '/images/recs/eternity.webp',
   },
   {
     id: 'wicked-for-good',
@@ -88,7 +88,7 @@ export const mediaItems: MediaItem[] = [
     description: 'Movie',
     author: 'Jon M. Chu',
     url: 'https://www.wickedmovie.com/',
-    image: '/images/recs/wicked-for-good.png',
+    image: '/images/recs/wicked-for-good.webp',
   },
   {
     id: 'frankenstein',
@@ -97,7 +97,7 @@ export const mediaItems: MediaItem[] = [
     description: 'Movie',
     author: 'Guillermo del Toro',
     url: 'https://www.netflix.com/title/81507921',
-    image: '/images/recs/frankenstein.png',
+    image: '/images/recs/frankenstein.webp',
   },
   {
     id: 'thunderbolts',
@@ -106,7 +106,7 @@ export const mediaItems: MediaItem[] = [
     description: 'Movie',
     author: 'Jake Schreier',
     url: 'https://www.marvel.com/movies/thunderbolts',
-    image: '/images/recs/thunderbolts.png',
+    image: '/images/recs/thunderbolts.webp',
   },
   {
     id: 'superman',
@@ -115,7 +115,7 @@ export const mediaItems: MediaItem[] = [
     description: 'Movie',
     author: 'James Gunn',
     url: 'https://www.dc.com/movies/superman-2025',
-    image: '/images/recs/superman.png',
+    image: '/images/recs/superman.webp',
   },
   {
     id: 'infinity-castle',
@@ -124,7 +124,7 @@ export const mediaItems: MediaItem[] = [
     description: 'Movie',
     author: 'Haruo Sotozaki',
     url: 'https://www.crunchyroll.com/series/GY5P48XEY/demon-slayer-kimetsu-no-yaiba',
-    image: '/images/recs/infinity-castle.png',
+    image: '/images/recs/infinity-castle.webp',
   },
   {
     id: 'interstellar',
@@ -133,7 +133,7 @@ export const mediaItems: MediaItem[] = [
     description: 'Movie',
     author: 'Christopher Nolan',
     url: 'https://www.legendary.com/film/interstellar/',
-    image: '/images/recs/interstellar.png',
+    image: '/images/recs/interstellar.webp',
   },
   {
     id: 'inception',
@@ -142,7 +142,7 @@ export const mediaItems: MediaItem[] = [
     description: 'Movie',
     author: 'Christopher Nolan',
     url: 'https://www.warnerbros.com/movies/inception',
-    image: '/images/recs/inception.png',
+    image: '/images/recs/inception.webp',
   },
 
   // —— Series ——
@@ -153,7 +153,7 @@ export const mediaItems: MediaItem[] = [
     description: 'Anime Series',
     author: 'Gege Akutami',
     url: 'https://www.crunchyroll.com/series/GRDV0019R/jujutsu-kaisen',
-    image: '/images/recs/jujutsu-kaisen.png',
+    image: '/images/recs/jujutsu-kaisen.webp',
   },
   {
     id: 'industry',
@@ -162,7 +162,7 @@ export const mediaItems: MediaItem[] = [
     description: 'TV Series',
     author: 'Mikey Down, Konrad Kay',
     url: 'https://www.hbomax.com/shows/industry/9e51c88c-7a28-40ee-8269-e16572e02a07',
-    image: '/images/recs/industry.png',
+    image: '/images/recs/industry.webp',
   },
   {
     id: 'stranger-things',
@@ -171,7 +171,7 @@ export const mediaItems: MediaItem[] = [
     description: 'TV Series',
     author: 'The Duffer Brothers',
     url: 'https://www.netflix.com/title/80057281',
-    image: '/images/recs/stranger-things.png',
+    image: '/images/recs/stranger-things.webp',
   },
   {
     id: 'one-piece',
@@ -180,7 +180,7 @@ export const mediaItems: MediaItem[] = [
     description: 'Anime Series',
     author: 'Eiichiro Oda',
     url: 'https://www.crunchyroll.com/series/GRMG8ZQZR/one-piece',
-    image: '/images/recs/one-piece.png',
+    image: '/images/recs/one-piece.webp',
   },
   {
     id: 'the-bear',
@@ -189,7 +189,7 @@ export const mediaItems: MediaItem[] = [
     description: 'TV Series',
     author: 'Christopher Storer',
     url: 'https://www.fxnetworks.com/shows/the-bear',
-    image: '/images/recs/the-bear.png',
+    image: '/images/recs/the-bear.webp',
   },
   {
     id: 'demon-slayer',
@@ -198,7 +198,7 @@ export const mediaItems: MediaItem[] = [
     description: 'Anime Series',
     author: 'Koyoharu Gotouge',
     url: 'https://www.netflix.com/title/81091393',
-    image: '/images/recs/demon-slayer.png',
+    image: '/images/recs/demon-slayer.webp',
   },
 
   // —— Music ——
@@ -209,7 +209,7 @@ export const mediaItems: MediaItem[] = [
     description: 'Album',
     author: 'TWICE',
     url: 'https://open.spotify.com/album/02dUOPB3MtmV5fawzaZiq6?si=RBNpM2eURtaDntVrIbQuLQ',
-    image: '/images/recs/this-is-for.png',
+    image: '/images/recs/this-is-for.webp',
   },
   {
     id: 'you-seem-pretty-sad',
@@ -218,7 +218,7 @@ export const mediaItems: MediaItem[] = [
     description: 'Album',
     author: 'Olivia Rodrigo',
     url: 'https://open.spotify.com/album/3WZZF72ihlKPZBS4zSsNHl?si=BBijLQmKR0Oid14xkS5IEA',
-    image: '/images/recs/you-seem-pretty-sad.png',
+    image: '/images/recs/you-seem-pretty-sad.webp',
   },
   {
     id: 'rosie',
@@ -227,7 +227,7 @@ export const mediaItems: MediaItem[] = [
     description: 'Album',
     author: 'ROSÉ',
     url: 'https://open.spotify.com/album/7kFyd5oyJdVX2pIi6P4iHE?si=9VYBnDHASXCdVBMFz4taGA',
-    image: '/images/recs/rosie.png',
+    image: '/images/recs/rosie.webp',
   },
   {
     id: 'bite-me',
@@ -236,7 +236,7 @@ export const mediaItems: MediaItem[] = [
     description: 'Album',
     author: 'Reneé Rapp',
     url: 'https://open.spotify.com/album/6ULnaZahd0zTGVUBVQO6mN?si=u5EQGGUnTAy3J683nYsGPw',
-    image: '/images/recs/bite-me.png',
+    image: '/images/recs/bite-me.webp',
   },
   {
     id: 'the-art-of-loving',
@@ -245,7 +245,7 @@ export const mediaItems: MediaItem[] = [
     description: 'Album',
     author: 'Olivia Dean',
     url: 'https://open.spotify.com/album/0l8zYqoUeBYg47Gmevq9HZ?si=9rZ7g8KkQSOx2bwvrV7Fdg',
-    image: '/images/recs/the-art-of-loving.png',
+    image: '/images/recs/the-art-of-loving.webp',
   },
   {
     id: 'octane',
@@ -254,7 +254,7 @@ export const mediaItems: MediaItem[] = [
     description: 'Album',
     author: 'Don Toliver',
     url: 'https://open.spotify.com/album/131x9G87mD0hP0hGZc9qYN?si=S2NLDTsvRNWfRS00LbByoQ',
-    image: '/images/recs/octane.png',
+    image: '/images/recs/octane.webp',
   },
 
   // —— Games ——
@@ -265,7 +265,7 @@ export const mediaItems: MediaItem[] = [
     description: 'Game',
     author: 'Sucker Punch',
     url: 'https://www.playstation.com/en-us/games/ghost-of-tsushima/',
-    image: '/images/recs/ghost-of-tsushima.png',
+    image: '/images/recs/ghost-of-tsushima.webp',
   },
   {
     id: 'the-last-of-us-part-1',
@@ -274,7 +274,7 @@ export const mediaItems: MediaItem[] = [
     description: 'Game',
     author: 'Naughty Dog',
     url: 'https://www.playstation.com/en-us/games/the-last-of-us-part-i/',
-    image: '/images/recs/the-last-of-us-part-1.png',
+    image: '/images/recs/the-last-of-us-part-1.webp',
   },
   {
     id: 'the-last-of-us-part-2',
@@ -283,7 +283,7 @@ export const mediaItems: MediaItem[] = [
     description: 'Game',
     author: 'Naughty Dog',
     url: 'https://www.playstation.com/en-us/games/the-last-of-us-part-ii/',
-    image: '/images/recs/the-last-of-us-part-2.png',
+    image: '/images/recs/the-last-of-us-part-2.webp',
   },
   {
     id: 'god-of-war',
@@ -292,7 +292,7 @@ export const mediaItems: MediaItem[] = [
     description: 'Game',
     author: 'Santa Monica Studio',
     url: 'https://www.playstation.com/en-us/god-of-war/',
-    image: '/images/recs/god-of-war.png',
+    image: '/images/recs/god-of-war.webp',
   },
 
   // —— Essays / books / blogs (type book) ——
@@ -303,7 +303,7 @@ export const mediaItems: MediaItem[] = [
     description: 'Essay',
     author: 'Emilie Mendham',
     url: 'https://emiliemendham.substack.com/p/the-intimacy-of-inconvenience',
-    image: '/images/recs/intimacy-of-inconvenience.png?v=2',
+    image: '/images/recs/intimacy-of-inconvenience.webp',
   },
   {
     id: 'whats-meant-for-you',
@@ -312,7 +312,7 @@ export const mediaItems: MediaItem[] = [
     description: 'Essay',
     author: 'Daphne',
     url: 'https://coldmemories.substack.com/p/whats-meant-for-you-will-never-pass',
-    image: '/images/recs/whats-meant-for-you.png?v=2',
+    image: '/images/recs/whats-meant-for-you.webp',
   },
   {
     id: 'mouths-of-rain',
@@ -321,7 +321,7 @@ export const mediaItems: MediaItem[] = [
     description: 'Book',
     author: 'Briona Simone Jones',
     url: 'https://thenewpress.org/books/mouths-of-rain/',
-    image: '/images/recs/mouths-of-rain.png',
+    image: '/images/recs/mouths-of-rain.webp',
   },
 ];
 

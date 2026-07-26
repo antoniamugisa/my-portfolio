@@ -5,7 +5,7 @@ export const bikeShareTorontoProject: Project = {
   title: 'Toronto Bike Share Flow Map',
   description:
     'Interactive animated flow map visualizing every Toronto Bike Share trip — showing how the city moves, hour by hour.',
-  image: '/images/projects/bike-share-toronto.png',
+  image: '/images/projects/bike-share-toronto.webp',
   thumbnailVideo: '/images/projects/bike-share-toronto.mp4',
   technologies: ['React', 'TypeScript', 'Canvas API', 'Open Toronto Data', 'Vite'],
   category: 'Data Visualization',

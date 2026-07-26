@@ -8,19 +8,20 @@ const Experience: React.FC = () => {
         <p className="mb-8 max-w-2xl text-foreground/70">
           Where I&apos;ve been building lately.
         </p>
-        <div className="grid grid-cols-[minmax(0,0.85fr)_minmax(0,1.4fr)] gap-x-6 md:gap-x-10 gap-y-8 md:gap-y-10">
+        <div className="space-y-8 md:space-y-10">
           {experiences.map((exp, index) => (
-            <React.Fragment key={index}>
-              <div className="space-y-1 pr-2 leading-relaxed">
-                <p className="font-normal text-foreground whitespace-nowrap">
-                  {exp.company}
-                </p>
-                <p className="font-normal text-foreground/70 whitespace-nowrap">{exp.position}</p>
-                <p className="font-normal text-foreground/55 whitespace-nowrap">{exp.duration}</p>
-                <p className="font-normal text-foreground/45 whitespace-nowrap">{exp.location}</p>
+            <div
+              key={index}
+              className="grid grid-cols-1 gap-3 sm:grid-cols-[minmax(0,13.5rem)_minmax(0,1fr)] sm:gap-x-8 md:gap-x-10"
+            >
+              <div className="min-w-0 space-y-1 leading-relaxed">
+                <p className="font-normal text-foreground">{exp.company}</p>
+                <p className="font-normal text-foreground/70">{exp.position}</p>
+                <p className="font-normal text-foreground/55">{exp.duration}</p>
+                <p className="font-normal text-foreground/45">{exp.location}</p>
               </div>
 
-              <div className="space-y-3">
+              <div className="min-w-0 space-y-3">
                 <p className="font-normal text-foreground/70 leading-relaxed">
                   {exp.description}
                 </p>
@@ -35,7 +36,7 @@ const Experience: React.FC = () => {
                   ))}
                 </div>
               </div>
-            </React.Fragment>
+            </div>
           ))}
         </div>
       </div>

@@ -94,7 +94,7 @@ For now, the world keeps turning at different speeds for different people. And p
 - **Fintech News Africa. "A Look at Africa's Most Valuable Fintech Unicorns of 2025." 15 Sep 2025. <a href="https://fintechnews.africa/45050/fintechafrica/a-look-at-africas-most-valuable-fintech-unicorns-of-2025/" style="text-decoration: underline;">https://fintechnews.africa/45050/fintechafrica/a-look-at-africas-most-valuable-fintech-unicorns-of-2025/</a>**
 
  `,
-    image: "/images/aiblog-image.jpeg",
+    image: "/images/aiblog-image.webp",
     readTime: 9,
     author: "Antonia Mugisa",
     tags: ["AI Impact", "Technology"]

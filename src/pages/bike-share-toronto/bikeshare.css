@@ -62,7 +62,7 @@
 @media (max-width: 767px) {
   .bs-page:not(.bs-page--embedded) {
     z-index: 40;
-    top: calc(48px + env(safe-area-inset-top, 0px));
+    top: calc(36px + env(safe-area-inset-top, 0px));
     right: 0;
     bottom: env(safe-area-inset-bottom, 0px);
     left: 0;

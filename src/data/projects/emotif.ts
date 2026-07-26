@@ -1,4 +1,4 @@
-import emotifImage from '@/assets/emotif.png';
+import emotifImage from '@/assets/emotif.webp';
 // Temporarily use the same image until we can properly upload the team image
 import emotifTeamImage from '@/assets/emotif-team.jpeg';
 import type { Project } from './index';
@@ -9,7 +9,7 @@ export const emotifProject: Project = {
   description: "An AI-powered calendar extension with Gemini AI and Firebase allowing users to log moods and receive personalized check-ins and playlist recommendations using LLM-based responses.",
   image: emotifImage,
   thumbnailVideo: "/images/projects/emotif.mp4",
-  thumbnailBackground: "/images/projects/emotif-bg.png",
+  thumbnailBackground: "/images/projects/emotif-bg.webp",
   technologies: ["React", "TypeScript", "Vite", "Tailwind CSS", "shadcn/ui", "React Router"],
   category: "Frontend",
   demoUrl: "https://devpost.com/software/wits-you-can-change-this-at-any-time",

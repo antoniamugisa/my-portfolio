@@ -1,4 +1,4 @@
-import dalGazetteImage from '@/assets/dal-gazette-logo.png';
+import dalGazetteImage from '@/assets/dal-gazette-logo.webp';
 import type { Project } from './index';
 
 export const dalGazetteProject: Project = {

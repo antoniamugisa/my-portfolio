@@ -3,8 +3,6 @@ import { Link } from 'react-router-dom';
 import { blogPosts } from '@/data/blog';
 
 const Blog = () => {
-
-  // Format date for display
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-US', {
       year: 'numeric',
@@ -14,7 +12,7 @@ const Blog = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background pt-24 flex flex-col">
+    <div className="min-h-screen bg-background pt-20 md:pt-24 flex flex-col">
       <div className="mx-auto w-full max-w-5xl px-4 md:px-6 flex-grow">
         <section className="py-8 md:py-12 text-[15px] md:text-base leading-relaxed">
           <p className="mb-6 max-w-2xl text-foreground/70">
@@ -28,20 +26,21 @@ const Blog = () => {
                     className="group relative h-64 md:h-72 rounded-lg overflow-hidden cursor-pointer transition-transform duration-300 hover:scale-[1.02]"
                     style={{ animationDelay: `${index * 100}ms` }}
                   >
-                    {/* Background Image */}
                     <div className="absolute inset-0">
                       <img
                         src={post.image}
                         alt={post.title}
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                        loading={index < 2 ? 'eager' : 'lazy'}
+                        decoding="async"
+                        fetchPriority={index === 0 ? 'high' : 'auto'}
+                        width={800}
+                        height={450}
                       />
-                      {/* Dark overlay for better text readability */}
                       <div className="absolute inset-0 bg-black/40 group-hover:bg-black/30 transition-colors duration-300" />
                     </div>
 
-                    {/* Content Overlay */}
                     <div className="absolute inset-0 p-4 md:p-6 flex flex-col justify-between pb-5 md:pb-6">
-                      {/* Top Right - Tags */}
                       <div className="flex justify-end">
                         <div className="flex flex-wrap gap-2">
                           {post.tags.slice(0, 2).map((tag) => (
@@ -60,7 +59,6 @@ const Blog = () => {
                         </div>
                       </div>
 
-                      {/* Bottom Left - Date, Title, Subtitle */}
                       <div className="space-y-2.5 pb-3">
                         <div className="text-white/90 text-[15px] md:text-base font-normal">
                           {formatDate(post.date)}

@@ -22,7 +22,7 @@ Endings suck but new beginnings are exciting so I will continue, by the lovely w
 
 <iframe data-testid="embed-iframe" style="border-radius:12px" src="https://open.spotify.com/embed/track/5SruEBX3KpgpDvEcIuN53P?utm_source=generator" width="100%" height="152" frameBorder="0" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
 `,
-    image: "/images/firstPost.jpg",
+    image: "/images/firstPost.webp",
     readTime: 8,
     author: "Antonia Mugisa",
     tags: ["Personal", "Lessons"]

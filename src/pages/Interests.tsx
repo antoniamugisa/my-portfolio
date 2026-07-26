@@ -13,7 +13,7 @@ const Interests = () => {
   );
 
   return (
-    <div className="min-h-screen overflow-x-hidden bg-background pt-24 flex flex-col">
+    <div className="min-h-screen overflow-x-hidden bg-background pt-20 md:pt-24 flex flex-col">
       <div className="mx-auto w-full max-w-5xl px-4 md:px-6 flex-grow">
         <section className="py-8 md:py-12 text-[15px] md:text-base leading-relaxed">
           <p className="mb-8 max-w-2xl text-foreground/70">
@@ -21,7 +21,7 @@ const Interests = () => {
           </p>
 
           <div className="space-y-5 md:space-y-6">
-            {visibleSections.map((section) => {
+            {visibleSections.map((section, sectionIndex) => {
               const items = mediaItems.filter((item) =>
                 (section.types as readonly MediaItem['type'][]).includes(item.type)
               );
@@ -37,12 +37,13 @@ const Interests = () => {
 
                   <div className="overflow-x-auto pt-2 pb-2 scroll-smooth snap-x snap-mandatory [scrollbar-width:thin]">
                     <div className="flex w-max gap-3 pr-4 md:gap-4 md:pr-6">
-                      {items.map((item) => (
+                      {items.map((item, itemIndex) => (
                         <MediaCard
                           key={item.id}
                           item={item}
                           square={section.id === 'music'}
                           landscape={item.type === 'book' && item.description === 'Essay'}
+                          priority={sectionIndex === 0 && itemIndex < 4}
                         />
                       ))}
                     </div>
@@ -61,10 +62,12 @@ function MediaCard({
   item,
   square,
   landscape,
+  priority,
 }: {
   item: MediaItem;
   square?: boolean;
   landscape?: boolean;
+  priority?: boolean;
 }) {
   const aspect = square
     ? 'aspect-square'
@@ -83,7 +86,11 @@ function MediaCard({
             src={item.image}
             alt=""
             className="h-full w-full object-cover"
-            loading="lazy"
+            loading={priority ? 'eager' : 'lazy'}
+            decoding="async"
+            fetchPriority={priority ? 'high' : 'low'}
+            width={landscape ? 220 : 156}
+            height={landscape ? 147 : square ? 156 : 234}
           />
         ) : (
           <div className="flex h-full w-full items-end p-3">
