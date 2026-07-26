@@ -8,7 +8,10 @@ const Projects = () => {
   return (
     <div className="min-h-screen bg-background pt-24 md:pt-28 flex flex-col">
       <div className="mx-auto w-full max-w-5xl px-4 md:px-6 flex-grow">
-        <section className="py-8 md:py-12">
+        <section className="py-8 md:py-12 text-[15px] md:text-base leading-relaxed">
+          <p className="mb-6 max-w-2xl text-foreground/70">
+            Things I&apos;ve built that I&apos;m proud of and still like talking about.
+          </p>
           <div className="grid md:grid-cols-2 gap-6 md:gap-8">
             {projects.map((project) => (
               <Link

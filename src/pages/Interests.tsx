@@ -1,54 +1,24 @@
-import { useState } from 'react';
 import {
   mediaItems,
   genreSections,
   getSectionHighlight,
-  type GenreSectionId,
   type MediaItem,
 } from '@/data/interests';
 
 const Interests = () => {
-  const [filter, setFilter] = useState<GenreSectionId>('all');
-
-  const visibleSections = genreSections.filter((section) => {
-    if (filter !== 'all' && section.id !== filter) return false;
-    return mediaItems.some((item) =>
+  const visibleSections = genreSections.filter((section) =>
+    mediaItems.some((item) =>
       (section.types as readonly MediaItem['type'][]).includes(item.type)
-    );
-  });
+    )
+  );
 
   return (
     <div className="min-h-screen overflow-x-hidden bg-background pt-24 md:pt-28 flex flex-col">
       <div className="mx-auto w-full max-w-5xl px-4 md:px-6 flex-grow">
         <section className="py-8 md:py-12 text-[15px] md:text-base leading-relaxed">
-          <p className="mb-6 max-w-2xl text-foreground/70">
+          <p className="mb-8 max-w-2xl text-foreground/70">
             Everything I&apos;m currently consuming and have loved very much.
           </p>
-          <div className="mb-8 flex w-full gap-1 md:gap-2">
-            <FilterChip
-              label="All"
-              active={filter === 'all'}
-              onClick={() => setFilter('all')}
-              className={
-                filter === 'all'
-                  ? 'bg-foreground text-background'
-                  : 'bg-muted/60 text-foreground/80 hover:bg-muted'
-              }
-            />
-            {genreSections.map((section) => (
-              <FilterChip
-                key={section.id}
-                label={section.label}
-                active={filter === section.id}
-                onClick={() => setFilter(section.id)}
-                className={
-                  filter === section.id
-                    ? getSectionHighlight(section.id)
-                    : 'bg-muted/60 text-foreground/80 hover:bg-muted'
-                }
-              />
-            ))}
-          </div>
 
           <div className="space-y-5 md:space-y-6">
             {visibleSections.map((section) => {
@@ -86,29 +56,6 @@ const Interests = () => {
     </div>
   );
 };
-
-function FilterChip({
-  label,
-  active,
-  onClick,
-  className,
-}: {
-  label: string;
-  active: boolean;
-  onClick: () => void;
-  className: string;
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      aria-pressed={active}
-      className={`min-w-0 flex-1 truncate rounded-full px-1.5 py-1 text-center text-[12px] md:flex-none md:px-3.5 md:py-1.5 md:text-[15px] font-normal transition-colors ${className}`}
-    >
-      {label}
-    </button>
-  );
-}
 
 function MediaCard({
   item,
