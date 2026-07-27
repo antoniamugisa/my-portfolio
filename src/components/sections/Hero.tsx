@@ -6,7 +6,7 @@ import { XLogo } from '@/components/ui/x-logo';
 const Hero: React.FC = () => {
   return (
     <section id="home" className="relative min-h-screen bg-background pt-28 pb-24 md:pt-36">
-      <div className="mx-auto w-full max-w-3xl px-4 md:px-6">
+      <div className="mx-auto w-full max-w-3xl px-6 md:px-6">
         <div className="space-y-6 text-[15px] md:text-base text-foreground/70 leading-relaxed">
           <div>
             <h1 className="font-normal text-foreground leading-relaxed">
@@ -16,64 +16,61 @@ const Hero: React.FC = () => {
           </div>
 
             <p>
-              I love shipping thoughtful, well-crafted tools; from AI-powered systems to interfaces
-              that feel as good as they look.
+              I love shipping thoughtful, well-crafted tools, from AI systems to interfaces that feel
+              as good as they look.
             </p>
 
             <p>
-              Currently, I&apos;m building document intelligence and immigration automation at{' '}
+              Right now, I&apos;m building document intelligence and immigration automation at{' '}
               <strong className="font-semibold text-foreground">Compass Visas</strong> in Toronto.
             </p>
 
             <p>
-              I interned at{' '}
-              <strong className="font-semibold text-foreground">Avanade</strong>, where I built a{' '}
-              <strong className="font-semibold text-foreground">RAG</strong> pipeline with Azure
-              Cognitive Search and OpenAI, and an AI-powered lease document reader that cut search time
-              from minutes to under 10 seconds.
+              At <strong className="font-semibold text-foreground">Avanade</strong>, I built a{' '}
+              <strong className="font-semibold text-foreground">RAG</strong> pipeline and an AI
+              lease document reader that cut search time to under 10 seconds.
             </p>
 
             <p>
               On a <strong className="font-semibold text-foreground">Microsoft</strong> engagement, I
-              scaled Azure infra to process 5,000+ legal documents daily and automated deployments with
+              scaled Azure infra for 5,000+ legal documents a day and automated deployments with
               Kubernetes, Docker, and Terraform.
             </p>
 
             <p>
-              I love all things tech, interfaces, and playful side{' '}
+              I love playful side{' '}
               <Link
                 to="/projects"
                 className="text-foreground underline underline-offset-2 decoration-foreground/40 hover:decoration-foreground"
               >
                 projects
               </Link>
-              . Recently I&apos;ve been into open-data visualizations, anime recommendation systems,
-              and building tools that feel a little more human.
+              : open-data maps, anime recommenders, and tools that feel more human.
             </p>
 
             <p>
-              Outside of software, you can find me shooting{' '}
+              Outside of software, I&apos;m usually shooting{' '}
               <Link
                 to="/photos"
                 className="text-foreground underline underline-offset-2 decoration-foreground/40 hover:decoration-foreground"
               >
                 film
               </Link>
-              , deep in{' '}
+              ,{' '}
               <Link
                 to="/interests"
                 className="text-foreground underline underline-offset-2 decoration-foreground/40 hover:decoration-foreground"
               >
                 anime
-              </Link>{' '}
-              and{' '}
+              </Link>
+              ,{' '}
               <Link
                 to="/interests"
                 className="text-foreground underline underline-offset-2 decoration-foreground/40 hover:decoration-foreground"
               >
                 games
               </Link>
-              , and spending time with my family in South Africa.
+              , and spending time with family in South Africa.
             </p>
           </div>
 

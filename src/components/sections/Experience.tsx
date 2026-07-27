@@ -4,7 +4,7 @@ import { experiences } from '@/data/portfolio';
 const Experience: React.FC = () => {
   return (
     <section id="experience" className="bg-background py-8 md:py-12 text-[15px] md:text-base leading-relaxed">
-      <div className="mx-auto w-full max-w-3xl px-4 md:px-6">
+      <div className="mx-auto w-full max-w-3xl px-6 md:px-6">
         <p className="mb-8 max-w-2xl text-foreground/70">
           Where I've worked and what I did there.
         </p>

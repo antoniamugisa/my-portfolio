@@ -23,7 +23,7 @@ const Contact: React.FC = () => {
   
   return (
     <section id="contact" className="py-12 md:py-16 bg-background">
-      <div className="container mx-auto px-4 md:px-6 max-w-4xl">
+      <div className="container mx-auto px-6 md:px-6 max-w-4xl">
         <Card className="p-6 md:p-8 bg-background border-border/40">
           <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
             <div className="text-center md:text-left space-y-2">
