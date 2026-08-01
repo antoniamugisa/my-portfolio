@@ -3,6 +3,18 @@ import { Link, useLocation } from 'react-router-dom';
 import { Briefcase, FolderOpen, BookOpen, Heart, Camera } from 'lucide-react';
 import { ThemeToggle } from '@/components/ui/theme-toggle';
 
+const routePrefetchers: Record<string, () => Promise<unknown>> = {
+  '/experience': () => import('../pages/Experience'),
+  '/projects': () => import('../pages/Projects'),
+  '/blog': () => import('../pages/Blog'),
+  '/interests': () => import('../pages/Interests'),
+  '/photos': () => import('../pages/Photos'),
+};
+
+const prefetchRoute = (path: string) => {
+  routePrefetchers[path]?.();
+};
+
 const Navigation = () => {
   const location = useLocation();
 
@@ -49,6 +61,8 @@ const Navigation = () => {
               key={item.path}
               to={item.path}
               className={linkClass(isItemActive(item.path))}
+              onMouseEnter={() => prefetchRoute(item.path)}
+              onFocus={() => prefetchRoute(item.path)}
             >
               {item.shortName}
             </Link>
@@ -81,6 +95,8 @@ const Navigation = () => {
                 to={item.path}
                 className={iconClass(active)}
                 aria-label={item.name}
+                onTouchStart={() => prefetchRoute(item.path)}
+                onFocus={() => prefetchRoute(item.path)}
               >
                 <IconComponent size={16} strokeWidth={1.75} />
               </Link>

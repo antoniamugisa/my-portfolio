@@ -58,7 +58,7 @@ const MegaTile = memo(function MegaTile({
       >
         <div className="aspect-square overflow-hidden bg-background border border-border/40 group-hover:border-primary/50 transition-all duration-300">
           <img
-            src={photo.thumb || photo.image}
+            src={photo.thumb}
             alt={photo.title}
             className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
             loading="lazy"
@@ -120,6 +120,7 @@ const MegaTile = memo(function MegaTile({
 
 const Photos = () => {
   const [selectedPhoto, setSelectedPhoto] = useState<string | null>(null);
+  const [lightboxSrc, setLightboxSrc] = useState<string | null>(null);
   const selectedPhotoData = selectedPhoto ? photos.find((p) => p.id === selectedPhoto) : null;
   const containerRef = useRef<HTMLDivElement>(null);
   const worldRef = useRef<HTMLDivElement>(null);
@@ -502,6 +503,22 @@ const Photos = () => {
     return () => { document.body.style.overflow = ''; };
   }, [selectedPhoto]);
 
+  // Load full-res only when lightbox opens (grid uses thumbs only).
+  useEffect(() => {
+    if (!selectedPhotoData) {
+      setLightboxSrc(null);
+      return;
+    }
+    let cancelled = false;
+    setLightboxSrc(selectedPhotoData.thumb);
+    selectedPhotoData.loadFull().then((src) => {
+      if (!cancelled && src) setLightboxSrc(src);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [selectedPhotoData]);
+
   const tiles = useMemo(() => {
     if (tileW <= 0 || photos.length === 0) return [];
     const result: { tx: number; ty: number; worldX: number; worldY: number; isCenter: boolean }[] = [];
@@ -639,7 +656,7 @@ const Photos = () => {
 
             <div className="max-w-full max-h-[90vh] relative" onClick={(e) => e.stopPropagation()}>
               <img
-                src={selectedPhotoData.image}
+                src={lightboxSrc || selectedPhotoData.thumb}
                 alt={selectedPhotoData.title}
                 className="max-w-full max-h-[90vh] object-contain"
                 decoding="async"
