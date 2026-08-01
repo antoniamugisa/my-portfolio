@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback, useLayoutEffect, useMemo, memo } from 'react';
+import { useLocation } from 'react-router-dom';
 import { X, Compass } from 'lucide-react';
 import { photos } from '@/data/photos';
 import type { Photo } from '@/data/photos/types';
@@ -61,9 +62,8 @@ const MegaTile = memo(function MegaTile({
             src={photo.thumb}
             alt={photo.title}
             className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
-            loading="lazy"
+            loading="eager"
             decoding="async"
-            fetchPriority="low"
             width={480}
             height={480}
             draggable={false}
@@ -264,11 +264,12 @@ const Photos = () => {
     const measure = () => {
       const cw = el.clientWidth;
       const ch = el.clientHeight;
+      // Ignore zero sizes while the page is display:none (kept mounted but inactive).
+      if (cw <= 0 || ch <= 0) return;
       setViewportW(cw);
       setViewportH(ch);
       setTileW((prev) => {
         if (prev > 0) return prev;
-        if (cw <= 0 || ch <= 0) return prev;
         const minTile = Math.max(cw, ch) + 32;
         const preferred = Math.min(1100, Math.max(480, Math.round(cw - 24)));
         return Math.round(Math.max(480, minTile, preferred));
@@ -498,10 +499,31 @@ const Photos = () => {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [selectedPhoto]);
 
+  const location = useLocation();
+  const isPhotosActive = location.pathname === '/photos';
+
   useEffect(() => {
+    if (!isPhotosActive) {
+      setSelectedPhoto(null);
+      document.body.style.overflow = '';
+      return;
+    }
     document.body.style.overflow = selectedPhoto ? 'hidden' : '';
     return () => { document.body.style.overflow = ''; };
-  }, [selectedPhoto]);
+  }, [selectedPhoto, isPhotosActive]);
+
+  // Remeasure when returning from another page (layout may have changed while hidden).
+  useLayoutEffect(() => {
+    if (!isPhotosActive) return;
+    const el = containerRef.current;
+    if (!el) return;
+    const cw = el.clientWidth;
+    const ch = el.clientHeight;
+    if (cw <= 0 || ch <= 0) return;
+    setViewportW(cw);
+    setViewportH(ch);
+    applyWorldTransform(camRef.current.x, camRef.current.y);
+  }, [isPhotosActive, applyWorldTransform]);
 
   // Load full-res only when lightbox opens (grid uses thumbs only).
   useEffect(() => {

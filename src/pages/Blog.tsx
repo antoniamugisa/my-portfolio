@@ -31,9 +31,9 @@ const Blog = () => {
                         src={post.image}
                         alt={post.title}
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                        loading={index < 2 ? 'eager' : 'lazy'}
+                        loading="eager"
                         decoding="async"
-                        fetchPriority={index === 0 ? 'high' : 'auto'}
+                        fetchPriority={index < 2 ? 'high' : 'auto'}
                         width={800}
                         height={450}
                       />
