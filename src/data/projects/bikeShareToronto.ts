@@ -4,27 +4,27 @@ export const bikeShareTorontoProject: Project = {
   id: 'bike-share-toronto',
   title: 'Toronto Bike Share Flow Map',
   description:
-    'Interactive animated flow map visualizing every Toronto Bike Share trip — showing how the city moves, hour by hour.',
+    'Interactive animated map that replays real Toronto Bike Share trips from Open Toronto data, showing how the city moves.',
   image: '/images/projects/bike-share-toronto.webp',
   thumbnailVideo: '/images/projects/bike-share-toronto.mp4',
-  technologies: ['React', 'TypeScript', 'Canvas API', 'Open Toronto Data', 'Vite'],
+  technologies: ['React', 'TypeScript', 'DuckDB-WASM', 'deck.gl', 'Mapbox GL', 'Open Toronto Data', 'Vite'],
   category: 'Data Visualization',
   demoUrl: '#bike-share-demo',
-  githubUrl: 'https://github.com/antoniamugisa/bike-share-toronto', // update if needed
+  githubUrl: '#',
   featured: true,
   date: '2026-04-02',
   tags: ['Data Viz', 'Open Data', 'Toronto'],
   status: 'Ongoing',
   longDescription:
-    'An interactive canvas-based flow map of Toronto Bike Share trips, built with the Open Toronto CKAN API. ' +
-    'Animated arcs and moving dots show real trip patterns across 50 stations, with an hour-by-hour time scrubber ' +
-    'revealing the rhythm of the city — from the quiet early hours to the morning and evening rush peaks.',
+    'An interactive, GPU-accelerated map that replays real Toronto Bike Share trips from Open Toronto ridership data. ' +
+    'Monthly Parquet trip files are queried directly in the browser with DuckDB-WASM, and each ride is drawn along its route ' +
+    "with deck.gl's TripsLayer on a Mapbox GL basemap, so you can watch an hour of city-wide riding unfold in a single animation.",
   keyFeatures:
-    'The map animates real station-to-station Bike Share trips with arcs and moving dots, paired with an hour-by-hour scrubber and a 24-bar activity histogram. You can play or pause at 1×, 2×, or 4× speed, filter by member versus casual riders and e-bike versus classic, zoom and pan the canvas, and pull live Open Toronto data through the CKAN API.',
+    'Trips animate along their real routes, colour-coded by member and casual riders. A live panel tracks active rides, frame rate and map bearing, alongside a data insights panel. You can search stations, spotlight a random trip, pause the animation, and rotate, tilt and zoom the map.',
   challenges:
-    'Porting the original vanilla JS canvas animation into React without losing frame rate meant careful use of refs, keeping the animation loop separate from React re-renders, and scoping styles so a full-viewport dark experience would not fight the rest of the portfolio theme.',
+    'Loading and querying a month of trip data entirely in the browser with no backend, decoding route polylines stored at different precisions, mapping real trip timestamps into one replayable hour, and keeping deck.gl rendering smooth by running the animation loop outside React re-renders.',
   learnings:
-    'I learned to drive canvas with ResizeObserver and useRef for steady performance in React, isolate page styles with fixed positioning, z-index, and scoped custom properties, and work through the quirks of the Open Toronto CKAN API across different years of data.',
+    'I learned to run analytical SQL in the browser with DuckDB-WASM and Parquet, render large animated datasets on the GPU with deck.gl and Mapbox GL, and keep frame rate steady in React using refs and throttled sampling.',
   futureImprovements:
-    'Next steps are swapping synthetic trips for full Open Toronto CSV data, moving to Mapbox GL JS with deck.gl TripsLayer for GPU-accelerated rendering, adding decade-long historical playback with daily Parquet files, and station tooltips for name, capacity, and trip counts.',
+    'Next steps are decade-long historical playback and station tooltips showing name, capacity and trip counts.',
 };
