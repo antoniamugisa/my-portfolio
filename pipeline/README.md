@@ -124,6 +124,10 @@ If you change the profile, delete `osm/graph-cache` so GraphHopper rebuilds its 
    names as aliases.
 5. Writes `output/stations.json`.
 
+Then run `bun run app-stations` to write `src/pages/bike-share-toronto/stations.json`, the
+station list (id, canonical name, coordinates) the demo's Find ride picker uses. Its names
+must match `startName`/`endName` in the Parquets, so rerun it whenever stations change.
+
 ### 5. Build routes — `bun run routes` (4–8 hours)
 
 For every start/end station pair that appears in the trips, asks GraphHopper for a route and

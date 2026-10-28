@@ -243,6 +243,11 @@ export default function BikeShareTorontoPage({
   const [findRideStartFilter, setFindRideStartFilter] = useState('');
   const [findRideEndFilter, setFindRideEndFilter] = useState('');
   const [findRideStartName, setFindRideStartName] = useState<string | null>(null);
+  /** Distinct start stations in the Find ride month, so the picker only lists stations with rides. */
+  const [findRideMonthStartNames, setFindRideMonthStartNames] = useState<{
+    monthKey: string;
+    names: Set<string>;
+  } | null>(null);
   const [rideSearchLoading, setRideSearchLoading] = useState(false);
   const [rideSearchError, setRideSearchError] = useState<string | null>(null);
   const [stationStats, setStationStats] = useState<{
@@ -611,11 +616,50 @@ export default function BikeShareTorontoPage({
     [],
   );
 
+  const findRideMonthKey =
+    findRideMonthPublished && parsedFindRideMonthHour ? parsedFindRideMonthHour.monthKey : null;
+
+  useEffect(() => {
+    if (!stationSearchOpen || searchMode !== 'ride' || !findRideMonthKey) return;
+    if (findRideMonthStartNames?.monthKey === findRideMonthKey) return;
+    let cancelled = false;
+    void (async () => {
+      try {
+        const db = await getDB();
+        await ensureMonthLoaded(db, findRideMonthKey);
+        const tableName = `trips_${findRideMonthKey.replace('-', '_')}`;
+        const conn = await db.connect();
+        try {
+          const res = await conn.query(`SELECT DISTINCT startName FROM ${tableName}`);
+          const names = new Set<string>(
+            res
+              .toArray()
+              .map((r: { toJSON: () => Record<string, unknown> }) => String(r.toJSON().startName)),
+          );
+          if (!cancelled) setFindRideMonthStartNames({ monthKey: findRideMonthKey, names });
+        } finally {
+          await conn.close();
+        }
+      } catch {
+        // Keep showing every station; the ride search surfaces load errors itself.
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [stationSearchOpen, searchMode, findRideMonthKey, findRideMonthStartNames]);
+
   const filteredFindRideStartStations = useMemo(() => {
+    // Only offer stations with rides that month (the full list shows until the month loads).
+    const monthNames =
+      findRideMonthStartNames?.monthKey === findRideMonthKey ? findRideMonthStartNames.names : null;
+    const inMonth = monthNames
+      ? sortedStations.filter((s) => monthNames.has(s.name))
+      : sortedStations;
     const q = findRideStartFilter.trim().toLowerCase();
-    if (!q) return sortedStations;
-    return sortedStations.filter((s) => s.name.toLowerCase().includes(q));
-  }, [sortedStations, findRideStartFilter]);
+    if (!q) return inMonth;
+    return inMonth.filter((s) => s.name.toLowerCase().includes(q));
+  }, [sortedStations, findRideStartFilter, findRideMonthStartNames, findRideMonthKey]);
 
   const distinctFindRideEndNames = useMemo(() => {
     const set = new Set<string>();
