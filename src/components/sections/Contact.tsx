@@ -1,12 +1,11 @@
 import React from 'react';
 import { Card } from '@/components/ui/card';
-import { Mail, Phone, MapPin, Github, Linkedin, Download } from 'lucide-react';
+import { Mail, MapPin, Github, Linkedin, Download } from 'lucide-react';
 import { XLogo } from '@/components/ui/x-logo';
 import { contactInfo as rawContactInfo, socialLinks as rawSocialLinks } from '@/data/portfolio';
 
 const iconMap: Record<string, React.ReactNode> = {
   Mail: <Mail className="w-5 h-5" />,
-  Phone: <Phone className="w-5 h-5" />,
   MapPin: <MapPin className="w-5 h-5" />,
   Github: <Github className="w-5 h-5" />,
   Linkedin: <Linkedin className="w-5 h-5" />,
@@ -16,9 +15,7 @@ const iconMap: Record<string, React.ReactNode> = {
 const Contact: React.FC = () => {
   const contactInfo = rawContactInfo.map((c) => ({ ...c, icon: iconMap[c.icon] }));
   const primaryEmail = contactInfo.find((c) => c.label === 'Email');
-  const secondaryContacts = contactInfo.filter(
-    (c) => c.label !== 'Email' && c.label !== 'Phone'
-  );
+  const secondaryContacts = contactInfo.filter((c) => c.label !== 'Email');
   const socialLinks = rawSocialLinks.map((s) => ({ ...s, icon: iconMap[s.icon] }));
   
   return (
