@@ -5,7 +5,8 @@
     "stations": "bun run scripts/build-stations.ts",
     "routes":   "bun run scripts/build-routes.ts",
     "parquet":  "bun run scripts/build-parquet.ts",
-    "all":      "bun run stations && bun run routes && bun run parquet"
+    "app-stations": "bun run scripts/export-app-stations.ts",
+    "all":      "bun run stations && bun run app-stations && bun run routes && bun run parquet"
   },
   "dependencies": {
     "@duckdb/node-api": "^1.5.0-r.1",
