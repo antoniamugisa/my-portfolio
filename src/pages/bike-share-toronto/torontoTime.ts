@@ -108,12 +108,39 @@ export function offsetMsIntoHourToronto(timeMs: number): number {
   return timeMs - hourStartTorontoMs(timeMs);
 }
 
-/** One simulated hour for playback + deck timestamps (anchor = 1st of selected month, Toronto). */
+/** Toronto day of month (1–31) for an epoch ms. */
+export function torontoDayOfMonth(timeMs: number): number {
+  return parseTorontoWallParts(timeMs).d;
+}
+
+/**
+ * One simulated hour for playback + deck timestamps, anchored on `day` of the selected month
+ * (Toronto). Month-wide slices (`day` null) anchor on the 1st.
+ */
 export function getPlaybackHourWindow(
   monthKey: string,
   hour: number,
+  day: number | null = null,
 ): { min: number; max: number } {
   const [y, m] = monthKey.split("-").map(Number);
-  const min = torontoWallClockToUtcMs(y, m, 1, hour, 0, 0);
+  const min = torontoWallClockToUtcMs(y, m, day ?? 1, hour, 0, 0);
   return { min, max: min + 3600000 };
+}
+
+/**
+ * One playback hour. `day` null = that hour sampled across the whole month;
+ * otherwise the real trips from that Toronto day.
+ */
+export type PlaybackSlice = { month: string; day: number | null; hour: number };
+
+/** The hour after `s`. Month-wide slices loop within the month; day slices roll into the next day/month. */
+export function nextPlaybackSlice(s: PlaybackSlice): PlaybackSlice {
+  if (s.hour < 23) return { ...s, hour: s.hour + 1 };
+  if (s.day === null) return { ...s, hour: 0 };
+  const [y, m] = s.month.split("-").map(Number);
+  const daysInMonth = new Date(Date.UTC(y, m, 0)).getUTCDate();
+  if (s.day < daysInMonth) return { month: s.month, day: s.day + 1, hour: 0 };
+  const ny = m === 12 ? y + 1 : y;
+  const nm = m === 12 ? 1 : m + 1;
+  return { month: `${ny}-${String(nm).padStart(2, "0")}`, day: 1, hour: 0 };
 }

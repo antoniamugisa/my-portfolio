@@ -482,8 +482,15 @@ export default function MapView({
       advanceScheduledRef.current = false;
     }
 
-    /** After a reload with the same nonce, sim may still be 0 or below this hour’s window. */
-    if (simEpochMsRef.current < playbackWindow.min) {
+    /**
+     * After a reload with the same nonce, sim may still be 0 or outside this hour’s window — e.g. a
+     * time-travel jump back in time consumes the nonce against the old trips, leaving sim past the
+     * new window, which would otherwise immediately trigger onAdvanceHour and skip the target hour.
+     */
+    if (
+      simEpochMsRef.current < playbackWindow.min ||
+      simEpochMsRef.current >= playbackWindow.max
+    ) {
       simEpochMsRef.current = playbackWindow.min;
       lastRealTRef.current = null;
     }

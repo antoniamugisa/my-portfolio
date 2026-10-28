@@ -46,7 +46,7 @@ function stripWindowClause(raw: string): { core: string; windowHalfMs: number } 
   let windowHalfMs = DEFAULT_WINDOW_HALF_MS;
 
   const patterns: RegExp[] = [
-    /\s*[—–\-]\s*last\s+(\d+)\s*h(?:ours?)?/i,
+    /\s*[—–-]\s*last\s+(\d+)\s*h(?:ours?)?/i,
     /,?\s*last\s+(\d+)\s*h(?:ours?)?\s*$/i,
     /\s+for\s+(\d+)\s*h(?:ours?)?\s*$/i,
   ];
@@ -79,15 +79,18 @@ export function parseTimeTravelQuery(input: string): ParsedTimeTravel {
   const s = core.replace(/\s+/g, ' ').trim();
   if (!s) return { ok: false, message: 'Type a date and time in Toronto (local to the data).' };
 
-  // YYYY-MM-DD [HH:mm]
+  // YYYY-MM-DD [HH:mm[:ss]] or YYYY-MM-DD H[:mm] am|pm
   let m = s.match(
-    /^(\d{4})-(\d{2})-(\d{2})(?:[T\s]+(\d{1,2}):(\d{2})(?::(\d{2}))?)?$/i,
+    /^(\d{4})-(\d{2})-(\d{2})(?:(?:T|\s+)(\d{1,2})(?::(\d{2})(?::(\d{2}))?)?\s*(am|pm)?)?$/i,
   );
+  // A bare hour needs am/pm ("2025-01-01 4pm"); otherwise require HH:mm.
+  if (m && m[4] !== undefined && m[5] === undefined && m[7] === undefined) m = null;
   if (m) {
     const y = Number(m[1]);
     const mo = Number(m[2]);
     const d = Number(m[3]);
-    const h = m[4] !== undefined ? Number(m[4]) : 0;
+    const rawH = m[4] !== undefined ? Number(m[4]) : 0;
+    const h = m[7] !== undefined ? parseHour12(rawH, m[7]) : rawH;
     const mi = m[5] !== undefined ? Number(m[5]) : 0;
     const sec = m[6] !== undefined ? Number(m[6]) : 0;
     if ([y, mo, d, h, mi, sec].some((n) => !Number.isFinite(n))) {

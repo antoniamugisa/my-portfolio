@@ -29,6 +29,7 @@ function timeTravelParseErrorMessage(p: ParsedTimeTravel): string | null {
   return null;
 }
 import { isPublishedParquetMonth, PUBLISHED_MONTHS } from './publishedMonths';
+import { nextPlaybackSlice, torontoDayOfMonth } from './torontoTime';
 import './bikeshare.css';
 
 const SPEEDS = [1, 2, 4];
@@ -222,6 +223,8 @@ export default function BikeShareTorontoPage({
   const [speedIdx, setSpeedIdx] = useState(0);
   const [tripCount, setTripCount] = useState(0);
   const [currentMonth, setCurrentMonth] = useState(DEFAULT_MONTH);
+  /** Toronto day being played (set by time travel / ride pick); null = hour sampled across the month. */
+  const [currentDay, setCurrentDay] = useState<number | null>(null);
   const [mapTimelinePaused, setMapTimelinePaused] = useState(false);
   const [mapFps, setMapFps] = useState(0);
   /** Bumps when the user picks a month/hour so the map clock snaps to that window (not when the hour auto-advances). */
@@ -291,23 +294,33 @@ export default function BikeShareTorontoPage({
     useTripStream(
       currentMonth,
       currentHour,
+      currentDay,
       allowAutoPickEmptyHour ? notifyAutoPickHour : undefined,
     );
 
+  /** Next hour of playback; a day that runs past the last published month loops back to the 1st of this month. */
+  const nextSlice = useMemo(() => {
+    const next = nextPlaybackSlice({ month: currentMonth, day: currentDay, hour: currentHour });
+    if (next.month !== currentMonth && !isPublishedParquetMonth(next.month)) {
+      return { month: currentMonth, day: 1, hour: 0 };
+    }
+    return next;
+  }, [currentMonth, currentDay, currentHour]);
+
   const handleWarmNextHour = useCallback(() => {
-    const nextH = (currentHour + 1) % 24;
-    return prefetchHourForMonth(currentMonth, nextH);
-  }, [currentMonth, currentHour, prefetchHourForMonth]);
+    return prefetchHourForMonth(nextSlice.month, nextSlice.hour, nextSlice.day);
+  }, [nextSlice, prefetchHourForMonth]);
 
   const handleAdvanceHour = useCallback(async () => {
-    const nextH = (currentHour + 1) % 24;
     try {
-      await prefetchHourForMonth(currentMonth, nextH);
+      await prefetchHourForMonth(nextSlice.month, nextSlice.hour, nextSlice.day);
     } catch (e) {
       console.error('[BikeShare] prefetch next hour failed:', e);
     }
-    setCurrentHour(nextH);
-  }, [currentMonth, currentHour, prefetchHourForMonth]);
+    setCurrentMonth(nextSlice.month);
+    setCurrentDay(nextSlice.day);
+    setCurrentHour(nextSlice.hour);
+  }, [nextSlice, prefetchHourForMonth]);
 
   const handleMapFps = useCallback((fps: number) => {
     setMapFps(fps);
@@ -360,7 +373,11 @@ export default function BikeShareTorontoPage({
     const month = g('month');
     const hourStr = g('hour');
     if (!year || !month || !hourStr) return null;
-    return { monthKey: `${year}-${month}`, hour: Number(hourStr) };
+    return {
+      monthKey: `${year}-${month}`,
+      day: torontoDayOfMonth(parsedSearchMs),
+      hour: Number(hourStr) % 24,
+    };
   }, [parsedSearchMs]);
 
   const parsedFindRide = useMemo(
@@ -406,6 +423,7 @@ export default function BikeShareTorontoPage({
   const jumpToSearchTime = useCallback(() => {
     if (!parsedSearchMonthHour) return;
     setCurrentMonth(parsedSearchMonthHour.monthKey);
+    setCurrentDay(parsedSearchMonthHour.day);
     setCurrentHour(parsedSearchMonthHour.hour);
     bumpPlaybackReset();
     setSpotlightTrip(null);
@@ -530,9 +548,14 @@ export default function BikeShareTorontoPage({
 
   const handleSelectRideResult = useCallback(
     (r: RideSearchResult, monthKey: string, hour: number) => {
-      const trip = deckTripFromDuckRow(r.row, monthKey, hour);
+      // Play the ride's own day so the spotlight trip lines up with the trips around it.
+      const monthWide = deckTripFromDuckRow(r.row, monthKey, hour);
+      if (!monthWide) return;
+      const day = torontoDayOfMonth(monthWide.startedAtMs);
+      const trip = deckTripFromDuckRow(r.row, monthKey, hour, day);
       if (!trip) return;
       setCurrentMonth(monthKey);
+      setCurrentDay(day);
       setCurrentHour(hour);
       bumpPlaybackReset();
       setSpotlightTrip(trip);
