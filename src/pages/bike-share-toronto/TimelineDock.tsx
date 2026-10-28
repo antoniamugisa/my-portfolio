@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, type MutableRefObject } from 'react';
-import { Pause, Play, Search, Shuffle } from 'lucide-react';
+import { Check, Link2, Pause, Play, Search, Shuffle } from 'lucide-react';
 
 const HOUR_LABELS: Record<number, string> = { 0: '12a', 6: '6a', 12: '12p', 18: '6p' };
 
@@ -27,6 +27,9 @@ type TimelineDockProps = {
   onCycleSpeed: () => void;
   onOpenSearch: () => void;
   onRandomTrip: () => void;
+  /** Copies a link to the moment on screen. */
+  onCopyLink: () => void;
+  linkCopied: boolean;
 };
 
 /** Bottom dock: a day of rides per hour you can click to jump, plus the playback controls. */
@@ -45,6 +48,8 @@ export function TimelineDock({
   onCycleSpeed,
   onOpenSearch,
   onRandomTrip,
+  onCopyLink,
+  linkCopied,
 }: TimelineDockProps) {
   const playheadRef = useRef<HTMLDivElement | null>(null);
   const [hoverHour, setHoverHour] = useState<number | null>(null);
@@ -154,6 +159,15 @@ export function TimelineDock({
           aria-label="Follow a random ride"
         >
           <Shuffle aria-hidden />
+        </button>
+        <button
+          type="button"
+          className={`bs-dock__btn${linkCopied ? ' bs-dock__btn--done' : ''}`}
+          onClick={onCopyLink}
+          title={linkCopied ? 'Link copied' : 'Copy a link to this moment'}
+          aria-label={linkCopied ? 'Link copied' : 'Copy a link to this moment'}
+        >
+          {linkCopied ? <Check aria-hidden /> : <Link2 aria-hidden />}
         </button>
       </div>
     </div>

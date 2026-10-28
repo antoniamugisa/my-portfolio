@@ -15,14 +15,15 @@ import { TripCard } from './TripCard';
 import { ExploreSheet } from './ExploreSheet';
 import type { DeckTrip, StationLocation } from './types';
 import { deckTripFromDuckRow, useTripStream } from './useTripStream';
-import { fetchHourlyRideCounts, type RideRow } from './queries';
+import { fetchHourlyRideCounts, fetchRideById, type RideRow } from './queries';
+import { FIRST_HOUR, loadFirstHour } from './firstHour';
+import { readSharedMoment, replaceUrlWithMoment, sharedMomentUrl } from './shareLink';
 import { isPublishedParquetMonth, PUBLISHED_RANGE_LABEL } from './publishedMonths';
 import { getPlaybackHourWindow, nextPlaybackSlice, torontoSliceAt } from './torontoTime';
 import './bikeshare.css';
 
 const SPEEDS = [1, 2, 4];
 const TORONTO_TZ = 'America/Toronto';
-const DEFAULT_MONTH = '2025-01';
 /** Start a followed ride this many ms before it leaves the dock, so you see it set off. */
 const RIDE_LEAD_IN_MS = 20_000;
 const SLOW_LOADING_THRESHOLD_MS = 5000;
@@ -188,10 +189,15 @@ export default function BikeShareTorontoPage({
   portalFullscreen = false,
   onRequestProjectDetails,
 }: BikeShareTorontoPageProps) {
-  const [currentMonth, setCurrentMonth] = useState(DEFAULT_MONTH);
-  /** Toronto day being played (set by time travel / ride pick); null = hour sampled across the month. */
-  const [currentDay, setCurrentDay] = useState<number | null>(null);
-  const [currentHour, setCurrentHour] = useState(0);
+  /** A moment from a shared link (`?t=…&ride=…`), read once on open. */
+  const [sharedMoment] = useState(() =>
+    typeof window === 'undefined' ? null : readSharedMoment(window.location.search),
+  );
+  const openingSlice = sharedMoment?.slice ?? FIRST_HOUR;
+  const [currentMonth, setCurrentMonth] = useState(openingSlice.month);
+  /** Toronto day being played; null = that hour sampled across the whole month. */
+  const [currentDay, setCurrentDay] = useState<number | null>(openingSlice.day);
+  const [currentHour, setCurrentHour] = useState(openingSlice.hour);
   const [paused, setPaused] = useState(false);
   const [speedIdx, setSpeedIdx] = useState(0);
   const [ridingNow, setRidingNow] = useState(0);
@@ -201,7 +207,8 @@ export default function BikeShareTorontoPage({
   const [resetNorthNonce, setResetNorthNonce] = useState(0);
   /** Bumps when the user picks a time so the map clock snaps to `seekTimeMs` (or the top of the hour). */
   const [playbackResetNonce, setPlaybackResetNonce] = useState(0);
-  const [seekTimeMs, setSeekTimeMs] = useState<number | null>(null);
+  const [seekTimeMs, setSeekTimeMs] = useState<number | null>(sharedMoment?.atMs ?? null);
+  const [linkCopied, setLinkCopied] = useState(false);
   const [spotlightTrip, setSpotlightTrip] = useState<DeckTrip | null>(null);
   const [exploreOpen, setExploreOpen] = useState(false);
   const [exploreOpenedAtMs, setExploreOpenedAtMs] = useState(0);
@@ -224,12 +231,8 @@ export default function BikeShareTorontoPage({
     autoPickHourRef.current(hour);
   }, []);
 
-  // Keep the initial view pinned to midnight Jan 1, 2025: the auto-pick fallback (for empty
-  // hours in partial months) must not override the requested starting point on first load.
-  const allowAutoPickEmptyHour = !(currentMonth === DEFAULT_MONTH && currentHour === 0);
-
   const { trips, isSampled, isLoading, loadingMessage, error, playbackWindow, prefetchHourForMonth } =
-    useTripStream(currentMonth, currentHour, currentDay, allowAutoPickEmptyHour ? notifyAutoPickHour : undefined);
+    useTripStream(currentMonth, currentHour, currentDay, notifyAutoPickHour);
 
   /** Move playback to a month/day/hour, optionally starting at an exact moment inside it. */
   const goToSlice = useCallback(
@@ -273,7 +276,12 @@ export default function BikeShareTorontoPage({
   useEffect(() => {
     if (!isPublishedParquetMonth(currentMonth)) return;
     let cancelled = false;
-    fetchHourlyRideCounts(currentMonth, currentDay)
+    // The opening day's counts ship with the first hour, so the timeline doesn't wait for DuckDB.
+    const isOpeningDay = currentMonth === FIRST_HOUR.month && currentDay === FIRST_HOUR.day;
+    const counts = isOpeningDay
+      ? loadFirstHour().then((first) => first?.hourlyCounts ?? fetchHourlyRideCounts(currentMonth, currentDay))
+      : fetchHourlyRideCounts(currentMonth, currentDay);
+    counts
       .then((counts) => {
         if (!cancelled) setHourly({ key: hourlyKey, counts });
       })
@@ -313,6 +321,55 @@ export default function BikeShareTorontoPage({
     },
     [goToSlice],
   );
+
+  // A shared link to a ride: look it up by id and follow it like a picked ride.
+  useEffect(() => {
+    if (!sharedMoment?.rideId) return;
+    let cancelled = false;
+    fetchRideById(sharedMoment.slice.month, sharedMoment.rideId)
+      .then((ride) => {
+        if (ride && !cancelled) followRide(ride.row, ride.startedAtMs);
+      })
+      .catch((e) => console.error('[BikeShare] shared ride lookup failed:', e));
+    return () => {
+      cancelled = true;
+    };
+    // Only for the link the demo was opened with.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Keep the address bar on the hour being played (and the followed ride), so it can be shared.
+  useEffect(() => {
+    if (embedded || currentDay === null || trips.length === 0) return;
+    replaceUrlWithMoment(playbackWindow.min, spotlightTrip?.id ?? null);
+  }, [embedded, currentDay, trips.length, playbackWindow.min, spotlightTrip?.id]);
+
+  /** Copies a link to the exact moment on screen (and the followed ride). */
+  const copyMomentLink = useCallback(() => {
+    const url = sharedMomentUrl(playbackTimeMsRef.current || playbackWindow.min, spotlightTrip?.id ?? null);
+    const markCopied = () => {
+      setLinkCopied(true);
+      window.setTimeout(() => setLinkCopied(false), 2000);
+    };
+    // Older browsers and some embedded views block the async clipboard; fall back to a hidden field.
+    const copyWithTextarea = () => {
+      const field = document.createElement('textarea');
+      field.value = url;
+      field.setAttribute('readonly', '');
+      field.style.position = 'fixed';
+      field.style.opacity = '0';
+      document.body.appendChild(field);
+      field.select();
+      const ok = document.execCommand('copy');
+      field.remove();
+      if (ok) markCopied();
+    };
+    if (navigator.clipboard?.writeText) {
+      navigator.clipboard.writeText(url).then(markCopied, copyWithTextarea);
+    } else {
+      copyWithTextarea();
+    }
+  }, [playbackWindow.min, spotlightTrip?.id]);
 
   const handlePickRide = useCallback(
     (ride: RideRow) => {
@@ -537,6 +594,8 @@ export default function BikeShareTorontoPage({
                 onCycleSpeed={() => setSpeedIdx((i) => (i + 1) % SPEEDS.length)}
                 onOpenSearch={() => (exploreOpen ? closeExplore() : openExplore())}
                 onRandomTrip={pickRandomTrip}
+                onCopyLink={copyMomentLink}
+                linkCopied={linkCopied}
               />
             </div>
 

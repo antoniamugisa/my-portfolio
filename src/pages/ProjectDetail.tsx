@@ -175,15 +175,10 @@ const ProjectDetail = () => {
           <div>
             <h2 className="mb-4 font-normal text-foreground leading-relaxed">About This Project</h2>
             <div className="space-y-4">
-              <p className="font-normal leading-relaxed">
-                {project.description}
+              {/* The short description is already in the hero, so only repeat it when there's nothing longer. */}
+              <p className="font-normal leading-relaxed whitespace-pre-line">
+                {project.longDescription?.trim() || project.description}
               </p>
-
-              {project.longDescription && (
-                <p className="font-normal leading-relaxed whitespace-pre-line">
-                  {project.longDescription.trim()}
-                </p>
-              )}
             </div>
 
             {/* Demo Video */}

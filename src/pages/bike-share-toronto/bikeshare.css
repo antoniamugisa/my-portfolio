@@ -553,6 +553,11 @@
   height: 18px;
 }
 
+.bs-dock__btn--done {
+  color: var(--bs-ok) !important;
+  border-color: rgba(143, 227, 166, 0.4);
+}
+
 .bs-dock__btn--speed {
   font-family: var(--bs-mono);
   font-size: 13px;
@@ -1268,6 +1273,17 @@
   .bs-map-view-root .mapboxgl-ctrl-bottom-right {
     top: calc(62px + env(safe-area-inset-top, 0px));
     bottom: auto !important;
+  }
+}
+
+/* Short screens (phones held sideways): keep the panel to the count so it clears the dock. */
+@media (min-width: 768px) and (max-height: 520px) {
+  .bs-panel__section {
+    display: none;
+  }
+
+  .bs-timeline__track {
+    height: 28px;
   }
 }
 
