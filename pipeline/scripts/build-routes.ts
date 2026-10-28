@@ -214,7 +214,8 @@ async function main(): Promise<void> {
       all_varchar=true,
       null_padding=true,
       ignore_errors=true,
-      quote='"'
+      quote='"',
+      filename=true
     )`;
 
   // Two queries: legacy vs modern column names. Same relation schema issue as build-stations.ts.
@@ -227,13 +228,41 @@ async function main(): Promise<void> {
       AND TRIM(from_station_name) <> '' AND TRIM(to_station_name) <> ''
   `;
 
+  // End names come from end_station_id, as in build-parquet.ts: the 2025 files repeat the start
+  // station's name in End_Station_Name, which would only ever produce round trips. Rows are first
+  // collapsed to distinct station pairs per file (with trip counts) so the lookup stays small.
   const modernPairsSql = `
-    SELECT DISTINCT
-      LOWER(TRIM(start_station_name)) AS start_name,
-      LOWER(TRIM(end_station_name)) AS end_name
-    FROM ${readCsvTripFiles}
-    WHERE start_station_name IS NOT NULL AND end_station_name IS NOT NULL
-      AND TRIM(start_station_name) <> '' AND TRIM(end_station_name) <> ''
+    WITH pairs AS (
+      SELECT filename, start_station_id, start_station_name, end_station_id, end_station_name, COUNT(*) AS n
+      FROM ${readCsvTripFiles}
+      WHERE start_station_name IS NOT NULL AND end_station_name IS NOT NULL
+        AND TRIM(start_station_name) <> '' AND TRIM(end_station_name) <> ''
+      GROUP BY ALL
+    ),
+    start_name_counts AS (
+      SELECT filename, start_station_id AS id, start_station_name AS name, SUM(n) AS n
+      FROM pairs
+      GROUP BY ALL
+    ),
+    start_names AS (
+      SELECT filename, id, arg_max(name, n) AS name
+      FROM start_name_counts
+      GROUP BY filename, id
+    ),
+    resolved AS (
+      SELECT
+        pairs.start_station_name AS start_name,
+        CASE
+          WHEN start_names.name IS NOT NULL THEN start_names.name
+          WHEN pairs.end_station_name <> pairs.start_station_name THEN pairs.end_station_name
+        END AS end_name
+      FROM pairs
+      LEFT JOIN start_names
+        ON start_names.filename = pairs.filename AND start_names.id = pairs.end_station_id
+    )
+    SELECT DISTINCT LOWER(TRIM(start_name)) AS start_name, LOWER(TRIM(end_name)) AS end_name
+    FROM resolved
+    WHERE end_name IS NOT NULL
   `;
 
   /** Dedupe raw (start,end) rows before resolving aliases (tab delimiter matches split below). */
