@@ -117,66 +117,96 @@ const READ_CSV_OPTS = `union_by_name=true,
         ignore_errors=true,
         quote='"'`;
 
+const DAY_FIRST_FORMATS = `['%d/%m/%y %H:%M:%S', '%d/%m/%y %H:%M', '%d/%m/%Y %H:%M:%S', '%d/%m/%Y %H:%M']`;
+const MONTH_FIRST_FORMATS = `['%m/%d/%y %H:%M:%S', '%m/%d/%y %H:%M', '%m/%d/%Y %H:%M:%S', '%m/%d/%Y %H:%M']`;
+
+/**
+ * read_csv plus `started_at_iso` / `ended_at_iso` ("YYYY-MM-DD HH:MM:SS", Toronto wall clock).
+ * Slash dates vary by file: 2017 Q1–Q2 are day-first ("13/04/2017 10:00"), 2017 Q4 has two-digit
+ * years ("10/01/17 00:00:01"), the rest are month-first. A file is day-first if any start time
+ * leads with a number > 12. Values that are already ISO pass through; unparseable ones become NULL.
+ */
+export function readCsvWithIsoTimes(readCsvFrom: string, startCol: string, endCol: string): string {
+  const toIso = (col: string) => `CASE
+        WHEN ${col} NOT LIKE '%/%' THEN ${col}
+        WHEN file_order.day_first THEN strftime(try_strptime(TRIM(${col}), ${DAY_FIRST_FORMATS}), '%Y-%m-%d %H:%M:%S')
+        ELSE strftime(try_strptime(TRIM(${col}), ${MONTH_FIRST_FORMATS}), '%Y-%m-%d %H:%M:%S')
+      END`;
+  return `(
+    WITH src AS MATERIALIZED (
+      SELECT * FROM read_csv('${readCsvFrom}', ${READ_CSV_OPTS}, filename=true)
+    ),
+    file_order AS (
+      SELECT filename,
+        COALESCE(bool_or(TRY_CAST(regexp_extract(${startCol}, '^\\s*(\\d{1,2})/', 1) AS INTEGER) > 12), false) AS day_first
+      FROM src GROUP BY filename
+    )
+    SELECT src.*, ${toIso(startCol)} AS started_at_iso, ${toIso(endCol)} AS ended_at_iso
+    FROM src JOIN file_order USING (filename)
+  )`;
+}
+
 function isMissingColumnBinderError(err: unknown): boolean {
   const s = err instanceof Error ? err.message : String(err);
   return s.includes("Binder Error") && s.includes("not found");
 }
 
-function queryLegacyTrips(readCsvFrom: string): string {
+/**
+ * User type across eras: "Member" / "Casual" (2016–2017, 2025+), "Annual Member" / "Casual Member"
+ * (2018–2024). "Subscriber" is kept for older exports.
+ */
+const MEMBER_CASUAL_SQL = `CASE WHEN LOWER(TRIM(user_type)) IN ('annual member', 'subscriber', 'member')
+        THEN 'member' ELSE 'casual' END AS member_casual`;
+
+export function queryLegacyTrips(readCsvFrom: string): string {
   return `
     SELECT
       CAST(trip_id AS VARCHAR) AS trip_row_id,
       LOWER(TRIM(from_station_name)) AS raw_start_name,
       LOWER(TRIM(to_station_name)) AS raw_end_name,
-      trip_start_time AS started_at_str,
-      trip_stop_time AS ended_at_str,
+      started_at_iso AS started_at_str,
+      ended_at_iso AS ended_at_str,
       'classic_bike' AS bike_type,
-      CASE WHEN LOWER(user_type) IN ('annual member', 'subscriber', 'member')
-        THEN 'member' ELSE 'casual' END AS member_casual
-    FROM read_csv('${readCsvFrom}',
-      ${READ_CSV_OPTS}
-    )
+      ${MEMBER_CASUAL_SQL}
+    FROM ${readCsvWithIsoTimes(readCsvFrom, "trip_start_time", "trip_stop_time")}
     WHERE from_station_name IS NOT NULL AND to_station_name IS NOT NULL
       AND TRIM(from_station_name) <> '' AND TRIM(to_station_name) <> ''
   `;
 }
 
 /** 2019–2024-style CSV: start/end station names and times, no bike_model column. */
-function query2019NoBikeModel(readCsvFrom: string): string {
+export function query2019NoBikeModel(readCsvFrom: string): string {
   return `
     SELECT
       CAST(trip_id AS VARCHAR) AS trip_row_id,
       LOWER(TRIM(start_station_name)) AS raw_start_name,
       LOWER(TRIM(end_station_name)) AS raw_end_name,
-      start_time AS started_at_str,
-      end_time AS ended_at_str,
+      started_at_iso AS started_at_str,
+      ended_at_iso AS ended_at_str,
       'classic_bike' AS bike_type,
-      CASE WHEN LOWER(user_type) = 'member' THEN 'member' ELSE 'casual' END AS member_casual
-    FROM read_csv('${readCsvFrom}',
-      ${READ_CSV_OPTS}
-    )
+      ${MEMBER_CASUAL_SQL}
+    FROM ${readCsvWithIsoTimes(readCsvFrom, "start_time", "end_time")}
     WHERE start_station_name IS NOT NULL AND end_station_name IS NOT NULL
       AND TRIM(start_station_name) <> '' AND TRIM(end_station_name) <> ''
   `;
 }
 
-function queryModernTrips(readCsvFrom: string): string {
+/** 2024+ CSVs with a bike model column: `Model` (2024) or `Bike_Model` (2025+). EFIT/Boost = e-bike. */
+export function queryModernTrips(readCsvFrom: string, modelColumn: "bike_model" | "model"): string {
   return `
     SELECT
       CAST(trip_id AS VARCHAR) AS trip_row_id,
       LOWER(TRIM(start_station_name)) AS raw_start_name,
       LOWER(TRIM(end_station_name)) AS raw_end_name,
-      start_time AS started_at_str,
-      end_time AS ended_at_str,
+      started_at_iso AS started_at_str,
+      ended_at_iso AS ended_at_str,
       CASE
-        WHEN bike_model IS NOT NULL AND LOWER(bike_model) LIKE '%efit%' THEN 'electric_bike'
-        WHEN bike_model IS NOT NULL AND LOWER(bike_model) LIKE '%boost%' THEN 'electric_bike'
+        WHEN LOWER(${modelColumn}) LIKE '%efit%' THEN 'electric_bike'
+        WHEN LOWER(${modelColumn}) LIKE '%boost%' THEN 'electric_bike'
         ELSE 'classic_bike'
       END AS bike_type,
-      CASE WHEN LOWER(user_type) = 'member' THEN 'member' ELSE 'casual' END AS member_casual
-    FROM read_csv('${readCsvFrom}',
-      ${READ_CSV_OPTS}
-    )
+      ${MEMBER_CASUAL_SQL}
+    FROM ${readCsvWithIsoTimes(readCsvFrom, "start_time", "end_time")}
     WHERE start_station_name IS NOT NULL AND end_station_name IS NOT NULL
       AND TRIM(start_station_name) <> '' AND TRIM(end_station_name) <> ''
   `;
@@ -265,8 +295,8 @@ function torontoLocalToUtcMs(y: number, mo: number, d: number, h: number, mi: nu
   return Date.UTC(y, mo - 1, d, h + offsetH, mi, s);
 }
 
-/** Parse timestamp strings from CSV; returns local Toronto components. */
-function parseTorontoLocal(str: string | null): {
+/** Parse timestamp strings from CSV; returns local Toronto components, or null if out of range. */
+export function parseTorontoLocal(str: string | null): {
   y: number;
   m: number;
   d: number;
@@ -286,23 +316,38 @@ function parseTorontoLocal(str: string | null): {
     const h = Number(mdUs[4]);
     const mi = Number(mdUs[5]);
     const s = mdUs[6] !== undefined ? Number(mdUs[6]) : 0;
-    if (!Number.isFinite(y) || !Number.isFinite(mo)) return null;
-    return { y, m: mo, d, h, mi, s };
+    return validWallParts({ y, m: mo, d, h, mi, s });
   }
 
   const isoLike = t.match(/^(\d{4})-(\d{2})-(\d{2})[ T](\d{2}):(\d{2})(?::(\d{2}))?/);
   if (isoLike) {
-    return {
+    return validWallParts({
       y: Number(isoLike[1]),
       m: Number(isoLike[2]),
       d: Number(isoLike[3]),
       h: Number(isoLike[4]),
       mi: Number(isoLike[5]),
       s: isoLike[6] !== undefined ? Number(isoLike[6]) : 0,
-    };
+    });
   }
 
   return null;
+}
+
+/**
+ * Rejects impossible components so Date.UTC cannot silently roll e.g. month 13 into the next year.
+ * Open data starts in 2014; earlier years are bad rows (one 2016 trip is stamped 2000-01-01).
+ */
+function validWallParts<T extends { y: number; m: number; d: number; h: number; mi: number; s: number }>(
+  p: T,
+): T | null {
+  const daysInMonth = new Date(Date.UTC(p.y, p.m, 0)).getUTCDate();
+  const ok =
+    Number.isInteger(p.y) && p.y >= 2014 &&
+    p.m >= 1 && p.m <= 12 &&
+    p.d >= 1 && p.d <= daysInMonth &&
+    p.h >= 0 && p.h <= 23 && p.mi >= 0 && p.mi <= 59 && p.s >= 0 && p.s <= 59;
+  return ok ? p : null;
 }
 
 function localComponentsToHour(lc: { h: number }): number {
@@ -466,8 +511,10 @@ async function fetchTripRowsForYear(conn: DuckConn, readCsvEscaped: string, dirN
 
   const attempts: Array<{ buildSql: () => string; label: string }> = [
     { buildSql: () => queryLegacyTrips(readCsvEscaped), label: "legacy trip query" },
-    { buildSql: () => query2019NoBikeModel(readCsvEscaped), label: "query C (2019-2024, no bike_model)" },
-    { buildSql: () => queryModernTrips(readCsvEscaped), label: "modern trip query" },
+    // Model-column queries go before query C, which would also match these years but drop bike type.
+    { buildSql: () => queryModernTrips(readCsvEscaped, "bike_model"), label: "modern trip query (bike_model)" },
+    { buildSql: () => queryModernTrips(readCsvEscaped, "model"), label: "modern trip query (model)" },
+    { buildSql: () => query2019NoBikeModel(readCsvEscaped), label: "query C (2019-2023, no model column)" },
     { buildSql: () => queryD2014MatrixTrips(tripsOnlyGlob, stationKeyCsv), label: "query D (2014-2015 OD matrix)" },
   ];
 
@@ -590,8 +637,8 @@ async function main(): Promise<void> {
         ? torontoLocalToUtcMs(endLc.y, endLc.m, endLc.d, endLc.h, endLc.mi, endLc.s)
         : startedUtcMs;
 
-      const startedAtDate = new Date(startedUtcMs);
-      const ym = `${startedAtDate.getUTCFullYear()}-${String(startedAtDate.getUTCMonth() + 1).padStart(2, "0")}`;
+      // Toronto month, not UTC: otherwise Dec 31 evening trips land in next year's January file.
+      const ym = `${startLc.y}-${String(startLc.m).padStart(2, "0")}`;
       const hour = localComponentsToHour(startLc);
 
       const startCanon = aliasMap.get(normalizeStationName(trip.raw_start_name));
@@ -640,7 +687,9 @@ async function main(): Promise<void> {
   console.log("\nDone.");
 }
 
-main().catch((err) => {
-  console.error(err);
-  process.exit(1);
-});
+if (import.meta.main) {
+  main().catch((err) => {
+    console.error(err);
+    process.exit(1);
+  });
+}

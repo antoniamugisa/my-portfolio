@@ -4,22 +4,24 @@ A modern, responsive portfolio website showcasing my development journey.
 
 ## Bike Share Toronto (interactive map)
 
-This repo also contains an interactive Deck.gl + Mapbox visualization at `"/projects/bike-share-toronto"` that streams trip data from monthly Parquet files using DuckDB WASM.
+This repo also contains an animated map of Toronto Bike Share trips at `/projects/bike-share-toronto`, built from the City of Toronto's [Bike Share ridership open data](https://open.toronto.ca/dataset/bike-share-toronto-ridership-data/). Each trip is drawn along a cycling route between its stations at the time it happened. The browser queries monthly Parquet files with DuckDB-WASM and renders them with deck.gl over Mapbox; there's no backend.
+
+You can play a typical hour of any published month, or jump to a specific date and time ("time travel") to see that day's real trips.
 
 ### Map requirements
 
-- **Mapbox token**: create a `.env.local` (or `.env`) in the repo root with:
+Create a `.env.local` (or `.env`) in the repo root:
 
 ```bash
 VITE_MAPBOX_TOKEN="your_mapbox_public_token"
+# Optional: load Parquets from somewhere other than the default R2 bucket
+VITE_BIKESHARE_PARQUET_BASE="https://your-bucket.example.com"
 ```
 
-The map reads it in `src/pages/bike-share-toronto/MapView.tsx` via `import.meta.env.VITE_MAPBOX_TOKEN`.
+### Data
 
-### Data requirements
-
-- **Trip Parquets**: the app loads monthly Parquets from a public R2 bucket (see `src/pages/bike-share-toronto/useTripStream.ts`).
-- **Generating Parquets locally**: see [`pipeline/README.md`](pipeline/README.md).
+- **Trip Parquets** are loaded from a public Cloudflare R2 bucket (see `src/pages/bike-share-toronto/useTripStream.ts`). Only months listed in `publishedMonths.ts` are requested.
+- **Generating and uploading Parquets:** see [`pipeline/README.md`](pipeline/README.md).
 
 ## Features
 

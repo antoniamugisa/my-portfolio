@@ -9,7 +9,9 @@ import { isPublishedParquetMonth } from './publishedMonths';
 import {
   getPlaybackHourWindow,
   hourStartTorontoMs,
+  nextPlaybackSlice,
   offsetMsIntoHourToronto,
+  type PlaybackSlice,
 } from './torontoTime';
 
 const R2_PUBLIC_ORIGIN =
@@ -311,9 +313,21 @@ export function deckTripFromDuckRow(
   row: Record<string, unknown>,
   monthKey: string,
   hour: number,
+  day: number | null = null,
 ): DeckTrip | null {
-  const { min: canonicalHourStartMs } = getPlaybackHourWindow(monthKey, hour);
+  const { min: canonicalHourStartMs } = getPlaybackHourWindow(monthKey, hour, day);
   return rowToDeckTrip(row, canonicalHourStartMs);
+}
+
+function sliceCacheKey(month: string, day: number | null, hour: number): string {
+  return `${month}:${day ?? '*'}:${hour}`;
+}
+
+/** SQL filter for one playback hour: that Toronto day's real hour (startedAt is UTC), or the hour across the month. */
+function sliceWhere(month: string, day: number | null, hour: number): string {
+  if (day === null) return `hour = ${hour}`;
+  const { min, max } = getPlaybackHourWindow(month, hour, day);
+  return `startedAt >= '${new Date(min).toISOString()}' AND startedAt < '${new Date(max).toISOString()}'`;
 }
 
 /** Return shape of `useTripStream` (includes prefetch for seamless hour rollovers). */
@@ -324,13 +338,15 @@ export type UseTripStreamResult = {
   loadingMessage: string;
   error: string | null;
   playbackWindow: { min: number; max: number };
-  prefetchHourForMonth: (month: string, hour: number) => Promise<void>;
+  prefetchHourForMonth: (month: string, hour: number, day?: number | null) => Promise<void>;
 };
 
 export function useTripStream(
   currentMonth: string,
   currentHour: number,
-  /** When the parquet has no trips for `currentHour` (e.g. partial-month file), we load the busiest hour and call this so UI state stays in sync. */
+  /** Toronto day of month to play; null samples `currentHour` across the whole month. */
+  currentDay: number | null,
+  /** When the parquet has no trips for `currentHour` (e.g. partial-month file), we load the busiest hour and call this so UI state stays in sync. Month-wide slices only. */
   onAutoPickHour?: (hour: number) => void,
 ): UseTripStreamResult {
   const [trips, setTrips] = useState<DeckTrip[]>([]);
@@ -338,12 +354,9 @@ export function useTripStream(
   const [isLoading, setIsLoading] = useState(true);
   const [loadingMessage, setLoadingMessage] = useState('');
   const [error, setError] = useState<string | null>(null);
-  /** Month/hour of the trips currently shown; playbackWindow follows this so the clock stays aligned during hour fetches. */
-  const [dataEpoch, setDataEpoch] = useState<{
-    month: string;
-    hour: number;
-  } | null>(null);
-  const dataEpochRef = useRef<{ month: string; hour: number } | null>(null);
+  /** Month/day/hour of the trips currently shown; playbackWindow follows this so the clock stays aligned during hour fetches. */
+  const [dataEpoch, setDataEpoch] = useState<PlaybackSlice | null>(null);
+  const dataEpochRef = useRef<PlaybackSlice | null>(null);
   const cacheRef = useRef<
     Map<
       string,
@@ -370,11 +383,12 @@ export function useTripStream(
     async (
       db: duckdb.AsyncDuckDB,
       month: string,
+      day: number | null,
       hour: number,
       tableName: string,
       totalTripsForMonth: number,
     ) => {
-      const key = `${month}:${hour}`;
+      const key = sliceCacheKey(month, day, hour);
       if (cacheRef.current.has(key)) return;
 
       const conn = await db.connect();
@@ -383,14 +397,14 @@ export function useTripStream(
         SELECT id, startName, endName, startedAt, endedAt,
                bikeType, memberCasual, routeGeometry, distanceM
         FROM ${tableName}
-        WHERE hour = ${hour}
+        WHERE ${sliceWhere(month, day, hour)}
         ORDER BY random()
         LIMIT 1800
       `);
         const rows = res
           .toArray()
           .map((r: { toJSON: () => Record<string, unknown> }) => r.toJSON());
-        const { min: canonicalHourStartMs } = getPlaybackHourWindow(month, hour);
+        const { min: canonicalHourStartMs } = getPlaybackHourWindow(month, hour, day);
         const deckTrips = rows
           .map((row) => rowToDeckTrip(row, canonicalHourStartMs))
           .filter((t): t is DeckTrip => t !== null);
@@ -405,10 +419,10 @@ export function useTripStream(
 
   const playbackWindow = useMemo(() => {
     if (trips.length > 0 && dataEpoch) {
-      return getPlaybackHourWindow(dataEpoch.month, dataEpoch.hour);
+      return getPlaybackHourWindow(dataEpoch.month, dataEpoch.hour, dataEpoch.day);
     }
-    return getPlaybackHourWindow(currentMonth, currentHour);
-  }, [trips.length, dataEpoch, currentMonth, currentHour]);
+    return getPlaybackHourWindow(currentMonth, currentHour, currentDay);
+  }, [trips.length, dataEpoch, currentMonth, currentHour, currentDay]);
 
   useEffect(() => {
     let cancelled = false;
@@ -417,7 +431,7 @@ export function useTripStream(
       const seamlessHourChange =
         dataEpochRef.current !== null &&
         dataEpochRef.current.month === currentMonth &&
-        dataEpochRef.current.hour !== currentHour;
+        (dataEpochRef.current.hour !== currentHour || dataEpochRef.current.day !== currentDay);
 
       if (!seamlessHourChange) {
         setTrips([]);
@@ -432,7 +446,7 @@ export function useTripStream(
         const db = await getDB();
         if (cancelled) return;
 
-        const cacheKeyForRequest = `${currentMonth}:${currentHour}`;
+        const cacheKeyForRequest = sliceCacheKey(currentMonth, currentDay, currentHour);
 
         if (seamlessHourChange) {
           /**
@@ -442,7 +456,7 @@ export function useTripStream(
            */
           const cached = cacheRef.current.get(cacheKeyForRequest);
           if (cached) {
-            const epoch = { month: currentMonth, hour: currentHour };
+            const epoch = { month: currentMonth, day: currentDay, hour: currentHour };
             dataEpochRef.current = epoch;
             setDataEpoch(epoch);
             setTrips(cached.trips);
@@ -460,7 +474,7 @@ export function useTripStream(
         if (!seamlessHourChange) {
           const cachedWarm = cacheRef.current.get(cacheKeyForRequest);
           if (cachedWarm) {
-            const epochHit = { month: currentMonth, hour: currentHour };
+            const epochHit = { month: currentMonth, day: currentDay, hour: currentHour };
             dataEpochRef.current = epochHit;
             setDataEpoch(epochHit);
             setTrips(cachedWarm.trips);
@@ -487,12 +501,21 @@ export function useTripStream(
          * We don't know `totalTrips` yet; use the current state value as a placeholder —
          * it will be overwritten when the main load finishes.
          */
-        const nextHourEarly = (currentHour + 1) % 24;
-        const nextKeyEarly = `${currentMonth}:${nextHourEarly}`;
-        if (!cacheRef.current.has(nextKeyEarly)) {
+        const nextEarly = nextPlaybackSlice({ month: currentMonth, day: currentDay, hour: currentHour });
+        if (
+          nextEarly.month === currentMonth &&
+          !cacheRef.current.has(sliceCacheKey(nextEarly.month, nextEarly.day, nextEarly.hour))
+        ) {
           Promise.resolve()
             .then(() =>
-              prefetchHour(db, currentMonth, nextHourEarly, tableName, totalTripsRef.current),
+              prefetchHour(
+                db,
+                currentMonth,
+                nextEarly.day,
+                nextEarly.hour,
+                tableName,
+                totalTripsRef.current,
+              ),
             )
             .catch(() => {});
         }
@@ -509,7 +532,7 @@ export function useTripStream(
             SELECT id, startName, endName, startedAt, endedAt,
                    bikeType, memberCasual, routeGeometry, distanceM
             FROM ${tableName}
-            WHERE hour = ${hourForData}
+            WHERE ${sliceWhere(currentMonth, currentDay, hourForData)}
             ORDER BY random()
             LIMIT 1800
           `);
@@ -519,7 +542,8 @@ export function useTripStream(
             .toArray()
             .map((r: { toJSON: () => Record<string, unknown> }) => r.toJSON());
 
-          if (rows.length === 0 && total > 0) {
+          // A specific day may genuinely be empty at that hour; only month-wide slices jump to the busiest hour.
+          if (rows.length === 0 && total > 0 && currentDay === null) {
             const pickRes = await conn.query(`
               SELECT hour AS h
               FROM ${tableName}
@@ -557,14 +581,15 @@ export function useTripStream(
           const { min: canonicalHourStartMs } = getPlaybackHourWindow(
             currentMonth,
             hourForData,
+            currentDay,
           );
 
           const deckTrips = rows
             .map((row) => rowToDeckTrip(row, canonicalHourStartMs))
             .filter((t): t is DeckTrip => t !== null);
 
-          const epoch = { month: currentMonth, hour: hourForData };
-          const resolvedCacheKey = `${currentMonth}:${hourForData}`;
+          const epoch = { month: currentMonth, day: currentDay, hour: hourForData };
+          const resolvedCacheKey = sliceCacheKey(currentMonth, currentDay, hourForData);
 
           if (!cancelled) {
             dataEpochRef.current = epoch;
@@ -585,12 +610,14 @@ export function useTripStream(
              * Prefetch the next hour in the background (same month) so the rollover is
              * near-instant most of the time.
              */
-            const nextHour = (hourForData + 1) % 24;
-            const nextKey = `${currentMonth}:${nextHour}`;
-            if (!cacheRef.current.has(nextKey)) {
+            const next = nextPlaybackSlice(epoch);
+            if (
+              next.month === currentMonth &&
+              !cacheRef.current.has(sliceCacheKey(next.month, next.day, next.hour))
+            ) {
               Promise.resolve()
                 .then(async () => {
-                  await prefetchHour(db, currentMonth, nextHour, tableName, total);
+                  await prefetchHour(db, currentMonth, next.day, next.hour, tableName, total);
                 })
                 .catch(() => {});
             }
@@ -612,19 +639,19 @@ export function useTripStream(
     return () => {
       cancelled = true;
     };
-  }, [currentMonth, currentHour, onAutoPickHour, prefetchHour]);
+  }, [currentMonth, currentHour, currentDay, onAutoPickHour, prefetchHour]);
 
   /**
-   * Ensures the given month/hour slice is in the in-memory cache (same query as rollover).
+   * Ensures the given month/day/hour slice is in the in-memory cache (same query as rollover).
    * Call from the map before advancing the clock so the seamless path hits the cache and the
    * deck never goes through an empty `trips` frame.
    */
   const prefetchHourForMonth = useCallback(
-    async (month: string, hour: number) => {
+    async (month: string, hour: number, day: number | null = null) => {
       const db = await getDB();
       await ensureMonthLoaded(db, month);
       const tableName = `trips_${month.replace('-', '_')}`;
-      await prefetchHour(db, month, hour, tableName, totalTrips);
+      await prefetchHour(db, month, day, hour, tableName, totalTrips);
     },
     [totalTrips, prefetchHour],
   );
