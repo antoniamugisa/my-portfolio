@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Github, Linkedin, Download, Send } from 'lucide-react';
+import { Github, Linkedin, Send } from 'lucide-react';
 import { XLogo } from '@/components/ui/x-logo';
 
 const Hero: React.FC = () => {
@@ -105,14 +105,6 @@ const Hero: React.FC = () => {
               className="flex h-9 w-9 items-center justify-center rounded-full border border-border transition-colors hover:bg-secondary"
             >
               <XLogo className="h-4 w-4 text-foreground" />
-            </a>
-            <a
-              href="/resume.pdf"
-              download="Antonia_Mugisa_Resume.pdf"
-              className="flex h-9 w-9 items-center justify-center rounded-full border border-border transition-colors hover:bg-secondary"
-              title="Download Resume"
-            >
-              <Download className="h-4 w-4 text-foreground" />
             </a>
           </div>
       </div>
