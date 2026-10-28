@@ -10,7 +10,7 @@ export const bikeShareTorontoProject: Project = {
   technologies: ['React', 'TypeScript', 'DuckDB-WASM', 'deck.gl', 'Mapbox GL', 'Open Toronto Data', 'Vite'],
   category: 'Data Visualization',
   demoUrl: '#bike-share-demo',
-  githubUrl: '#',
+  githubUrl: 'https://github.com/antoniamugisa/my-portfolio/tree/main/src/pages/bike-share-toronto',
   featured: true,
   date: '2026-04-02',
   tags: ['Data Viz', 'Open Data', 'Toronto'],

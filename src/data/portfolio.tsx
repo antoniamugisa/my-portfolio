@@ -43,12 +43,6 @@ export const contactInfo = [
     href: 'mailto:antoniamugisa@gmail.com'
   },
   {
-    icon: 'Phone',
-    label: 'Phone',
-    value: '+1 (902) 237-0744',
-    href: 'tel:+19022370744'
-  },
-  {
     icon: 'MapPin',
     label: 'Location',
     value: 'Toronto, Canada',

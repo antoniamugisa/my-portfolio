@@ -31,3 +31,6 @@ public/data/*.csv
 pipeline/osm/
 pipeline/output/
 pipeline/data/
+
+# Local Cloudflare (wrangler / miniflare) state
+.wrangler/
