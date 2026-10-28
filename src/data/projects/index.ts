@@ -34,6 +34,8 @@ export interface Project {
   status: 'Completed' | 'Ongoing' | 'Planned';
   longDescription?: string;
   keyFeatures?: string;
+  /** How the project is built; shown as "How It Works" after Key Features. */
+  architecture?: string;
   challenges?: string;
   learnings?: string;
   futureImprovements?: string;
