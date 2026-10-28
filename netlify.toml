@@ -3,24 +3,6 @@
   publish = "dist"
 
 [[redirects]]
-  from = "/api/gbfs/*"
-  to = "https://tor.publicbikesystem.net/:splat"
-  status = 200
-  force = true
-
-[[redirects]]
-  from = "/api/opendata/*"
-  to = "https://opendata.toronto.ca/:splat"
-  status = 200
-  force = true
-
-[[redirects]]
-  from = "/api/ckan/*"
-  to = "https://ckan0.cf.opendata.inter.prod-toronto.ca/:splat"
-  status = 200
-  force = true
-
-[[redirects]]
   from = "/*"
   to = "/index.html"
   status = 200
