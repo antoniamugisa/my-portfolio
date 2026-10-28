@@ -1,4 +1,6 @@
 import { useState } from 'react';
+import { STATIONS } from '../bike-share-toronto/types';
+import { EXAMPLE_RIDE } from './bikeShareExampleRide';
 
 /** Three real rows from the City's July 2025 file, and what each end-station ID actually is. */
 const CSV_ROWS = [
@@ -202,6 +204,154 @@ export function DayCompareFigure({ onOpenMoment }: { onOpenMoment?: (isoLocal: s
           </button>
         )}
       </div>
+    </div>
+  );
+}
+
+/** Metres between two [lng, lat] points. */
+function haversineM(a: [number, number], b: [number, number]): number {
+  const R = 6371000;
+  const toRad = (d: number) => (d * Math.PI) / 180;
+  const dLat = toRad(b[1] - a[1]);
+  const dLng = toRad(b[0] - a[0]);
+  const h = Math.sin(dLat / 2) ** 2 + Math.cos(toRad(a[1])) * Math.cos(toRad(b[1])) * Math.sin(dLng / 2) ** 2;
+  return 2 * R * Math.asin(Math.sqrt(h));
+}
+
+/** One real ride: its street route against the straight line between its stations, over nearby docks. */
+export function RouteFigure({ onFollowRide }: { onFollowRide?: () => void }) {
+  const path = EXAMPLE_RIDE.path;
+  const start = path[0]!;
+  const end = path[path.length - 1]!;
+  const straightKm = haversineM(start, end) / 1000;
+  const routedKm = EXAMPLE_RIDE.routedM / 1000;
+
+  // Frame the ride with room around it, then project lng/lat to a flat, north-up box.
+  const lngs = path.map((p) => p[0]);
+  const lats = path.map((p) => p[1]);
+  const padLng = (Math.max(...lngs) - Math.min(...lngs)) * 0.35;
+  const padLat = (Math.max(...lats) - Math.min(...lats)) * 0.6;
+  const minLng = Math.min(...lngs) - padLng;
+  const maxLng = Math.max(...lngs) + padLng;
+  const minLat = Math.min(...lats) - padLat;
+  const maxLat = Math.max(...lats) + padLat;
+  const kx = Math.cos(((minLat + maxLat) / 2) * (Math.PI / 180));
+  const W = 600;
+  const scale = W / ((maxLng - minLng) * kx);
+  const H = (maxLat - minLat) * scale;
+  const project = ([lng, lat]: [number, number]) => [(lng - minLng) * kx * scale, (maxLat - lat) * scale] as const;
+
+  const docks = STATIONS.filter((s) => s.lng > minLng && s.lng < maxLng && s.lat > minLat && s.lat < maxLat);
+  const routeD = path.map((p, i) => `${i === 0 ? 'M' : 'L'}${project(p)[0].toFixed(1)},${project(p)[1].toFixed(1)}`).join(' ');
+  const [sx, sy] = project(start);
+  const [ex, ey] = project(end);
+
+  return (
+    <div>
+      <svg viewBox={`0 0 ${W} ${H.toFixed(0)}`} className="h-auto w-full" role="img" aria-label={`Route from ${EXAMPLE_RIDE.startName} to ${EXAMPLE_RIDE.endName}`}>
+        {docks.map((s) => {
+          const [x, y] = project([s.lng, s.lat]);
+          return <circle key={s.id} cx={x} cy={y} r={2.2} className="fill-foreground/20" />;
+        })}
+        <line x1={sx} y1={sy} x2={ex} y2={ey} className="stroke-foreground/45" strokeWidth={1.5} strokeDasharray="5 5" />
+        <path d={routeD} fill="none" className="stroke-foreground" strokeWidth={3} strokeLinejoin="round" strokeLinecap="round" />
+        <circle cx={sx} cy={sy} r={6} className="fill-foreground stroke-background" strokeWidth={2} />
+        <circle cx={ex} cy={ey} r={6} className="fill-background stroke-foreground" strokeWidth={2.5} />
+        {/* Labels sit outside the route: the start below it, the end above it. */}
+        <text x={sx - 6} y={sy + 26} className="fill-foreground text-[13px]">
+          {EXAMPLE_RIDE.startName}
+        </text>
+        <text x={ex + 6} y={ey - 14} textAnchor="end" className="fill-foreground text-[13px]">
+          {EXAMPLE_RIDE.endName}
+        </text>
+      </svg>
+
+      <div className="mt-4 flex flex-wrap items-center justify-between gap-3 border-t border-border pt-4 text-sm">
+        <div className="flex flex-wrap gap-x-5 gap-y-1 text-muted-foreground">
+          <span className="inline-flex items-center gap-1.5">
+            <span className="inline-block h-0.5 w-5 bg-foreground" aria-hidden /> Routed: {routedKm.toFixed(1)} km
+          </span>
+          <span className="inline-flex items-center gap-1.5">
+            <span className="inline-block w-5 border-t-2 border-dashed border-foreground/45" aria-hidden /> Straight line:{' '}
+            {straightKm.toFixed(1)} km
+          </span>
+          <span className="inline-flex items-center gap-1.5">
+            <span className="inline-block h-1.5 w-1.5 rounded-full bg-foreground/30" aria-hidden /> Docks
+          </span>
+        </div>
+        {onFollowRide && (
+          <button
+            type="button"
+            onClick={onFollowRide}
+            className="text-sm text-foreground underline decoration-border underline-offset-4 transition-colors hover:decoration-foreground"
+          >
+            Follow this ride →
+          </button>
+        )}
+      </div>
+    </div>
+  );
+}
+
+/** The example ride's start, as epoch ms: the size of number a 32-bit float would have to hold. */
+const FLOAT_DEMO_START_MS = Date.UTC(2024, 6, 18, 21, 24, 0);
+const FLOAT_DEMO_SPAN_S = 240;
+const FLOAT_DEMO_STEP_S = 4;
+
+/**
+ * Where a ride's clock lands when stored in 32 bits, computed with Math.fround (the GPU's rounding):
+ * as time since 1970 it snaps to coarse steps; as time since the hour started it stays smooth.
+ */
+export function Float32Figure() {
+  const seconds = Array.from({ length: FLOAT_DEMO_SPAN_S / FLOAT_DEMO_STEP_S + 1 }, (_, i) => i * FLOAT_DEMO_STEP_S);
+  const base = Math.fround(FLOAT_DEMO_START_MS);
+  const rows = [
+    {
+      label: 'Time since 1970',
+      positions: seconds.map((s) => (Math.fround(FLOAT_DEMO_START_MS + s * 1000) - base) / 1000),
+    },
+    {
+      label: 'Time since the hour started',
+      positions: seconds.map((s) => Math.fround(s * 1000) / 1000),
+    },
+  ];
+  const stepS = 2 ** (Math.floor(Math.log2(FLOAT_DEMO_START_MS)) - 23) / 1000;
+
+  return (
+    <div className="space-y-6">
+      {rows.map((row) => {
+        const distinct = new Set(row.positions.map((p) => p.toFixed(3))).size;
+        return (
+          <div key={row.label}>
+            <div className="mb-2 flex items-baseline justify-between text-xs">
+              <span className="uppercase tracking-[0.14em] text-muted-foreground">{row.label}</span>
+              <span className="font-mono text-foreground/80">
+                {distinct} distinct position{distinct === 1 ? '' : 's'} in {FLOAT_DEMO_SPAN_S / 60} minutes
+              </span>
+            </div>
+            <div className="relative h-6 rounded bg-foreground/[0.06]">
+              {row.positions.map((p, i) => (
+                <span
+                  key={i}
+                  className="absolute top-1/2 h-2.5 w-2.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-foreground/70"
+                  style={{ left: `${Math.min(100, (p / FLOAT_DEMO_SPAN_S) * 100)}%` }}
+                />
+              ))}
+            </div>
+          </div>
+        );
+      })}
+      <div className="flex justify-between font-mono text-[10px] text-muted-foreground">
+        <span>0 s</span>
+        <span>1 min</span>
+        <span>2 min</span>
+        <span>3 min</span>
+        <span>4 min</span>
+      </div>
+      <p className="text-xs text-muted-foreground">
+        A ride's position every {FLOAT_DEMO_STEP_S} seconds. Near 1.7 trillion ms, a 32-bit float can only step every{' '}
+        {stepS.toFixed(0)} seconds.
+      </p>
     </div>
   );
 }

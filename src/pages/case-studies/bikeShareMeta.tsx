@@ -6,8 +6,8 @@ export const bikeShareMeta: CaseStudyMeta = {
   stack: ['React + TypeScript', 'DuckDB-WASM + Parquet', 'deck.gl + Mapbox GL', 'GraphHopper', 'Bun', 'Cloudflare R2'],
   overview: (
     <>
-      Toronto publishes every Bike Share ride as open data, but as spreadsheets nobody can picture. I wanted to see the
-      city move: every ride drawn along its streets, at the time it happened, in a browser with no server behind it.
+      Toronto publishes every Bike Share ride as open data, but as spreadsheets nobody can actually picture. I wanted to
+      see the city move: every ride on its real streets, at the time it happened, right in the browser.
     </>
   ),
 };

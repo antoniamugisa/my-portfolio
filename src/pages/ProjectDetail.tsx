@@ -45,9 +45,9 @@ const ProjectDetail = () => {
     };
   }, [bikeDemoOpen]);
 
-  /** Opens the bike share demo, optionally at a Toronto wall time ("2024-07-01T22:00"). */
-  const openBikeDemo = useCallback((isoLocal?: string) => {
-    const search = isoLocal ? `?t=${isoLocal}` : window.location.search;
+  /** Opens the bike share demo, optionally at a Toronto wall time ("2024-07-01T22:00") and following a ride. */
+  const openBikeDemo = useCallback((isoLocal?: string, rideId?: string) => {
+    const search = isoLocal ? `?t=${isoLocal}${rideId ? `&ride=${encodeURIComponent(rideId)}` : ''}` : window.location.search;
     window.history.replaceState(null, '', `${window.location.pathname}${search}#bike-share-demo`);
     setBikeDemoOpen(true);
   }, []);

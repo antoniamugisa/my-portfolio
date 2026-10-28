@@ -57,27 +57,19 @@ export function Figure({
   );
 }
 
-/** Before → after numbers. */
-export function StatCompare({
-  items,
-}: {
-  items: { label: string; before: string; after: string; note?: string }[];
-}) {
+/** A before → after number set into the text, lighter than a full figure. */
+export function StatCallout({ label, before, after, note }: { label: string; before: string; after: string; note?: string }) {
   return (
-    <div className={`grid gap-6 ${items.length > 1 ? 'sm:grid-cols-2' : ''}`}>
-      {items.map((item) => (
-        <div key={item.label}>
-          <div className="text-xs uppercase tracking-[0.14em] text-muted-foreground">{item.label}</div>
-          <div className="mt-3 flex items-baseline gap-3 font-mono">
-            <span className="text-xl text-muted-foreground line-through decoration-1">{item.before}</span>
-            <span className="text-muted-foreground" aria-hidden>
-              →
-            </span>
-            <span className="text-3xl text-foreground">{item.after}</span>
-          </div>
-          {item.note && <div className="mt-2 text-sm text-muted-foreground">{item.note}</div>}
-        </div>
-      ))}
+    <div className="my-8 border-l-2 border-foreground/30 pl-5">
+      <div className="text-xs uppercase tracking-[0.14em] text-muted-foreground">{label}</div>
+      <div className="mt-2 flex items-baseline gap-3 font-mono">
+        <span className="text-lg text-muted-foreground line-through decoration-1">{before}</span>
+        <span className="text-muted-foreground" aria-hidden>
+          →
+        </span>
+        <span className="text-2xl text-foreground">{after}</span>
+      </div>
+      {note && <div className="mt-1 text-sm text-muted-foreground">{note}</div>}
     </div>
   );
 }
