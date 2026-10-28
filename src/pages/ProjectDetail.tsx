@@ -231,6 +231,16 @@ const ProjectDetail = () => {
             </div>
           )}
 
+          {/* Architecture */}
+          {project.architecture && (
+            <div>
+              <h2 className="mb-4 font-normal text-foreground leading-relaxed">How It Works</h2>
+              <p className="font-normal leading-relaxed whitespace-pre-line">
+                {project.architecture}
+              </p>
+            </div>
+          )}
+
           {/* Challenges */}
           {project.challenges && (
             <div>
