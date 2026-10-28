@@ -18,6 +18,8 @@ Jump to an hour from 2017 to 2025, watch the city move, or pick a single ride an
 - **Jump to a moment.** Type a time (`July 1, 2025 10pm`) or pick one: weekday rush, Canada Day night, the Pride Parade.
 - **Find a real ride.** Pick a start station and see the rides that left it around that time. Choose one and the map
   follows it, with a live status ("Riding · 9 min to go"), distance and speed.
+- **Share a moment.** The address bar always points at the hour you're watching, and the link button copies the
+  exact minute (and the ride you're following), e.g. `?t=2025-07-01T22:00&ride=…`.
 - **See who's riding.** A panel shows the member/casual and classic/e-bike split for the hour, the typical ride length,
   and the busiest start station. On Canada Day 2025 at 10pm that was the dock by the fireworks.
 
@@ -61,6 +63,9 @@ In development, Vite proxies them so DuckDB isn't blocked by CORS.
 
 ### 3. In the browser
 
+- **First frame.** The demo opens on a July 2024 weekday rush hour. That hour ships as a static JSON file
+  ([`firstHour.ts`](firstHour.ts)), so ~3,800 rides draw in about a second while DuckDB-WASM loads in the background.
+  Before this, the first frame waited ~17 s for the WASM engine and a month-sized query.
 - **Query.** [`useTripStream.ts`](useTripStream.ts) registers each month as a DuckDB-WASM view over its Parquet file and
   runs one SQL query per playback hour. A real day-hour loads every ride (up to 6,000); the month-wide default view
   overlays that hour from every day of the month and samples 1,800.
@@ -99,6 +104,8 @@ meant routing about 90,000 station pairs that had never been seen before.
 | [`ExploreSheet.tsx`](ExploreSheet.tsx) | Time travel and Find a ride |
 | [`RidesPanel.tsx`](RidesPanel.tsx) | Riding-now count and the hour's rider split |
 | [`TripCard.tsx`](TripCard.tsx) | The followed ride's details and live status |
+| [`firstHour.ts`](firstHour.ts) | The opening hour, loaded from a static file |
+| [`shareLink.ts`](shareLink.ts) | Reading and writing `?t=…&ride=…` links |
 | [`torontoTime.ts`](torontoTime.ts) | Toronto wall-clock ↔ UTC, DST-safe |
 
 ## Running it locally

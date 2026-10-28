@@ -5,6 +5,7 @@ import duckdb_wasm_eh from '@duckdb/duckdb-wasm/dist/duckdb-eh.wasm?url';
 import mvp_worker from '@duckdb/duckdb-wasm/dist/duckdb-browser-mvp.worker.js?url';
 import eh_worker from '@duckdb/duckdb-wasm/dist/duckdb-browser-eh.worker.js?url';
 import { MAP_BOUNDS, type DeckTrip } from './types';
+import { isFirstHour, loadFirstHour } from './firstHour';
 import { isPublishedParquetMonth } from './publishedMonths';
 import {
   getPlaybackHourWindow,
@@ -71,10 +72,20 @@ export function getDB(): Promise<duckdb.AsyncDuckDB> {
   return dbPromise;
 }
 
-const registeredMonths = new Set<string>();
+/** One registration per month, shared by concurrent callers (a failed one can be retried). */
+const monthRegistrations = new Map<string, Promise<void>>();
 
-export async function ensureMonthLoaded(db: duckdb.AsyncDuckDB, month: string) {
-  if (registeredMonths.has(month)) return;
+export function ensureMonthLoaded(db: duckdb.AsyncDuckDB, month: string): Promise<void> {
+  let registration = monthRegistrations.get(month);
+  if (!registration) {
+    registration = registerMonth(db, month);
+    monthRegistrations.set(month, registration);
+    registration.catch(() => monthRegistrations.delete(month));
+  }
+  return registration;
+}
+
+async function registerMonth(db: duckdb.AsyncDuckDB, month: string): Promise<void> {
   const url = parquetUrl(month);
   const tableName = `trips_${month.replace('-', '_')}`;
 
@@ -108,7 +119,6 @@ export async function ensureMonthLoaded(db: duckdb.AsyncDuckDB, month: string) {
       CREATE VIEW IF NOT EXISTS ${tableName}
       AS SELECT * FROM read_parquet('${url}')
     `);
-    registeredMonths.add(month);
   } finally {
     await conn.close();
   }
@@ -362,7 +372,6 @@ function isSampledSlice(day: number | null, rowCount: number): boolean {
 /** Return shape of `useTripStream` (includes prefetch for seamless hour rollovers). */
 export type UseTripStreamResult = {
   trips: DeckTrip[];
-  totalTrips: number;
   /** Trips are a random sample of the hour, so counts are not the real number of rides. */
   isSampled: boolean;
   isLoading: boolean;
@@ -381,7 +390,6 @@ export function useTripStream(
   onAutoPickHour?: (hour: number) => void,
 ): UseTripStreamResult {
   const [trips, setTrips] = useState<DeckTrip[]>([]);
-  const [totalTrips, setTotalTrips] = useState(0);
   const [isSampled, setIsSampled] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [loadingMessage, setLoadingMessage] = useState('');
@@ -394,14 +402,10 @@ export function useTripStream(
       string,
       {
         trips: DeckTrip[];
-        totalTrips: number;
         isSampled: boolean;
       }
     >
   >(new Map());
-  /** Latest count for early prefetch only — avoids re-running the main load effect when `totalTrips` updates. */
-  const totalTripsRef = useRef(0);
-  totalTripsRef.current = totalTrips;
   const pruneCache = () => {
     const c = cacheRef.current;
     const MAX = 8;
@@ -419,7 +423,6 @@ export function useTripStream(
       day: number | null,
       hour: number,
       tableName: string,
-      totalTripsForMonth: number,
     ) => {
       const key = sliceCacheKey(month, day, hour);
       if (cacheRef.current.has(key)) return;
@@ -436,7 +439,6 @@ export function useTripStream(
           .filter((t): t is DeckTrip => t !== null);
         cacheRef.current.set(key, {
           trips: deckTrips,
-          totalTrips: totalTripsForMonth,
           isSampled: isSampledSlice(day, rows.length),
         });
         pruneCache();
@@ -468,12 +470,35 @@ export function useTripStream(
         setIsSampled(false);
         setIsLoading(true);
         setError(null);
-        setLoadingMessage(`Initialising DuckDB...`);
+        setLoadingMessage('Loading rides…');
       } else {
         setError(null);
       }
 
       try {
+        const slice = { month: currentMonth, day: currentDay, hour: currentHour };
+        const sliceKey = sliceCacheKey(currentMonth, currentDay, currentHour);
+        if (isFirstHour(slice) && !cacheRef.current.has(sliceKey)) {
+          // The opening hour ships as a static file, so it draws before DuckDB-WASM has even loaded.
+          const first = await loadFirstHour();
+          if (cancelled) return;
+          if (first) {
+            const deckTrips = first.rows
+              .map((row) => rowToDeckTrip(row, slice))
+              .filter((t): t is DeckTrip => t !== null);
+            cacheRef.current.set(sliceKey, { trips: deckTrips, isSampled: first.sampled });
+            dataEpochRef.current = slice;
+            setDataEpoch(slice);
+            setTrips(deckTrips);
+            setIsSampled(first.sampled);
+            setIsLoading(false);
+            setLoadingMessage('');
+            // Warm DuckDB for search and later hours; the map prefetches the next hour itself.
+            getDB().catch(() => {});
+            return;
+          }
+        }
+
         const db = await getDB();
         if (cancelled) return;
 
@@ -491,7 +516,6 @@ export function useTripStream(
             dataEpochRef.current = epoch;
             setDataEpoch(epoch);
             setTrips(cached.trips);
-            setTotalTrips(cached.totalTrips);
             setIsSampled(cached.isSampled);
             return;
           }
@@ -510,7 +534,6 @@ export function useTripStream(
             dataEpochRef.current = epochHit;
             setDataEpoch(epochHit);
             setTrips(cachedWarm.trips);
-            setTotalTrips(cachedWarm.totalTrips);
             setIsSampled(cachedWarm.isSampled);
             setIsLoading(false);
             setError(null);
@@ -527,39 +550,8 @@ export function useTripStream(
 
         const tableName = `trips_${currentMonth.replace('-', '_')}`;
 
-        /**
-         * Warm the next hour *immediately* (even before the current hour query finishes),
-         * so the first hour rollover is also seamless.
-         *
-         * We don't know `totalTrips` yet; use the current state value as a placeholder —
-         * it will be overwritten when the main load finishes.
-         */
-        const nextEarly = nextPlaybackSlice({ month: currentMonth, day: currentDay, hour: currentHour });
-        if (
-          nextEarly.month === currentMonth &&
-          !cacheRef.current.has(sliceCacheKey(nextEarly.month, nextEarly.day, nextEarly.hour))
-        ) {
-          Promise.resolve()
-            .then(() =>
-              prefetchHour(
-                db,
-                currentMonth,
-                nextEarly.day,
-                nextEarly.hour,
-                tableName,
-                totalTripsRef.current,
-              ),
-            )
-            .catch(() => {});
-        }
-
         const conn = await db.connect();
         try {
-          const countResult = await conn.query(`SELECT COUNT(*) as c FROM ${tableName}`);
-          const total = Number(
-            (countResult.toArray()[0] as { toJSON: () => Record<string, unknown> }).toJSON().c,
-          );
-
           let hourForData = currentHour;
           const result = await conn.query(
             sliceQuery(tableName, currentMonth, currentDay, hourForData),
@@ -571,7 +563,7 @@ export function useTripStream(
             .map((r: { toJSON: () => Record<string, unknown> }) => r.toJSON());
 
           // A specific day may genuinely be empty at that hour; only month-wide slices jump to the busiest hour.
-          if (rows.length === 0 && total > 0 && currentDay === null) {
+          if (rows.length === 0 && currentDay === null) {
             const pickRes = await conn.query(`
               SELECT hour AS h
               FROM ${tableName}
@@ -612,14 +604,12 @@ export function useTripStream(
             dataEpochRef.current = epoch;
             setDataEpoch(epoch);
             setTrips(deckTrips);
-            setTotalTrips(total);
             setIsSampled(sampled);
             setIsLoading(false);
             setLoadingMessage('');
 
             cacheRef.current.set(resolvedCacheKey, {
               trips: deckTrips,
-              totalTrips: total,
               isSampled: sampled,
             });
             pruneCache();
@@ -639,7 +629,7 @@ export function useTripStream(
             ) {
               Promise.resolve()
                 .then(async () => {
-                  await prefetchHour(db, currentMonth, next.day, next.hour, tableName, total);
+                  await prefetchHour(db, currentMonth, next.day, next.hour, tableName);
                 })
                 .catch(() => {});
             }
@@ -673,14 +663,13 @@ export function useTripStream(
       const db = await getDB();
       await ensureMonthLoaded(db, month);
       const tableName = `trips_${month.replace('-', '_')}`;
-      await prefetchHour(db, month, day, hour, tableName, totalTrips);
+      await prefetchHour(db, month, day, hour, tableName);
     },
-    [totalTrips, prefetchHour],
+    [prefetchHour],
   );
 
   return {
     trips,
-    totalTrips,
     isSampled,
     isLoading,
     loadingMessage,

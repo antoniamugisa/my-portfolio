@@ -127,3 +127,13 @@ export async function fetchNearestRidesFromStation(
     .filter((r) => Number.isFinite(r.startedAtMs))
     .sort((a, b) => a.startedAtMs - b.startedAtMs);
 }
+
+/** One ride by id, for opening a shared link to a ride that isn't in the loaded hour's sample. */
+export async function fetchRideById(monthKey: string, id: string): Promise<RideRow | null> {
+  const rows = await queryMonth(
+    monthKey,
+    (t) => `SELECT ${RIDE_COLUMNS} FROM ${t} WHERE id = ${sqlString(id)} LIMIT 1`,
+  );
+  const ride = rows.map(toRideRow)[0];
+  return ride && ride.hasRoute && Number.isFinite(ride.startedAtMs) ? ride : null;
+}
