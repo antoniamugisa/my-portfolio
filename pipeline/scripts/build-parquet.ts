@@ -191,13 +191,35 @@ export function query2019NoBikeModel(readCsvFrom: string): string {
   `;
 }
 
+/**
+ * End station name for modern CSVs, looked up from `end_station_id`: the name that id goes by as a
+ * start station in the same file. The 2025 files repeat the start station's name in
+ * End_Station_Name on every row (End_Station_Id is right), so the name column can't be trusted.
+ * An id that never starts a ride in its file falls back to the file's end name, unless that is just
+ * the start name repeated (the id differs, so it can't be a round trip) — then the trip is dropped.
+ */
+const END_NAME_FROM_ID_SQL = `CASE
+        WHEN start_names.name IS NOT NULL THEN start_names.name
+        WHEN trips.end_station_name <> trips.start_station_name THEN trips.end_station_name
+      END`;
+
 /** 2024+ CSVs with a bike model column: `Model` (2024) or `Bike_Model` (2025+). EFIT/Boost = e-bike. */
 export function queryModernTrips(readCsvFrom: string, modelColumn: "bike_model" | "model"): string {
   return `
+    WITH trips AS (
+      SELECT * FROM ${readCsvWithIsoTimes(readCsvFrom, "start_time", "end_time")}
+      WHERE start_station_name IS NOT NULL AND end_station_name IS NOT NULL
+        AND TRIM(start_station_name) <> '' AND TRIM(end_station_name) <> ''
+    ),
+    start_names AS (
+      SELECT filename, start_station_id AS id, mode(start_station_name) AS name
+      FROM trips
+      GROUP BY filename, start_station_id
+    )
     SELECT
       CAST(trip_id AS VARCHAR) AS trip_row_id,
-      LOWER(TRIM(start_station_name)) AS raw_start_name,
-      LOWER(TRIM(end_station_name)) AS raw_end_name,
+      LOWER(TRIM(trips.start_station_name)) AS raw_start_name,
+      LOWER(TRIM(${END_NAME_FROM_ID_SQL})) AS raw_end_name,
       started_at_iso AS started_at_str,
       ended_at_iso AS ended_at_str,
       CASE
@@ -206,9 +228,10 @@ export function queryModernTrips(readCsvFrom: string, modelColumn: "bike_model" 
         ELSE 'classic_bike'
       END AS bike_type,
       ${MEMBER_CASUAL_SQL}
-    FROM ${readCsvWithIsoTimes(readCsvFrom, "start_time", "end_time")}
-    WHERE start_station_name IS NOT NULL AND end_station_name IS NOT NULL
-      AND TRIM(start_station_name) <> '' AND TRIM(end_station_name) <> ''
+    FROM trips
+    LEFT JOIN start_names
+      ON start_names.filename = trips.filename AND start_names.id = trips.end_station_id
+    WHERE ${END_NAME_FROM_ID_SQL} IS NOT NULL
   `;
 }
 
@@ -586,7 +609,11 @@ async function main(): Promise<void> {
     `Loaded ${aliasMap.size} alias keys, ${routeCache.size} routes from ${ROUTE_DB} (JS Maps — not in DuckDB).\n`,
   );
 
-  const yearDirs = listYearExtractDirs().filter(yearFolderHasCsv);
+  // Optional filters, e.g. `bun run parquet -- 2025`, limit the run to matching year folders.
+  const yearFilters = process.argv.slice(2);
+  const yearDirs = listYearExtractDirs()
+    .filter(yearFolderHasCsv)
+    .filter((d) => yearFilters.length === 0 || yearFilters.some((y) => d.includes(y)));
   if (yearDirs.length === 0) {
     throw new Error(`No CSV files found under ${EXTRACTED_ROOT}. Run \`bun run stations\` to extract trip data.`);
   }

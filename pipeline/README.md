@@ -144,6 +144,7 @@ Reads each `data/extracted/` year folder, joins trips to stations and routes, an
 file per Toronto calendar month to `output/parquets/YYYY-MM.parquet`.
 
 **It skips any month whose file already exists.** To rebuild a month, delete its file first.
+Pass year filters to limit the run to those year folders, e.g. `bun run parquet -- 2025`.
 
 `bun run all` runs steps 4–6 in order.
 
@@ -174,6 +175,7 @@ The CSV format has changed many times. `build-parquet.ts` handles each era:
 | 2018–2024 | Users labelled `Annual Member` / `Casual Member` | Mapped to `member` / `casual` |
 | 2024 | Bike model in a `Model` column | `EFIT*` / `Boost` → `electric_bike` |
 | 2025+ | Bike model in a `Bike_Model` column | Same |
+| 2025 | `End_Station_Name` repeats the start station's name on every row | End names come from `End_Station_Id` (the name that id has as a start station in the same file), in both `build-routes.ts` and `build-parquet.ts` |
 | 2019–2023 | No bike model recorded | All trips are `classic_bike` |
 | All | Timestamps are Toronto local time | Converted to UTC; impossible dates (e.g. month 13) are rejected rather than rolled over |
 
