@@ -101,9 +101,17 @@ This profile caps speed at 15 km/h, never uses motorways or trunk roads, and str
 avoids destination-only roads. It does not specifically prefer protected bike lanes.
 
 ```bash
-docker run -d -p 8989:8989 -v "$(pwd)/osm:/data" israelhikingmap/graphhopper -c /data/config.yml
-docker logs -f $(docker ps -lq --filter "ancestor=israelhikingmap/graphhopper")
+docker run -d --name graphhopper -p 8989:8989 -e JAVA_OPTS="-Xmx3500m" \
+  -v "$(pwd)/osm:/data" israelhikingmap/graphhopper:11.0 -c /data/config.yml
+docker logs -f graphhopper
 ```
+
+Pin the image to `11.0`. Newer images reject `navigation_mode` in the config, and the cached
+graph in `osm/default-gh` is in 11.x's format, so 10.x can't read it either. Routes in
+`routes.db` were built with this version, so keeping it means new routes match the old ones.
+
+No Docker Desktop? `brew install colima docker && colima start --cpu 4 --memory 5` gives you a
+Docker engine without it.
 
 It's ready when the logs show `Started Server`. Check it with:
 
