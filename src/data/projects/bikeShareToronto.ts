@@ -20,7 +20,7 @@ export const bikeShareTorontoProject: Project = {
     'Monthly Parquet trip files are queried directly in the browser with DuckDB-WASM, and each ride is drawn along its route ' +
     "with deck.gl's TripsLayer on a Mapbox GL basemap, so you can watch an hour of city-wide riding unfold in a single animation.",
   keyFeatures:
-    'Trips animate along their real routes, colour-coded by member and casual riders. A live panel tracks active rides, frame rate and map bearing, alongside a data insights panel. You can search stations, spotlight a random trip, pause the animation, and rotate, tilt and zoom the map.',
+    'Trips animate along their real routes, colour-coded by member and casual riders. A timeline of rides per hour lets you scrub through the day and change playback speed, and a live panel shows who is riding this hour. You can jump to any moment in the data, find a real ride from a station and follow it from dock to dock, or follow a random ride.',
   challenges:
     'Loading and querying a month of trip data entirely in the browser with no backend, decoding route polylines stored at different precisions, mapping real trip timestamps into one replayable hour, and keeping deck.gl rendering smooth by running the animation loop outside React re-renders.',
   learnings:
