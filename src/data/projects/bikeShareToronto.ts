@@ -41,9 +41,9 @@ export const bikeShareTorontoProject: Project = {
     'CSVs for January to October 2025 repeat the start station\'s name in the end-station column on every row, about 7 ' +
     'million of them, while the end-station ID is correct. I changed the pipeline to resolve end stations from their IDs, ' +
     'which brought round trips from 100% back to a normal 2–3%, and routed the 90,000 new station pairs this uncovered.\n\n' +
-    'Making the first frame fast. The demo took about 17 seconds to show its first ride: 2.6 seconds to start DuckDB-WASM ' +
-    'and 8 seconds of queries competing for bandwidth. The opening hour now ships as a small static file, so rides appear in about a ' +
-    'second while DuckDB loads behind it.\n\n' +
+    'Making the first frame fast. The demo took 17.5 seconds to show its first ride: about 4 seconds to start DuckDB-WASM ' +
+    'and almost 10 seconds of queries competing for bandwidth. The opening hour now ships as a small static file, so the first ' +
+    'ride appears about 6 seconds after page load, while DuckDB loads behind it.\n\n' +
     'Smaller puzzles: the GPU uses 32-bit floats, which can\'t hold epoch timestamps precisely, so ride times are stored ' +
     'relative to the playback hour; and the CSV format changed almost every year, from day-first dates to new column names.',
   learnings:
