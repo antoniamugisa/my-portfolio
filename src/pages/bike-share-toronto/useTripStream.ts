@@ -10,7 +10,6 @@ import {
   getPlaybackHourWindow,
   hourStartTorontoMs,
   nextPlaybackSlice,
-  offsetMsIntoHourToronto,
   type PlaybackSlice,
 } from './torontoTime';
 
@@ -115,7 +114,7 @@ export async function ensureMonthLoaded(db: duckdb.AsyncDuckDB, month: string) {
   }
 }
 
-function toEpochMs(v: unknown): number {
+export function toEpochMs(v: unknown): number {
   if (v == null) return NaN;
   if (typeof v === 'bigint') {
     const n = Number(v);
@@ -221,10 +220,22 @@ function decodePolyline(encoded: string): [number, number][] {
   return ok6 ? d6 : d5;
 }
 
-function rowToDeckTrip(
-  row: Record<string, unknown>,
-  canonicalHourStartMs: number,
-): DeckTrip | null {
+/** Shortest / longest ride duration drawn; a handful of trips are stamped as lasting days. */
+const MIN_DRAWN_TRIP_MS = 60_000;
+const MAX_DRAWN_TRIP_MS = 2 * 3600000;
+
+/**
+ * Real start of the playback hour this row belongs to. Day slices play one real hour. Month-wide
+ * slices overlay that hour from every day, so each trip is placed against its own day's hour; a trip
+ * that started the hour before (still riding at :00) belongs to the next hour of its day.
+ */
+function sliceHourStartForRow(row: Record<string, unknown>, slice: PlaybackSlice): number {
+  if (slice.day !== null) return getPlaybackHourWindow(slice.month, slice.hour, slice.day).min;
+  const ownHourStart = hourStartTorontoMs(toEpochMs(row.startedAt));
+  return Number(row.hour) === slice.hour ? ownHourStart : ownHourStart + 3600000;
+}
+
+function rowToDeckTrip(row: Record<string, unknown>, slice: PlaybackSlice): DeckTrip | null {
   const geom = row.routeGeometry as string | null;
   if (!geom) return null;
 
@@ -235,26 +246,14 @@ function rowToDeckTrip(
   const endMs = toEpochMs(row.endedAt);
   if (!Number.isFinite(startMs) || !Number.isFinite(endMs)) return null;
 
-  /** Map real trip times into one synthetic Toronto hour so playback sweeps 0–60 min. */
-  const startOfHour = hourStartTorontoMs(startMs);
-  const offsetStart = offsetMsIntoHourToronto(startMs);
-  let tripCanonicalStart = canonicalHourStartMs + offsetStart;
-  const endOffsetFromHourStart = endMs - startOfHour;
-  let tripCanonicalEnd = Math.min(
-    canonicalHourStartMs + 3600000,
-    canonicalHourStartMs + endOffsetFromHourStart,
-  );
-  if (tripCanonicalEnd <= tripCanonicalStart) {
-    const dur = Math.max(60_000, Math.min(3600000, endMs - startMs));
-    const safeStart = Math.min(Math.max(0, offsetStart), 3600000 - dur);
-    tripCanonicalStart = canonicalHourStartMs + safeStart;
-    tripCanonicalEnd = tripCanonicalStart + dur;
-  }
-  if (tripCanonicalEnd <= tripCanonicalStart) return null;
-  /** Relative ms [0, 3600000] — TripsLayer uses float32; epoch-ms breaks time comparisons in the shader. */
-  const tripStartRel = tripCanonicalStart - canonicalHourStartMs;
-  const tripEndRel = tripCanonicalEnd - canonicalHourStartMs;
-  const span = Math.max(tripEndRel - tripStartRel, 60_000);
+  /**
+   * Relative ms from the start of the playback hour — TripsLayer uses float32, so epoch-ms breaks
+   * time comparisons in the shader. Rides keep their real timing: ones already underway at :00
+   * start below 0, and ones still riding at :60 end past 3600000 (the next hour picks them up).
+   */
+  const tripStartRel = startMs - sliceHourStartForRow(row, slice);
+  const span = Math.min(MAX_DRAWN_TRIP_MS, Math.max(MIN_DRAWN_TRIP_MS, endMs - startMs));
+  if (tripStartRel + span <= 0 || tripStartRel >= 3600000) return null;
 
   const timestamps = coords.map((_, i) => {
     const t = coords.length === 1 ? 0 : i / (coords.length - 1);
@@ -315,25 +314,57 @@ export function deckTripFromDuckRow(
   hour: number,
   day: number | null = null,
 ): DeckTrip | null {
-  const { min: canonicalHourStartMs } = getPlaybackHourWindow(monthKey, hour, day);
-  return rowToDeckTrip(row, canonicalHourStartMs);
+  return rowToDeckTrip(row, { month: monthKey, day, hour });
 }
 
 function sliceCacheKey(month: string, day: number | null, hour: number): string {
   return `${month}:${day ?? '*'}:${hour}`;
 }
 
-/** SQL filter for one playback hour: that Toronto day's real hour (startedAt is UTC), or the hour across the month. */
+/**
+ * SQL filter for one playback hour: rides that started in it or were still underway at its start.
+ * Day slices use that Toronto day's real hour (startedAt is UTC); month-wide slices use the `hour`
+ * column across the month (Toronto offsets are whole hours, so UTC hour boundaries line up).
+ */
 function sliceWhere(month: string, day: number | null, hour: number): string {
-  if (day === null) return `hour = ${hour}`;
+  if (day === null) {
+    const prev = (hour + 23) % 24;
+    return `(hour = ${hour} OR (hour = ${prev} AND date_trunc('hour', endedAt) > date_trunc('hour', startedAt)))`;
+  }
   const { min, max } = getPlaybackHourWindow(month, hour, day);
-  return `startedAt >= '${new Date(min).toISOString()}' AND startedAt < '${new Date(max).toISOString()}'`;
+  const iso = (ms: number) => `'${new Date(ms).toISOString()}'`;
+  return `startedAt >= ${iso(min - MAX_DRAWN_TRIP_MS)} AND startedAt < ${iso(max)} AND endedAt > ${iso(min)}`;
+}
+
+/**
+ * Rows per playback hour. A real day-hour is loaded whole (the busiest, July 2024 at 5pm, is ~4,000
+ * rides with carry-over). A month-wide hour overlays ~30 days, so it is always a sample.
+ */
+const DAY_SLICE_LIMIT = 6000;
+const MONTH_SLICE_LIMIT = 1800;
+
+function sliceQuery(tableName: string, month: string, day: number | null, hour: number): string {
+  return `
+    SELECT id, startName, endName, startedAt, endedAt,
+           bikeType, memberCasual, hour, routeGeometry, distanceM
+    FROM ${tableName}
+    WHERE ${sliceWhere(month, day, hour)}
+    ORDER BY random()
+    LIMIT ${day === null ? MONTH_SLICE_LIMIT : DAY_SLICE_LIMIT}
+  `;
+}
+
+/** True when the trips shown are a random subset of that hour (month-wide, or a day over the cap). */
+function isSampledSlice(day: number | null, rowCount: number): boolean {
+  return day === null || rowCount >= DAY_SLICE_LIMIT;
 }
 
 /** Return shape of `useTripStream` (includes prefetch for seamless hour rollovers). */
 export type UseTripStreamResult = {
   trips: DeckTrip[];
   totalTrips: number;
+  /** Trips are a random sample of the hour, so counts are not the real number of rides. */
+  isSampled: boolean;
   isLoading: boolean;
   loadingMessage: string;
   error: string | null;
@@ -351,6 +382,7 @@ export function useTripStream(
 ): UseTripStreamResult {
   const [trips, setTrips] = useState<DeckTrip[]>([]);
   const [totalTrips, setTotalTrips] = useState(0);
+  const [isSampled, setIsSampled] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [loadingMessage, setLoadingMessage] = useState('');
   const [error, setError] = useState<string | null>(null);
@@ -363,6 +395,7 @@ export function useTripStream(
       {
         trips: DeckTrip[];
         totalTrips: number;
+        isSampled: boolean;
       }
     >
   >(new Map());
@@ -393,22 +426,19 @@ export function useTripStream(
 
       const conn = await db.connect();
       try {
-        const res = await conn.query(`
-        SELECT id, startName, endName, startedAt, endedAt,
-               bikeType, memberCasual, routeGeometry, distanceM
-        FROM ${tableName}
-        WHERE ${sliceWhere(month, day, hour)}
-        ORDER BY random()
-        LIMIT 1800
-      `);
+        const res = await conn.query(sliceQuery(tableName, month, day, hour));
         const rows = res
           .toArray()
           .map((r: { toJSON: () => Record<string, unknown> }) => r.toJSON());
-        const { min: canonicalHourStartMs } = getPlaybackHourWindow(month, hour, day);
+        const slice = { month, day, hour };
         const deckTrips = rows
-          .map((row) => rowToDeckTrip(row, canonicalHourStartMs))
+          .map((row) => rowToDeckTrip(row, slice))
           .filter((t): t is DeckTrip => t !== null);
-        cacheRef.current.set(key, { trips: deckTrips, totalTrips: totalTripsForMonth });
+        cacheRef.current.set(key, {
+          trips: deckTrips,
+          totalTrips: totalTripsForMonth,
+          isSampled: isSampledSlice(day, rows.length),
+        });
         pruneCache();
       } finally {
         await conn.close();
@@ -435,6 +465,7 @@ export function useTripStream(
 
       if (!seamlessHourChange) {
         setTrips([]);
+        setIsSampled(false);
         setIsLoading(true);
         setError(null);
         setLoadingMessage(`Initialising DuckDB...`);
@@ -461,6 +492,7 @@ export function useTripStream(
             setDataEpoch(epoch);
             setTrips(cached.trips);
             setTotalTrips(cached.totalTrips);
+            setIsSampled(cached.isSampled);
             return;
           }
         }
@@ -479,6 +511,7 @@ export function useTripStream(
             setDataEpoch(epochHit);
             setTrips(cachedWarm.trips);
             setTotalTrips(cachedWarm.totalTrips);
+            setIsSampled(cachedWarm.isSampled);
             setIsLoading(false);
             setError(null);
             setLoadingMessage('');
@@ -528,14 +561,9 @@ export function useTripStream(
           );
 
           let hourForData = currentHour;
-          const result = await conn.query(`
-            SELECT id, startName, endName, startedAt, endedAt,
-                   bikeType, memberCasual, routeGeometry, distanceM
-            FROM ${tableName}
-            WHERE ${sliceWhere(currentMonth, currentDay, hourForData)}
-            ORDER BY random()
-            LIMIT 1800
-          `);
+          const result = await conn.query(
+            sliceQuery(tableName, currentMonth, currentDay, hourForData),
+          );
           if (cancelled) return;
 
           let rows = result
@@ -563,14 +591,9 @@ export function useTripStream(
                   : Number(hRaw);
             if (Number.isFinite(pick) && pick !== hourForData) {
               hourForData = pick;
-              const retry = await conn.query(`
-                SELECT id, startName, endName, startedAt, endedAt,
-                       bikeType, memberCasual, routeGeometry, distanceM
-                FROM ${tableName}
-                WHERE hour = ${hourForData}
-                ORDER BY random()
-                LIMIT 1800
-              `);
+              const retry = await conn.query(
+                sliceQuery(tableName, currentMonth, currentDay, hourForData),
+              );
               if (cancelled) return;
               rows = retry
                 .toArray()
@@ -578,17 +601,11 @@ export function useTripStream(
             }
           }
 
-          const { min: canonicalHourStartMs } = getPlaybackHourWindow(
-            currentMonth,
-            hourForData,
-            currentDay,
-          );
-
-          const deckTrips = rows
-            .map((row) => rowToDeckTrip(row, canonicalHourStartMs))
-            .filter((t): t is DeckTrip => t !== null);
-
           const epoch = { month: currentMonth, day: currentDay, hour: hourForData };
+          const deckTrips = rows
+            .map((row) => rowToDeckTrip(row, epoch))
+            .filter((t): t is DeckTrip => t !== null);
+          const sampled = isSampledSlice(currentDay, rows.length);
           const resolvedCacheKey = sliceCacheKey(currentMonth, currentDay, hourForData);
 
           if (!cancelled) {
@@ -596,10 +613,15 @@ export function useTripStream(
             setDataEpoch(epoch);
             setTrips(deckTrips);
             setTotalTrips(total);
+            setIsSampled(sampled);
             setIsLoading(false);
             setLoadingMessage('');
 
-            cacheRef.current.set(resolvedCacheKey, { trips: deckTrips, totalTrips: total });
+            cacheRef.current.set(resolvedCacheKey, {
+              trips: deckTrips,
+              totalTrips: total,
+              isSampled: sampled,
+            });
             pruneCache();
 
             if (hourForData !== currentHour) {
@@ -659,6 +681,7 @@ export function useTripStream(
   return {
     trips,
     totalTrips,
+    isSampled,
     isLoading,
     loadingMessage,
     error,
