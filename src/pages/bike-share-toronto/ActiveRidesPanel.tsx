@@ -14,6 +14,8 @@ type ActiveRidesPanelProps = {
   simTimeMs: number;
   bearing: number;
   ridesCount: number;
+  /** Rides are a random sample of the hour, not every ride. */
+  sampled?: boolean;
   fps: number | null;
 };
 
@@ -31,7 +33,7 @@ const PADDING = { top: 4, right: 4, bottom: 14, left: 4 };
 export const ActiveRidesPanel = memo(
   forwardRef<ActiveRidesPanelRef, ActiveRidesPanelProps>(
     function ActiveRidesPanel(
-      { graphData, simTimeMs, bearing, ridesCount, fps },
+      { graphData, simTimeMs, bearing, ridesCount, sampled = false, fps },
       ref,
     ) {
       const fpsRef = useRef<HTMLDivElement>(null);
@@ -125,7 +127,9 @@ export const ActiveRidesPanel = memo(
                 <span ref={mobileRidesRef} className="bs-active-rides-mobile__rides-n">
                   {ridesCount}
                 </span>
-                <span className="bs-active-rides-mobile__rides-l">rides</span>
+                <span className="bs-active-rides-mobile__rides-l">
+                  {sampled ? 'rides (sample)' : 'rides'}
+                </span>
               </div>
               <div ref={mobileFpsRef} className="bs-active-rides-mobile__fps">
                 {fps == null ? '— fps' : `${fps} fps`}
@@ -238,7 +242,12 @@ export const ActiveRidesPanel = memo(
               >
                 {ridesCount}
               </span>
-              <span className="text-[10px] tracking-wide text-white/70">RIDES</span>
+              <span
+                className="text-[10px] tracking-wide text-white/70"
+                title={sampled ? "A random sample of this hour's rides, not every ride" : undefined}
+              >
+                {sampled ? 'RIDES · SAMPLE' : 'RIDES'}
+              </span>
             </div>
             <div
               ref={fpsRef}

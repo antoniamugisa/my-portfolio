@@ -16,6 +16,7 @@ import {
   deckTripFromDuckRow,
   ensureMonthLoaded,
   getDB,
+  toEpochMs,
   useTripStream,
   monthLabel,
 } from './useTripStream';
@@ -29,7 +30,12 @@ function timeTravelParseErrorMessage(p: ParsedTimeTravel): string | null {
   return null;
 }
 import { isPublishedParquetMonth, PUBLISHED_MONTHS } from './publishedMonths';
-import { nextPlaybackSlice, torontoDayOfMonth } from './torontoTime';
+import {
+  hourStartTorontoMs,
+  nextPlaybackSlice,
+  torontoDayOfMonth,
+  torontoHour,
+} from './torontoTime';
 import './bikeshare.css';
 
 const SPEEDS = [1, 2, 4];
@@ -295,7 +301,16 @@ export default function BikeShareTorontoPage({
   // to override the requested starting point on first load.
   const allowAutoPickEmptyHour = !(currentMonth === '2025-01' && currentHour === 0);
 
-  const { trips, totalTrips, isLoading, loadingMessage, error, playbackWindow, prefetchHourForMonth } =
+  const {
+    trips,
+    totalTrips,
+    isSampled,
+    isLoading,
+    loadingMessage,
+    error,
+    playbackWindow,
+    prefetchHourForMonth,
+  } =
     useTripStream(
       currentMonth,
       currentHour,
@@ -414,7 +429,7 @@ export default function BikeShareTorontoPage({
     isPublishedParquetMonth(parsedFindRideMonthHour.monthKey);
 
   const findRideSearchKey = parsedFindRide.ok
-    ? `${parsedFindRide.atMs}|${parsedFindRide.windowHalfMs}`
+    ? `${parsedFindRide.atMs}|${parsedFindRide.windowBeforeMs}|${parsedFindRide.windowAfterMs}`
     : '';
 
   useEffect(() => {
@@ -441,8 +456,9 @@ export default function BikeShareTorontoPage({
     setSpotlightTrip(trips[Math.floor(Math.random() * trips.length)]!);
   }, [trips]);
 
+  /** Counts for the station in the real Toronto hour starting at `hourStartMs`, and in the whole month. */
   const runStationStats = useCallback(
-    async (stationName: string, monthKey: string, hour: number) => {
+    async (stationName: string, monthKey: string, hourStartMs: number) => {
       setStationStats(null);
       setRideSearchError(null);
       try {
@@ -452,12 +468,14 @@ export default function BikeShareTorontoPage({
         const conn = await db.connect();
         try {
           const esc = stationName.replace(/'/g, "''");
+          const fromIso = new Date(hourStartMs).toISOString();
+          const toIso = new Date(hourStartMs + 3600000).toISOString();
           const [startsHour, endsHour, startsMonth, endsMonth] = await Promise.all([
             conn.query(
-              `SELECT COUNT(*)::BIGINT AS c FROM ${tableName} WHERE hour = ${hour} AND startName = '${esc}'`,
+              `SELECT COUNT(*)::BIGINT AS c FROM ${tableName} WHERE startName = '${esc}' AND startedAt >= '${fromIso}' AND startedAt < '${toIso}'`,
             ),
             conn.query(
-              `SELECT COUNT(*)::BIGINT AS c FROM ${tableName} WHERE hour = ${hour} AND endName = '${esc}'`,
+              `SELECT COUNT(*)::BIGINT AS c FROM ${tableName} WHERE endName = '${esc}' AND endedAt >= '${fromIso}' AND endedAt < '${toIso}'`,
             ),
             conn.query(
               `SELECT COUNT(*)::BIGINT AS c FROM ${tableName} WHERE startName = '${esc}'`,
@@ -491,9 +509,9 @@ export default function BikeShareTorontoPage({
   const runRideSearchFromStation = useCallback(
     async (
       stationName: string,
-      ctx: { monthKey: string; hour: number; baseMs: number; windowHalfMs: number },
+      ctx: { monthKey: string; baseMs: number; windowBeforeMs: number; windowAfterMs: number },
     ) => {
-      const { monthKey, hour, baseMs, windowHalfMs } = ctx;
+      const { monthKey, baseMs, windowBeforeMs, windowAfterMs } = ctx;
       setRideSearchLoading(true);
       setRideSearchError(null);
       setRideResults([]);
@@ -503,18 +521,17 @@ export default function BikeShareTorontoPage({
         const tableName = `trips_${monthKey.replace('-', '_')}`;
         const conn = await db.connect();
         try {
-          const fromIso = new Date(baseMs - windowHalfMs).toISOString();
-          const toIso = new Date(baseMs + windowHalfMs).toISOString();
+          const fromIso = new Date(baseMs - windowBeforeMs).toISOString();
+          const toIso = new Date(baseMs + windowAfterMs).toISOString();
           const esc = stationName.replace(/'/g, "''");
           const res = await conn.query(`
-            SELECT id, startName, endName, startedAt, endedAt, bikeType, memberCasual, routeGeometry, distanceM
+            SELECT id, startName, endName, startedAt, endedAt, bikeType, memberCasual, hour, routeGeometry, distanceM
             FROM ${tableName}
-            WHERE hour = ${hour}
-              AND startName = '${esc}'
+            WHERE startName = '${esc}'
               AND startedAt >= '${fromIso}'
               AND startedAt <= '${toIso}'
             ORDER BY startedAt ASC
-            LIMIT 60
+            LIMIT 300
           `);
           const rows = res
             .toArray()
@@ -525,17 +542,23 @@ export default function BikeShareTorontoPage({
               id: String(row.id ?? ''),
               startName: String(row.startName ?? ''),
               endName: String(row.endName ?? ''),
-              startedAtMs: new Date(String(row.startedAt)).getTime(),
-              endedAtMs: new Date(String(row.endedAt)).getTime(),
+              startedAtMs: toEpochMs(row.startedAt),
+              endedAtMs: toEpochMs(row.endedAt),
               memberCasual: (String(row.memberCasual) === 'member' ? 'member' : 'casual') as
                 | 'member'
                 | 'casual',
               bikeType: String(row.bikeType ?? ''),
             }))
-            .filter((r) => {
-              const t = deckTripFromDuckRow(r.row, monthKey, hour);
-              return t !== null;
-            });
+            .filter(
+              (r) =>
+                Number.isFinite(r.startedAtMs) &&
+                deckTripFromDuckRow(
+                  r.row,
+                  monthKey,
+                  torontoHour(r.startedAtMs),
+                  torontoDayOfMonth(r.startedAtMs),
+                ) !== null,
+            );
           setRideResults(mapped);
         } finally {
           await conn.close();
@@ -552,11 +575,10 @@ export default function BikeShareTorontoPage({
   );
 
   const handleSelectRideResult = useCallback(
-    (r: RideSearchResult, monthKey: string, hour: number) => {
-      // Play the ride's own day so the spotlight trip lines up with the trips around it.
-      const monthWide = deckTripFromDuckRow(r.row, monthKey, hour);
-      if (!monthWide) return;
-      const day = torontoDayOfMonth(monthWide.startedAtMs);
+    (r: RideSearchResult, monthKey: string) => {
+      // Play the ride's own day and hour so the spotlight trip lines up with the trips around it.
+      const day = torontoDayOfMonth(r.startedAtMs);
+      const hour = torontoHour(r.startedAtMs);
       const trip = deckTripFromDuckRow(r.row, monthKey, hour, day);
       if (!trip) return;
       setCurrentMonth(monthKey);
@@ -574,11 +596,11 @@ export default function BikeShareTorontoPage({
   );
 
   const handlePickEndStation = useCallback(
-    (endName: string, monthKey: string, hour: number, targetMs: number) => {
+    (endName: string, monthKey: string, targetMs: number) => {
       const candidates = rideResults.filter((r) => r.endName === endName);
       if (candidates.length === 0) return;
       if (candidates.length === 1) {
-        handleSelectRideResult(candidates[0]!, monthKey, hour);
+        handleSelectRideResult(candidates[0]!, monthKey);
         return;
       }
       let best = candidates[0]!;
@@ -590,7 +612,7 @@ export default function BikeShareTorontoPage({
           best = c;
         }
       }
-      handleSelectRideResult(best, monthKey, hour);
+      handleSelectRideResult(best, monthKey);
     },
     [rideResults, handleSelectRideResult],
   );
@@ -601,9 +623,11 @@ export default function BikeShareTorontoPage({
 
   useEffect(() => {
     if (!spotlightTrip) return;
-    if (!trips.some((t) => t.id === spotlightTrip.id)) {
-      setSpotlightTrip(null);
-    }
+    // Swap in this hour's copy: timestamps are relative to the playback hour, so a ride that
+    // carries over into the next hour needs the new hour's version.
+    const match = trips.find((t) => t.id === spotlightTrip.id);
+    if (!match) setSpotlightTrip(null);
+    else if (match !== spotlightTrip) setSpotlightTrip(match);
   }, [trips, spotlightTrip]);
 
   const searchPaletteKbd = useMemo(() => {
@@ -941,6 +965,7 @@ export default function BikeShareTorontoPage({
                 simTimeMs={simTimeForGraph}
                 bearing={mapBearing}
                 ridesCount={tripCount}
+                sampled={isSampled}
                 fps={trips.length > 0 ? mapFps : null}
               />
             </div>
@@ -1193,8 +1218,8 @@ export default function BikeShareTorontoPage({
                       <p className="bs-search-modal__footer-line bs-search-modal__footer-examples">
                         Try: <code>Jan 1 2025 4pm</code> or{' '}
                         <code>July 4, 2019 8pm — last 3 hours</code>. The optional “last N hours”
-                        clause sets how wide the time window is when you search for a ride on the other
-                        tab.
+                        clause searches the N hours before that time when you look for a ride on the
+                        other tab.
                       </p>
                     </div>
                   </div>
@@ -1357,13 +1382,13 @@ export default function BikeShareTorontoPage({
                                 void runStationStats(
                                   s.name,
                                   parsedFindRideMonthHour.monthKey,
-                                  parsedFindRideMonthHour.hour,
+                                  hourStartTorontoMs(parsedFindRideMs),
                                 );
                                 void runRideSearchFromStation(s.name, {
                                   monthKey: parsedFindRideMonthHour.monthKey,
-                                  hour: parsedFindRideMonthHour.hour,
                                   baseMs: parsedFindRideMs,
-                                  windowHalfMs: parsedFindRide.windowHalfMs,
+                                  windowBeforeMs: parsedFindRide.ok ? parsedFindRide.windowBeforeMs : 0,
+                                  windowAfterMs: parsedFindRide.ok ? parsedFindRide.windowAfterMs : 0,
                                 });
                               }}
                             >
@@ -1386,7 +1411,6 @@ export default function BikeShareTorontoPage({
                                 handlePickEndStation(
                                   endName,
                                   parsedFindRideMonthHour.monthKey,
-                                  parsedFindRideMonthHour.hour,
                                   parsedFindRideMs,
                                 )
                               }

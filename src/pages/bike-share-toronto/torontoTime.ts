@@ -108,6 +108,11 @@ export function offsetMsIntoHourToronto(timeMs: number): number {
   return timeMs - hourStartTorontoMs(timeMs);
 }
 
+/** Toronto hour of day (0–23) for an epoch ms. */
+export function torontoHour(timeMs: number): number {
+  return parseTorontoWallParts(timeMs).h;
+}
+
 /** Toronto day of month (1–31) for an epoch ms. */
 export function torontoDayOfMonth(timeMs: number): number {
   return parseTorontoWallParts(timeMs).d;
