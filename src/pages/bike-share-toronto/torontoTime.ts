@@ -149,3 +149,18 @@ export function nextPlaybackSlice(s: PlaybackSlice): PlaybackSlice {
   const nm = m === 12 ? 1 : m + 1;
   return { month: `${ny}-${String(nm).padStart(2, "0")}`, day: 1, hour: 0 };
 }
+
+/** The playback slice (month key, Toronto day, Toronto hour) that contains `timeMs`. */
+export function torontoSliceAt(timeMs: number): { month: string; day: number; hour: number } {
+  const p = parseTorontoWallParts(timeMs);
+  return { month: `${p.y}-${String(p.mo).padStart(2, "0")}`, day: p.d, hour: p.h };
+}
+
+/** Start of the Toronto calendar day `day` of `monthKey`, and the start of the next day. */
+export function torontoDayRangeMs(monthKey: string, day: number): { min: number; max: number } {
+  const [y, m] = monthKey.split("-").map(Number);
+  const min = torontoWallClockToUtcMs(y, m, day, 0, 0, 0);
+  const next = new Date(Date.UTC(y, m - 1, day + 1));
+  const max = torontoWallClockToUtcMs(next.getUTCFullYear(), next.getUTCMonth() + 1, next.getUTCDate(), 0, 0, 0);
+  return { min, max };
+}

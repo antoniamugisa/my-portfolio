@@ -51,12 +51,23 @@ interface MapViewProps {
   selectedStationPin?: { lng: number; lat: number; id: number } | null;
   /** Map rotation (degrees) for HUD compass. */
   onBearingChange?: (bearing: number) => void;
+  /** Playback speed multiplier (1 = one simulated hour per 45 s). */
+  speed?: number;
+  /**
+   * Absolute sim time to start from when `playbackResetNonce` changes. Applied once the loaded
+   * hour contains it; otherwise playback starts at the top of the hour.
+   */
+  seekTimeMs?: number | null;
+  /** Increment to rotate and tilt the map back to north-up. */
+  resetNorthNonce?: number;
+  /** Space kept clear of overlays (search sheet, trip card) when flying or fitting. */
+  overlayPadding?: { top: number; bottom: number; left: number; right: number };
 }
 
 /** Trail behind the head (simulated ms); shorter buckets for longer trips so dense routes stay readable. */
-const TRAIL_MS_SHORT_TRIP = 130_000;
-const TRAIL_MS_MID_TRIP = 72_000;
-const TRAIL_MS_LONG_TRIP = 40_000;
+const TRAIL_MS_SHORT_TRIP = 200_000;
+const TRAIL_MS_MID_TRIP = 120_000;
+const TRAIL_MS_LONG_TRIP = 70_000;
 /** Synthetic trip duration thresholds (same units as `DeckTrip.timestamps`). */
 const SPAN_SHORT_MAX_MS = 20 * 60 * 1000;
 const SPAN_MID_MAX_MS = 40 * 60 * 1000;
@@ -71,6 +82,51 @@ const LAYER_PARAMS_NO_DEPTH: LumaParameters = {
   depthWriteEnabled: false,
   depthCompare: "always",
 };
+
+/** Additive blending so overlapping trails brighten into corridors instead of covering each other. */
+const LAYER_PARAMS_ADDITIVE: LumaParameters = {
+  ...LAYER_PARAMS_NO_DEPTH,
+  blend: true,
+  blendColorOperation: "add",
+  blendColorSrcFactor: "src-alpha",
+  blendColorDstFactor: "one",
+  blendAlphaOperation: "add",
+  blendAlphaSrcFactor: "one",
+  blendAlphaDstFactor: "one-minus-src-alpha",
+};
+
+const DEFAULT_OVERLAY_PADDING = { top: 90, bottom: 200, left: 40, right: 40 };
+
+type EndpointMarker = {
+  position: [number, number];
+  fill: [number, number, number, number];
+  line: [number, number, number, number];
+};
+
+/** Start (filled, in the rider colour) and end (hollow ring) of the chosen route. */
+function buildSpotlightEndpointsLayer(spot: DeckTrip): ScatterplotLayer<EndpointMarker> {
+  const [r, g, b] = spot.color;
+  const first = spot.path[0]!;
+  const last = spot.path[spot.path.length - 1]!;
+  return new ScatterplotLayer<EndpointMarker>({
+    id: "spotlight-endpoints",
+    data: [
+      { position: first, fill: [r, g, b, 255], line: [255, 255, 255, 255] },
+      { position: last, fill: [10, 10, 10, 255], line: [r, g, b, 255] },
+    ],
+    getPosition: (d) => d.position,
+    getFillColor: (d) => d.fill,
+    getLineColor: (d) => d.line,
+    getRadius: 7,
+    radiusUnits: "pixels",
+    stroked: true,
+    getLineWidth: 2.5,
+    lineWidthUnits: "pixels",
+    billboard: true,
+    pickable: false,
+    parameters: LAYER_PARAMS_NO_DEPTH,
+  });
+}
 
 function tripSpanMs(d: DeckTrip): number {
   const ts = d.timestamps;
@@ -125,6 +181,10 @@ export default function MapView({
   flyTo,
   selectedStationPin = null,
   onBearingChange,
+  speed = 1,
+  seekTimeMs = null,
+  resetNorthNonce = 0,
+  overlayPadding = DEFAULT_OVERLAY_PADDING,
 }: MapViewProps) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<mapboxgl.Map | null>(null);
@@ -132,6 +192,7 @@ export default function MapView({
   const animFrameRef = useRef<number>(0);
   const spotlightTripRef = useRef<DeckTrip | null>(null);
   const spotlightPathLayerRef = useRef<PathLayer<DeckTrip> | null>(null);
+  const spotlightEndpointsLayerRef = useRef<ScatterplotLayer<EndpointMarker> | null>(null);
   spotlightTripRef.current = spotlightTrip;
   /**
    * Must update in render (not only in useEffect): useLayoutEffect(pushLayer) runs before
@@ -141,6 +202,12 @@ export default function MapView({
   tripsRef.current = trips;
   const playbackWindowRef = useRef(playbackWindow);
   playbackWindowRef.current = playbackWindow;
+  const speedRef = useRef(speed);
+  speedRef.current = speed;
+  const overlayPaddingRef = useRef(overlayPadding);
+  overlayPaddingRef.current = overlayPadding;
+  /** Seek requested with the latest reset nonce, waiting for its hour to load. */
+  const pendingSeekRef = useRef<number | null>(null);
 
   /** Absolute simulated epoch ms; never wraps — hours chain via onAdvanceHour. */
   const simEpochMsRef = useRef(0);
@@ -270,7 +337,7 @@ export default function MapView({
           opacity: spotlightTripRef.current ? 0.38 : 0.95,
           fadeTrail: true,
           pickable: false,
-          parameters: LAYER_PARAMS_NO_DEPTH,
+          parameters: LAYER_PARAMS_ADDITIVE,
         }),
       );
     }
@@ -321,13 +388,15 @@ export default function MapView({
     if (spotlightOk && spot) {
       pathFull = buildSpotlightFullPathLayer(spot);
       spotlightPathLayerRef.current = pathFull;
+      spotlightEndpointsLayerRef.current = buildSpotlightEndpointsLayer(spot);
     } else {
       spotlightPathLayerRef.current = null;
+      spotlightEndpointsLayerRef.current = null;
     }
 
     const stack =
       pathFull != null
-        ? [...tLayers, pathFull, hLayer]
+        ? [...tLayers, pathFull, spotlightEndpointsLayerRef.current!, hLayer]
         : [...tLayers, hLayer];
     overlay.setProps({ layers: appendStationPin(stack) });
   }, [
@@ -369,7 +438,7 @@ export default function MapView({
       if (dtReal > MAX_FRAME_MS) dtReal = MAX_FRAME_MS;
       lastRealTRef.current = now;
 
-      let sim = simEpochMsRef.current + dtReal * SIM_MS_PER_REAL_MS;
+      let sim = simEpochMsRef.current + dtReal * SIM_MS_PER_REAL_MS * speedRef.current;
 
       if (sim >= pw.max) {
         if (onAdvanceHourRef.current && !advanceScheduledRef.current) {
@@ -452,9 +521,10 @@ export default function MapView({
       tripsLayersRef.current = nextTripLayers;
       const nextH = prevH.clone({ data: headData });
       headsLayerRef.current = nextH;
+      const endpoints = spotlightEndpointsLayerRef.current;
       const baseStack =
         pathFull != null && hasSpotlight
-          ? [...nextTripLayers, pathFull, nextH]
+          ? [...nextTripLayers, pathFull, ...(endpoints ? [endpoints] : []), nextH]
           : [...nextTripLayers, nextH];
       overlay.setProps({ layers: appendStationPin(baseStack) });
     }
@@ -476,10 +546,24 @@ export default function MapView({
 
     if (playbackResetNonce !== nonceAppliedRef.current) {
       nonceAppliedRef.current = playbackResetNonce;
+      pendingSeekRef.current = seekTimeMs;
       simEpochMsRef.current = playbackWindow.min;
       currentTimeRelRef.current = 0;
       lastRealTRef.current = null;
       advanceScheduledRef.current = false;
+    }
+
+    const seek = pendingSeekRef.current;
+    if (seek != null && seek >= playbackWindow.min && seek < playbackWindow.max) {
+      pendingSeekRef.current = null;
+      simEpochMsRef.current = seek;
+      playbackTimeMsRef.current = seek;
+      lastRealTRef.current = null;
+      currentTimeRelRef.current = seek - playbackWindow.min;
+      const active = countActiveTrips(trips, currentTimeRelRef.current);
+      lastActiveTripCountRef.current = active;
+      onTripCountChange(active);
+      return;
     }
 
     /**
@@ -568,6 +652,7 @@ export default function MapView({
     trips,
     playbackWindow,
     playbackResetNonce,
+    seekTimeMs,
     playbackTimeMsRef,
     onTripCountChange,
   ]);
@@ -605,7 +690,7 @@ export default function MapView({
           [maxLng + pad, maxLat + pad],
         ],
         {
-          padding: { top: 100, bottom: 160, left: 60, right: 60 },
+          padding: overlayPaddingRef.current,
           duration: 750,
           maxZoom: 15,
         },
@@ -721,6 +806,7 @@ export default function MapView({
       map.flyTo({
         center: [flyTo.lng, flyTo.lat],
         zoom: flyTo.zoom ?? 14,
+        padding: overlayPaddingRef.current,
         duration: 1100,
         essential: true,
       });
@@ -733,6 +819,11 @@ export default function MapView({
       map.off("load", run);
     };
   }, [flyTo]);
+
+  useEffect(() => {
+    if (resetNorthNonce === 0) return;
+    mapRef.current?.easeTo({ bearing: 0, pitch: 0, duration: 600 });
+  }, [resetNorthNonce]);
 
   useEffect(() => {
     const el = containerRef.current;

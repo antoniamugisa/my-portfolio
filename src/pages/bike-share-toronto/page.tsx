@@ -7,207 +7,171 @@ import {
   type MutableRefObject,
 } from 'react';
 import { Helmet } from 'react-helmet-async';
-import { Clock, Pause, Play, Search, Shuffle, X } from 'lucide-react';
+import { X } from 'lucide-react';
 import MapView from './MapView';
-import { ActiveRidesPanel } from './ActiveRidesPanel';
-import { SIM_GRAPH_WINDOW_SIZE_MS } from './activeRidesConfig';
-import { type DeckTrip, type GraphDataPoint, HOUR_PROFILE, STATIONS } from './types';
-import {
-  deckTripFromDuckRow,
-  ensureMonthLoaded,
-  getDB,
-  toEpochMs,
-  useTripStream,
-  monthLabel,
-} from './useTripStream';
-import {
-  parseTimeTravelQuery,
-  type ParsedTimeTravel,
-} from './parseTimeTravelQuery';
-
-function timeTravelParseErrorMessage(p: ParsedTimeTravel): string | null {
-  if (p.ok === false) return p.message;
-  return null;
-}
-import { isPublishedParquetMonth, PUBLISHED_MONTHS } from './publishedMonths';
-import {
-  hourStartTorontoMs,
-  nextPlaybackSlice,
-  torontoDayOfMonth,
-  torontoHour,
-} from './torontoTime';
+import { RidesPanel, type HourInsights } from './RidesPanel';
+import { TimelineDock } from './TimelineDock';
+import { TripCard } from './TripCard';
+import { ExploreSheet } from './ExploreSheet';
+import type { DeckTrip, StationLocation } from './types';
+import { deckTripFromDuckRow, useTripStream } from './useTripStream';
+import { fetchHourlyRideCounts, type RideRow } from './queries';
+import { isPublishedParquetMonth, PUBLISHED_RANGE_LABEL } from './publishedMonths';
+import { getPlaybackHourWindow, nextPlaybackSlice, torontoSliceAt } from './torontoTime';
 import './bikeshare.css';
 
 const SPEEDS = [1, 2, 4];
 const TORONTO_TZ = 'America/Toronto';
+const DEFAULT_MONTH = '2025-01';
+/** Start a followed ride this many ms before it leaves the dock, so you see it set off. */
+const RIDE_LEAD_IN_MS = 20_000;
+const SLOW_LOADING_THRESHOLD_MS = 5000;
 
-type SearchMode = 'time' | 'ride';
+const dateFormatter = new Intl.DateTimeFormat('en-CA', {
+  timeZone: TORONTO_TZ,
+  weekday: 'short',
+  month: 'short',
+  day: 'numeric',
+  year: 'numeric',
+});
+const monthFormatter = new Intl.DateTimeFormat('en-CA', {
+  timeZone: TORONTO_TZ,
+  month: 'long',
+  year: 'numeric',
+});
+const timeFormatter = new Intl.DateTimeFormat('en-US', {
+  timeZone: TORONTO_TZ,
+  hour: 'numeric',
+  minute: '2-digit',
+  second: '2-digit',
+  hour12: true,
+});
 
-type RideSearchResult = {
-  row: Record<string, unknown>;
-  id: string;
-  startName: string;
-  endName: string;
-  startedAtMs: number;
-  endedAtMs: number;
-  memberCasual: 'member' | 'casual';
-  bikeType: string;
-};
-
-function MapFloatingClock({
+/** Date + time of the playback clock. A month-wide hour is labelled as such, not as the 1st. */
+function MapClock({
   timeMsRef,
+  monthWide,
   hasTrips,
-  isLoading,
-  loadError,
 }: {
   timeMsRef: MutableRefObject<number>;
+  monthWide: boolean;
   hasTrips: boolean;
-  isLoading: boolean;
-  loadError: string | null;
 }) {
-  const [dateStr, setDateStr] = useState('');
-  const [timeStr, setTimeStr] = useState('--:--:--');
-  const [showSlowLoadingText, setShowSlowLoadingText] = useState(false);
-
-  const SLOW_LOADING_THRESHOLD_MS = 5000;
-
-  const hasError = Boolean(loadError);
-  const showOverlay = isLoading || hasError;
-
-  const dateFormatter = useMemo(
-    () =>
-      new Intl.DateTimeFormat('en-US', {
-        timeZone: TORONTO_TZ,
-        weekday: 'short',
-        month: 'short',
-        day: 'numeric',
-        year: 'numeric',
-      }),
-    [],
-  );
-  const timeFormatter = useMemo(
-    () =>
-      new Intl.DateTimeFormat('en-US', {
-        timeZone: TORONTO_TZ,
-        hour: 'numeric',
-        minute: '2-digit',
-        second: '2-digit',
-        hour12: true,
-      }),
-    [],
-  );
-
-  const lastDisplayedSecondRef = useRef<number | null>(null);
+  const [label, setLabel] = useState({ date: '', time: '--:--:--' });
 
   useEffect(() => {
-    if (!isLoading) {
-      setShowSlowLoadingText(false);
+    if (!hasTrips) {
+      setLabel({ date: '', time: '--:--:--' });
       return;
     }
-
-    const timer = window.setTimeout(
-      () => setShowSlowLoadingText(true),
-      SLOW_LOADING_THRESHOLD_MS,
-    );
-    return () => {
-      window.clearTimeout(timer);
-      setShowSlowLoadingText(false);
-    };
-  }, [isLoading]);
-
-  useEffect(() => {
-    if (isLoading || !hasTrips || hasError) {
-      lastDisplayedSecondRef.current = null;
-      setDateStr('');
-      setTimeStr('--:--:--');
-      return;
-    }
-
+    let lastSecond: number | null = null;
     const update = () => {
       const ms = timeMsRef.current;
       if (!ms) return;
-
-      // Only update when the displayed second changes.
-      const nextSecond = Math.floor(ms / 1000);
-      if (lastDisplayedSecondRef.current === nextSecond) return;
-      lastDisplayedSecondRef.current = nextSecond;
-
-      const d = new Date(nextSecond * 1000);
-      setDateStr(dateFormatter.format(d));
-      setTimeStr(timeFormatter.format(d));
+      const second = Math.floor(ms / 1000);
+      if (second === lastSecond) return;
+      lastSecond = second;
+      const d = new Date(second * 1000);
+      setLabel({
+        date: monthWide ? `Every day in ${monthFormatter.format(d)}` : dateFormatter.format(d),
+        time: timeFormatter.format(d),
+      });
     };
-
     update();
     const id = window.setInterval(update, 50);
     return () => window.clearInterval(id);
-  }, [timeMsRef, hasTrips, isLoading, hasError, dateFormatter, timeFormatter]);
+  }, [timeMsRef, hasTrips, monthWide]);
 
   return (
-    <div className="bs-map-hud-clock">
-      <div
-        className={
-          showOverlay
-            ? 'bs-map-hud-clock__content bs-map-hud-clock__content--blur'
-            : 'bs-map-hud-clock__content'
-        }
-      >
-        <div className="bs-map-hud-date">{dateStr || '—'}</div>
-        <div className="bs-map-hud-time">{timeStr}</div>
-      </div>
-
-      {showOverlay && (
-        <div className="bs-map-hud-clock__overlay" aria-hidden>
-          {isLoading && (
-            <>
-              <div className="bs-map-hud-clock__loading-bar" />
-              {showSlowLoadingText && (
-                <div className="bs-map-hud-clock__slow-text">
-                  <div>This could take ~20s</div>
-                  <div>depending on connection</div>
-                </div>
-              )}
-            </>
-          )}
-
-          {hasError && !isLoading && (
-            <div className="bs-map-hud-clock__error">
-              <span className="bs-map-hud-clock__error-dot" />
-              <span>Failed to load :(</span>
-            </div>
-          )}
-        </div>
-      )}
+    <div className="bs-clock" aria-live="off">
+      <div className="bs-clock__date">{label.date || ' '}</div>
+      <div className="bs-clock__time">{label.time}</div>
     </div>
   );
 }
 
-const DEFAULT_MONTH = '2025-01';
+/** Small non-blocking status under the clock while trips load, or when they fail. */
+function LoadingPill({ isLoading, message, error }: { isLoading: boolean; message: string; error: string | null }) {
+  const [slow, setSlow] = useState(false);
+  useEffect(() => {
+    if (!isLoading) {
+      setSlow(false);
+      return;
+    }
+    const t = window.setTimeout(() => setSlow(true), SLOW_LOADING_THRESHOLD_MS);
+    return () => window.clearTimeout(t);
+  }, [isLoading]);
 
-function formatTripClock(ms: number) {
-  return new Intl.DateTimeFormat('en-US', {
-    timeZone: TORONTO_TZ,
-    hour: 'numeric',
-    minute: '2-digit',
-    hour12: true,
-  }).format(new Date(ms));
+  if (error && !isLoading) {
+    return (
+      <div className="bs-loading-pill bs-loading-pill--error" role="alert" title={error}>
+        Couldn't load trip data. Check your connection and reload.
+      </div>
+    );
+  }
+  if (!isLoading) return null;
+  return (
+    <div className="bs-loading-pill" role="status">
+      <span className="bs-loading-pill__spinner" aria-hidden />
+      <span>
+        {message || 'Loading trips…'}
+        {slow && <span className="bs-loading-pill__slow"> This can take ~20 s on a slow connection.</span>}
+      </span>
+    </div>
+  );
 }
 
-function tripStats(trip: DeckTrip) {
-  const durSec = Math.max(1, Math.round((trip.endedAtMs - trip.startedAtMs) / 1000));
-  const mins = Math.max(1, Math.round(durSec / 60));
-  const mi = trip.distanceM / 1609.34;
-  const mph = mi / (durSec / 3600);
+function median(values: number[]): number {
+  if (values.length === 0) return 0;
+  const sorted = [...values].sort((a, b) => a - b);
+  const mid = Math.floor(sorted.length / 2);
+  return sorted.length % 2 ? sorted[mid]! : (sorted[mid - 1]! + sorted[mid]!) / 2;
+}
+
+function computeInsights(trips: DeckTrip[], hourWindow: { min: number; max: number }): HourInsights | null {
+  if (trips.length === 0) return null;
+  let members = 0;
+  let ebikes = 0;
+  const durationsMin: number[] = [];
+  const starts = new Map<string, number>();
+  for (const t of trips) {
+    if (t.memberCasual === 'member') members++;
+    if (t.isEbike) ebikes++;
+    durationsMin.push((t.endedAtMs - t.startedAtMs) / 60000);
+    // Month-wide hours overlay many days, so judge "this hour" by the time of day only.
+    const offset = ((t.startedAtMs - hourWindow.min) % 86400000 + 86400000) % 86400000;
+    if (offset < 3600000) starts.set(t.startName, (starts.get(t.startName) ?? 0) + 1);
+  }
+  let busiest: HourInsights['busiestStation'] = null;
+  for (const [name, n] of starts) {
+    if (!busiest || n > busiest.starts) busiest = { name, starts: n };
+  }
   return {
-    durMin: mins,
-    miLabel: mi < 0.05 ? '<0.1' : mi.toFixed(1),
-    mphLabel: Number.isFinite(mph) && mph > 0.5 && mph < 200 ? mph.toFixed(1) : '—',
+    memberPct: Math.round((members / trips.length) * 100),
+    ebikePct: Math.round((ebikes / trips.length) * 100),
+    medianMin: Math.max(1, Math.round(median(durationsMin))),
+    busiestStation: busiest,
   };
 }
 
-function shortTripId(id: string) {
-  const compact = id.replace(/-/g, '');
-  if (compact.length <= 12) return id.toUpperCase();
-  return `${compact.slice(0, 8).toUpperCase()}…`;
+function useIsNarrow(): boolean {
+  const query = '(max-width: 767px)';
+  const [narrow, setNarrow] = useState(() =>
+    typeof window === 'undefined' ? false : window.matchMedia(query).matches,
+  );
+  useEffect(() => {
+    const mq = window.matchMedia(query);
+    const onChange = () => setNarrow(mq.matches);
+    mq.addEventListener('change', onChange);
+    return () => mq.removeEventListener('change', onChange);
+  }, []);
+  return narrow;
+}
+
+function isTypingTarget(t: EventTarget | null): boolean {
+  const el = t as HTMLElement | null;
+  if (!el) return false;
+  return el.tagName === 'INPUT' || el.tagName === 'TEXTAREA' || el.tagName === 'SELECT' || el.isContentEditable;
 }
 
 export type BikeShareTorontoPageProps = {
@@ -224,99 +188,60 @@ export default function BikeShareTorontoPage({
   portalFullscreen = false,
   onRequestProjectDetails,
 }: BikeShareTorontoPageProps) {
-  const [currentHour, setCurrentHour] = useState(0);
-  const [playing, setPlaying] = useState(false);
-  const [speedIdx, setSpeedIdx] = useState(0);
-  const [tripCount, setTripCount] = useState(0);
   const [currentMonth, setCurrentMonth] = useState(DEFAULT_MONTH);
   /** Toronto day being played (set by time travel / ride pick); null = hour sampled across the month. */
   const [currentDay, setCurrentDay] = useState<number | null>(null);
-  const [mapTimelinePaused, setMapTimelinePaused] = useState(false);
-  const [mapFps, setMapFps] = useState(0);
-  /** Bumps when the user picks a month/hour so the map clock snaps to that window (not when the hour auto-advances). */
-  const [playbackResetNonce, setPlaybackResetNonce] = useState(0);
-  const [spotlightTrip, setSpotlightTrip] = useState<DeckTrip | null>(null);
-  const [stationSearchOpen, setStationSearchOpen] = useState(false);
-  const [searchMode, setSearchMode] = useState<SearchMode>('time');
-  const [timeTravelText, setTimeTravelText] = useState('2025-01-01 00:00');
-  const [selectedStationPin, setSelectedStationPin] = useState<{
-    id: number;
-    lng: number;
-    lat: number;
-  } | null>(null);
-  const [rideResults, setRideResults] = useState<RideSearchResult[]>([]);
-  const [findRideTimeText, setFindRideTimeText] = useState(timeTravelText);
-  const [findRideStartFilter, setFindRideStartFilter] = useState('');
-  const [findRideEndFilter, setFindRideEndFilter] = useState('');
-  const [findRideStartName, setFindRideStartName] = useState<string | null>(null);
-  /** Distinct start stations in the Find ride month, so the picker only lists stations with rides. */
-  const [findRideMonthStartNames, setFindRideMonthStartNames] = useState<{
-    monthKey: string;
-    names: Set<string>;
-  } | null>(null);
-  const [rideSearchLoading, setRideSearchLoading] = useState(false);
-  const [rideSearchError, setRideSearchError] = useState<string | null>(null);
-  const [stationStats, setStationStats] = useState<{
-    startsInHour: number;
-    endsInHour: number;
-    startsInMonth: number;
-    endsInMonth: number;
-  } | null>(null);
-  const [mapFlyTo, setMapFlyTo] = useState<{
-    lng: number;
-    lat: number;
-    zoom?: number;
-    id: number;
-  } | null>(null);
-  const timeTravelTextareaRef = useRef<HTMLTextAreaElement | null>(null);
-  const findRideTimeTextareaRef = useRef<HTMLTextAreaElement | null>(null);
-  const findRideEndFilterRef = useRef<HTMLInputElement | null>(null);
-  const [rideGraphData, setRideGraphData] = useState<GraphDataPoint[]>([]);
-  const [simTimeForGraph, setSimTimeForGraph] = useState(0);
+  const [currentHour, setCurrentHour] = useState(0);
+  const [paused, setPaused] = useState(false);
+  const [speedIdx, setSpeedIdx] = useState(0);
+  const [ridingNow, setRidingNow] = useState(0);
+  const [debug, setDebug] = useState(false);
+  const [mapFps, setMapFps] = useState<number | null>(null);
   const [mapBearing, setMapBearing] = useState(0);
-  const tripCountForGraphRef = useRef(0);
-  tripCountForGraphRef.current = tripCount;
-
-  const exploreModalWasOpenRef = useRef(false);
-
-  const playIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const [resetNorthNonce, setResetNorthNonce] = useState(0);
+  /** Bumps when the user picks a time so the map clock snaps to `seekTimeMs` (or the top of the hour). */
+  const [playbackResetNonce, setPlaybackResetNonce] = useState(0);
+  const [seekTimeMs, setSeekTimeMs] = useState<number | null>(null);
+  const [spotlightTrip, setSpotlightTrip] = useState<DeckTrip | null>(null);
+  const [exploreOpen, setExploreOpen] = useState(false);
+  const [exploreOpenedAtMs, setExploreOpenedAtMs] = useState(0);
+  const [stationPin, setStationPin] = useState<StationLocation | null>(null);
+  const [mapFlyTo, setMapFlyTo] = useState<{ lng: number; lat: number; zoom?: number; id: number } | null>(null);
+  const [hourly, setHourly] = useState<{ key: string; counts: number[] } | null>(null);
   const playbackTimeMsRef = useRef(0);
-
-  const bumpPlaybackReset = useCallback(() => {
-    setPlaybackResetNonce((n) => n + 1);
-  }, []);
+  /** A ride picked for an hour that is still loading: kept until that hour's trips arrive. */
+  const pendingSpotlightRef = useRef<{ id: string; windowMin: number } | null>(null);
+  const isNarrow = useIsNarrow();
 
   /** Ref + stable callback avoids TDZ / HMR edge cases around `useTripStream(..., cb)`. */
   const autoPickHourRef = useRef<(hour: number) => void>(() => {});
   autoPickHourRef.current = (hour: number) => {
     setCurrentHour(hour);
-    bumpPlaybackReset();
+    setSeekTimeMs(null);
+    setPlaybackResetNonce((n) => n + 1);
   };
   const notifyAutoPickHour = useCallback((hour: number) => {
     autoPickHourRef.current(hour);
   }, []);
 
-  // Keep the initial view pinned to midnight Jan 1, 2025.
-  // The auto-pick fallback is useful for partial/empty hours, but we don't want it
-  // to override the requested starting point on first load.
-  const allowAutoPickEmptyHour = !(currentMonth === '2025-01' && currentHour === 0);
+  // Keep the initial view pinned to midnight Jan 1, 2025: the auto-pick fallback (for empty
+  // hours in partial months) must not override the requested starting point on first load.
+  const allowAutoPickEmptyHour = !(currentMonth === DEFAULT_MONTH && currentHour === 0);
 
-  const {
-    trips,
-    totalTrips,
-    isSampled,
-    isLoading,
-    loadingMessage,
-    error,
-    playbackWindow,
-    prefetchHourForMonth,
-  } =
-    useTripStream(
-      currentMonth,
-      currentHour,
-      currentDay,
-      allowAutoPickEmptyHour ? notifyAutoPickHour : undefined,
-    );
+  const { trips, isSampled, isLoading, loadingMessage, error, playbackWindow, prefetchHourForMonth } =
+    useTripStream(currentMonth, currentHour, currentDay, allowAutoPickEmptyHour ? notifyAutoPickHour : undefined);
+
+  /** Move playback to a month/day/hour, optionally starting at an exact moment inside it. */
+  const goToSlice = useCallback(
+    (slice: { month: string; day: number | null; hour: number }, atMs: number | null = null) => {
+      setCurrentMonth(slice.month);
+      setCurrentDay(slice.day);
+      setCurrentHour(slice.hour);
+      setSeekTimeMs(atMs);
+      setPlaybackResetNonce((n) => n + 1);
+    },
+    [],
+  );
 
   /** Next hour of playback; a day that runs past the last published month loops back to the 1st of this month. */
   const nextSlice = useMemo(() => {
@@ -327,9 +252,10 @@ export default function BikeShareTorontoPage({
     return next;
   }, [currentMonth, currentDay, currentHour]);
 
-  const handleWarmNextHour = useCallback(() => {
-    return prefetchHourForMonth(nextSlice.month, nextSlice.hour, nextSlice.day);
-  }, [nextSlice, prefetchHourForMonth]);
+  const handleWarmNextHour = useCallback(
+    () => prefetchHourForMonth(nextSlice.month, nextSlice.hour, nextSlice.day),
+    [nextSlice, prefetchHourForMonth],
+  );
 
   const handleAdvanceHour = useCallback(async () => {
     try {
@@ -342,526 +268,177 @@ export default function BikeShareTorontoPage({
     setCurrentHour(nextSlice.hour);
   }, [nextSlice, prefetchHourForMonth]);
 
-  const handleMapFps = useCallback((fps: number) => {
-    setMapFps(fps);
-  }, []);
-
-  const handleTripCountChange = useCallback((count: number) => {
-    setTripCount(count);
-  }, []);
-
+  // Rides per hour for the timeline: the real day, or the month's average day.
+  const hourlyKey = `${currentMonth}|${currentDay ?? '*'}`;
   useEffect(() => {
-    if (trips.length === 0) {
-      setRideGraphData([]);
-      return;
-    }
-    const id = window.setInterval(() => {
-      const sim = playbackTimeMsRef.current;
-      setSimTimeForGraph(sim);
-      setRideGraphData((prev) => {
-        const next = [
-          ...prev,
-          { simTimeMs: sim, count: tripCountForGraphRef.current },
-        ];
-        const cutoff = sim - SIM_GRAPH_WINDOW_SIZE_MS * 4;
-        return next.filter((d) => d.simTimeMs >= cutoff);
-      });
-    }, 400);
-    return () => clearInterval(id);
-  }, [trips.length]);
-
-  const parsedTimeTravel = useMemo(
-    () => parseTimeTravelQuery(timeTravelText),
-    [timeTravelText],
-  );
-
-  const parsedSearchMs = parsedTimeTravel.ok ? parsedTimeTravel.atMs : null;
-
-  const parsedSearchMonthHour = useMemo(() => {
-    if (!parsedSearchMs) return null;
-    const dtf = new Intl.DateTimeFormat('en-CA', {
-      timeZone: TORONTO_TZ,
-      year: 'numeric',
-      month: '2-digit',
-      hour: '2-digit',
-      hour12: false,
-    });
-    const parts = dtf.formatToParts(new Date(parsedSearchMs));
-    const g = (type: Intl.DateTimeFormatPartTypes) =>
-      parts.find((p) => p.type === type)?.value;
-    const year = g('year');
-    const month = g('month');
-    const hourStr = g('hour');
-    if (!year || !month || !hourStr) return null;
-    return {
-      monthKey: `${year}-${month}`,
-      day: torontoDayOfMonth(parsedSearchMs),
-      hour: Number(hourStr) % 24,
+    if (!isPublishedParquetMonth(currentMonth)) return;
+    let cancelled = false;
+    fetchHourlyRideCounts(currentMonth, currentDay)
+      .then((counts) => {
+        if (!cancelled) setHourly({ key: hourlyKey, counts });
+      })
+      .catch((e) => console.error('[BikeShare] hourly counts failed:', e));
+    return () => {
+      cancelled = true;
     };
-  }, [parsedSearchMs]);
+  }, [currentMonth, currentDay, hourlyKey]);
 
-  const parsedFindRide = useMemo(
-    () => parseTimeTravelQuery(findRideTimeText),
-    [findRideTimeText],
-  );
-  const parsedFindRideMs = parsedFindRide.ok ? parsedFindRide.atMs : null;
-  const parsedFindRideMonthHour = useMemo(() => {
-    if (!parsedFindRideMs) return null;
-    const dtf = new Intl.DateTimeFormat('en-CA', {
-      timeZone: TORONTO_TZ,
-      year: 'numeric',
-      month: '2-digit',
-      hour: '2-digit',
-      hour12: false,
-    });
-    const parts = dtf.formatToParts(new Date(parsedFindRideMs));
-    const g = (type: Intl.DateTimeFormatPartTypes) =>
-      parts.find((p) => p.type === type)?.value;
-    const year = g('year');
-    const month = g('month');
-    const hourStr = g('hour');
-    if (!year || !month || !hourStr) return null;
-    return { monthKey: `${year}-${month}`, hour: Number(hourStr) };
-  }, [parsedFindRideMs]);
-
-  const findRideMonthPublished =
-    parsedFindRideMonthHour !== null &&
-    isPublishedParquetMonth(parsedFindRideMonthHour.monthKey);
-
-  const findRideSearchKey = parsedFindRide.ok
-    ? `${parsedFindRide.atMs}|${parsedFindRide.windowBeforeMs}|${parsedFindRide.windowAfterMs}`
-    : '';
-
+  // Keep the followed ride in step with the loaded hour.
   useEffect(() => {
-    setFindRideStartName(null);
-    setRideResults([]);
-    setStationStats(null);
-    setFindRideEndFilter('');
-    setRideSearchError(null);
-  }, [findRideSearchKey]);
-
-  const jumpToSearchTime = useCallback(() => {
-    if (!parsedSearchMonthHour) return;
-    setCurrentMonth(parsedSearchMonthHour.monthKey);
-    setCurrentDay(parsedSearchMonthHour.day);
-    setCurrentHour(parsedSearchMonthHour.hour);
-    bumpPlaybackReset();
-    setSpotlightTrip(null);
-    setSelectedStationPin(null);
-    setStationSearchOpen(false);
-  }, [parsedSearchMonthHour, bumpPlaybackReset]);
-
-  const pickRandomTrip = useCallback(() => {
-    if (trips.length === 0) return;
-    setSpotlightTrip(trips[Math.floor(Math.random() * trips.length)]!);
-  }, [trips]);
-
-  /** Counts for the station in the real Toronto hour starting at `hourStartMs`, and in the whole month. */
-  const runStationStats = useCallback(
-    async (stationName: string, monthKey: string, hourStartMs: number) => {
-      setStationStats(null);
-      setRideSearchError(null);
-      try {
-        const db = await getDB();
-        await ensureMonthLoaded(db, monthKey);
-        const tableName = `trips_${monthKey.replace('-', '_')}`;
-        const conn = await db.connect();
-        try {
-          const esc = stationName.replace(/'/g, "''");
-          const fromIso = new Date(hourStartMs).toISOString();
-          const toIso = new Date(hourStartMs + 3600000).toISOString();
-          const [startsHour, endsHour, startsMonth, endsMonth] = await Promise.all([
-            conn.query(
-              `SELECT COUNT(*)::BIGINT AS c FROM ${tableName} WHERE startName = '${esc}' AND startedAt >= '${fromIso}' AND startedAt < '${toIso}'`,
-            ),
-            conn.query(
-              `SELECT COUNT(*)::BIGINT AS c FROM ${tableName} WHERE endName = '${esc}' AND endedAt >= '${fromIso}' AND endedAt < '${toIso}'`,
-            ),
-            conn.query(
-              `SELECT COUNT(*)::BIGINT AS c FROM ${tableName} WHERE startName = '${esc}'`,
-            ),
-            conn.query(
-              `SELECT COUNT(*)::BIGINT AS c FROM ${tableName} WHERE endName = '${esc}'`,
-            ),
-          ]);
-          const toNum = (r: {
-            toArray: () => Array<{ toJSON: () => Record<string, unknown> }>;
-          }) =>
-            Number((r.toArray()[0] as { toJSON: () => Record<string, unknown> }).toJSON().c);
-          setStationStats({
-            startsInHour: toNum(startsHour),
-            endsInHour: toNum(endsHour),
-            startsInMonth: toNum(startsMonth),
-            endsInMonth: toNum(endsMonth),
-          });
-        } finally {
-          await conn.close();
-        }
-      } catch (e) {
-        setRideSearchError(
-          e instanceof Error ? e.message : String(e ?? 'Failed to load stats'),
-        );
-      }
-    },
-    [],
-  );
-
-  const runRideSearchFromStation = useCallback(
-    async (
-      stationName: string,
-      ctx: { monthKey: string; baseMs: number; windowBeforeMs: number; windowAfterMs: number },
-    ) => {
-      const { monthKey, baseMs, windowBeforeMs, windowAfterMs } = ctx;
-      setRideSearchLoading(true);
-      setRideSearchError(null);
-      setRideResults([]);
-      try {
-        const db = await getDB();
-        await ensureMonthLoaded(db, monthKey);
-        const tableName = `trips_${monthKey.replace('-', '_')}`;
-        const conn = await db.connect();
-        try {
-          const fromIso = new Date(baseMs - windowBeforeMs).toISOString();
-          const toIso = new Date(baseMs + windowAfterMs).toISOString();
-          const esc = stationName.replace(/'/g, "''");
-          const res = await conn.query(`
-            SELECT id, startName, endName, startedAt, endedAt, bikeType, memberCasual, hour, routeGeometry, distanceM
-            FROM ${tableName}
-            WHERE startName = '${esc}'
-              AND startedAt >= '${fromIso}'
-              AND startedAt <= '${toIso}'
-            ORDER BY startedAt ASC
-            LIMIT 300
-          `);
-          const rows = res
-            .toArray()
-            .map((r: { toJSON: () => Record<string, unknown> }) => r.toJSON());
-          const mapped: RideSearchResult[] = rows
-            .map((row) => ({
-              row,
-              id: String(row.id ?? ''),
-              startName: String(row.startName ?? ''),
-              endName: String(row.endName ?? ''),
-              startedAtMs: toEpochMs(row.startedAt),
-              endedAtMs: toEpochMs(row.endedAt),
-              memberCasual: (String(row.memberCasual) === 'member' ? 'member' : 'casual') as
-                | 'member'
-                | 'casual',
-              bikeType: String(row.bikeType ?? ''),
-            }))
-            .filter(
-              (r) =>
-                Number.isFinite(r.startedAtMs) &&
-                deckTripFromDuckRow(
-                  r.row,
-                  monthKey,
-                  torontoHour(r.startedAtMs),
-                  torontoDayOfMonth(r.startedAtMs),
-                ) !== null,
-            );
-          setRideResults(mapped);
-        } finally {
-          await conn.close();
-        }
-      } catch (e) {
-        setRideSearchError(
-          e instanceof Error ? e.message : String(e ?? 'Failed to load rides'),
-        );
-      } finally {
-        setRideSearchLoading(false);
-      }
-    },
-    [],
-  );
-
-  const handleSelectRideResult = useCallback(
-    (r: RideSearchResult, monthKey: string) => {
-      // Play the ride's own day and hour so the spotlight trip lines up with the trips around it.
-      const day = torontoDayOfMonth(r.startedAtMs);
-      const hour = torontoHour(r.startedAtMs);
-      const trip = deckTripFromDuckRow(r.row, monthKey, hour, day);
-      if (!trip) return;
-      setCurrentMonth(monthKey);
-      setCurrentDay(day);
-      setCurrentHour(hour);
-      bumpPlaybackReset();
-      setSpotlightTrip(trip);
-      setStationSearchOpen(false);
-      setSelectedStationPin(null);
-      setFindRideStartName(null);
-      setRideResults([]);
-      setFindRideEndFilter('');
-    },
-    [bumpPlaybackReset],
-  );
-
-  const handlePickEndStation = useCallback(
-    (endName: string, monthKey: string, targetMs: number) => {
-      const candidates = rideResults.filter((r) => r.endName === endName);
-      if (candidates.length === 0) return;
-      if (candidates.length === 1) {
-        handleSelectRideResult(candidates[0]!, monthKey);
-        return;
-      }
-      let best = candidates[0]!;
-      let bestD = Infinity;
-      for (const c of candidates) {
-        const d = Math.abs(c.startedAtMs - targetMs);
-        if (d < bestD) {
-          bestD = d;
-          best = c;
-        }
-      }
-      handleSelectRideResult(best, monthKey);
-    },
-    [rideResults, handleSelectRideResult],
-  );
-
-  useEffect(() => {
-    if (isLoading) setSpotlightTrip(null);
-  }, [isLoading]);
-
-  useEffect(() => {
-    if (!spotlightTrip) return;
+    if (!spotlightTrip || isLoading || trips.length === 0) return;
+    const match = trips.find((t) => t.id === spotlightTrip.id);
+    const pending = pendingSpotlightRef.current;
+    if (pending && pending.id === spotlightTrip.id) {
+      // Still showing the previous hour; wait for the ride's own hour to load.
+      if (playbackWindow.min !== pending.windowMin) return;
+      pendingSpotlightRef.current = null;
+      // A ride outside this hour's random sample is still drawn from its own row.
+      if (!match) return;
+    }
     // Swap in this hour's copy: timestamps are relative to the playback hour, so a ride that
     // carries over into the next hour needs the new hour's version.
-    const match = trips.find((t) => t.id === spotlightTrip.id);
     if (!match) setSpotlightTrip(null);
     else if (match !== spotlightTrip) setSpotlightTrip(match);
-  }, [trips, spotlightTrip]);
+  }, [trips, isLoading, spotlightTrip, playbackWindow.min]);
 
-  const searchPaletteKbd = useMemo(() => {
+  const followRide = useCallback(
+    (row: Record<string, unknown>, startedAtMs: number) => {
+      const slice = torontoSliceAt(startedAtMs);
+      const trip = deckTripFromDuckRow(row, slice.month, slice.hour, slice.day);
+      if (!trip) return;
+      const hourWindow = getPlaybackHourWindow(slice.month, slice.hour, slice.day);
+      pendingSpotlightRef.current = { id: trip.id, windowMin: hourWindow.min };
+      setSpotlightTrip(trip);
+      goToSlice(slice, Math.max(hourWindow.min, startedAtMs - RIDE_LEAD_IN_MS));
+    },
+    [goToSlice],
+  );
+
+  const handlePickRide = useCallback(
+    (ride: RideRow) => {
+      setExploreOpen(false);
+      setStationPin(null);
+      followRide(ride.row, ride.startedAtMs);
+    },
+    [followRide],
+  );
+
+  const handleJumpToTime = useCallback(
+    (atMs: number) => {
+      const slice = torontoSliceAt(atMs);
+      if (!isPublishedParquetMonth(slice.month)) return;
+      setExploreOpen(false);
+      setStationPin(null);
+      setSpotlightTrip(null);
+      goToSlice(slice, atMs);
+    },
+    [goToSlice],
+  );
+
+  const handleJumpToRideStart = useCallback(() => {
+    if (!spotlightTrip) return;
+    const slice = torontoSliceAt(spotlightTrip.startedAtMs);
+    const hourWindow = getPlaybackHourWindow(slice.month, slice.hour, slice.day);
+    pendingSpotlightRef.current = { id: spotlightTrip.id, windowMin: hourWindow.min };
+    setPaused(false);
+    goToSlice(slice, Math.max(hourWindow.min, spotlightTrip.startedAtMs - RIDE_LEAD_IN_MS));
+  }, [spotlightTrip, goToSlice]);
+
+  const handlePickHour = useCallback(
+    (hour: number) => {
+      setSpotlightTrip(null);
+      goToSlice({ month: currentMonth, day: currentDay, hour });
+    },
+    [currentMonth, currentDay, goToSlice],
+  );
+
+  const handlePreviewStation = useCallback((s: StationLocation | null) => {
+    setStationPin(s);
+    if (s) setMapFlyTo({ lng: s.lng, lat: s.lat, zoom: 14.5, id: Date.now() });
+  }, []);
+
+  /** Prefer a ride that is on the map right now, so the card isn't for a ride that already ended. */
+  const pickRandomTrip = useCallback(() => {
+    if (trips.length === 0) return;
+    const rel = playbackTimeMsRef.current - playbackWindow.min;
+    const active = trips.filter((t) => {
+      const ts = t.timestamps;
+      return ts.length >= 2 && ts[0]! <= rel && rel < ts[ts.length - 1]! - 60000;
+    });
+    const pool = active.length > 0 ? active : trips;
+    pendingSpotlightRef.current = null;
+    setSpotlightTrip(pool[Math.floor(Math.random() * pool.length)]!);
+  }, [trips, playbackWindow.min]);
+
+  const openExplore = useCallback(() => {
+    setExploreOpenedAtMs(playbackTimeMsRef.current || getPlaybackHourWindow(currentMonth, currentHour, currentDay).min);
+    setExploreOpen(true);
+  }, [currentMonth, currentHour, currentDay]);
+
+  const closeExplore = useCallback(() => {
+    setExploreOpen(false);
+    setStationPin(null);
+  }, []);
+
+  const searchShortcut = useMemo(() => {
     if (typeof navigator === 'undefined') return '⌘K';
     return /Mac|iPhone|iPad|iPod/i.test(navigator.userAgent) ? '⌘K' : 'Ctrl K';
   }, []);
 
-  const sortedStations = useMemo(
-    () => [...STATIONS].sort((a, b) => a.name.localeCompare(b.name)),
-    [],
-  );
-
-  const findRideMonthKey =
-    findRideMonthPublished && parsedFindRideMonthHour ? parsedFindRideMonthHour.monthKey : null;
-
   useEffect(() => {
-    if (!stationSearchOpen || searchMode !== 'ride' || !findRideMonthKey) return;
-    if (findRideMonthStartNames?.monthKey === findRideMonthKey) return;
-    let cancelled = false;
-    void (async () => {
-      try {
-        const db = await getDB();
-        await ensureMonthLoaded(db, findRideMonthKey);
-        const tableName = `trips_${findRideMonthKey.replace('-', '_')}`;
-        const conn = await db.connect();
-        try {
-          const res = await conn.query(`SELECT DISTINCT startName FROM ${tableName}`);
-          const names = new Set<string>(
-            res
-              .toArray()
-              .map((r: { toJSON: () => Record<string, unknown> }) => String(r.toJSON().startName)),
-          );
-          if (!cancelled) setFindRideMonthStartNames({ monthKey: findRideMonthKey, names });
-        } finally {
-          await conn.close();
-        }
-      } catch {
-        // Keep showing every station; the ride search surfaces load errors itself.
-      }
-    })();
-    return () => {
-      cancelled = true;
-    };
-  }, [stationSearchOpen, searchMode, findRideMonthKey, findRideMonthStartNames]);
-
-  const filteredFindRideStartStations = useMemo(() => {
-    // Only offer stations with rides that month (the full list shows until the month loads).
-    const monthNames =
-      findRideMonthStartNames?.monthKey === findRideMonthKey ? findRideMonthStartNames.names : null;
-    const inMonth = monthNames
-      ? sortedStations.filter((s) => monthNames.has(s.name))
-      : sortedStations;
-    const q = findRideStartFilter.trim().toLowerCase();
-    if (!q) return inMonth;
-    return inMonth.filter((s) => s.name.toLowerCase().includes(q));
-  }, [sortedStations, findRideStartFilter, findRideMonthStartNames, findRideMonthKey]);
-
-  const distinctFindRideEndNames = useMemo(() => {
-    const set = new Set<string>();
-    for (const r of rideResults) {
-      if (r.endName) set.add(r.endName);
-    }
-    return [...set].sort((a, b) => a.localeCompare(b));
-  }, [rideResults]);
-
-  const filteredFindRideEndNames = useMemo(() => {
-    const q = findRideEndFilter.trim().toLowerCase();
-    if (!q) return distinctFindRideEndNames;
-    return distinctFindRideEndNames.filter((n) => n.toLowerCase().includes(q));
-  }, [distinctFindRideEndNames, findRideEndFilter]);
-
-  const dataRangeLabel = useMemo(() => {
-    const first = PUBLISHED_MONTHS[0];
-    const last = PUBLISHED_MONTHS[PUBLISHED_MONTHS.length - 1];
-    if (!first || !last) return '';
-    const [fy, fm] = first.split('-').map(Number);
-    const [ly, lm] = last.split('-').map(Number);
-    const fmt = (y: number, m: number) =>
-      new Date(y, m - 1, 1).toLocaleString('en-US', { month: 'long', year: 'numeric' });
-    return `${fmt(fy, fm)} – ${fmt(ly, lm)}`;
-  }, []);
-
-  useEffect(() => {
-    if (!stationSearchOpen) return;
-    const id = window.requestAnimationFrame(() => {
-      if (searchMode === 'time') {
-        timeTravelTextareaRef.current?.focus();
-        timeTravelTextareaRef.current?.select();
-      } else {
-        findRideTimeTextareaRef.current?.focus();
-      }
-    });
-    return () => window.cancelAnimationFrame(id);
-  }, [stationSearchOpen, searchMode]);
-
-  useEffect(() => {
-    if (!stationSearchOpen || searchMode !== 'ride') return;
-    if (!findRideStartName || rideSearchLoading) return;
-    const id = window.requestAnimationFrame(() => {
-      findRideEndFilterRef.current?.focus();
-    });
-    return () => window.cancelAnimationFrame(id);
-  }, [findRideStartName, rideSearchLoading, stationSearchOpen, searchMode]);
-
-  useEffect(() => {
-    if (!stationSearchOpen) {
-      exploreModalWasOpenRef.current = false;
-      return;
-    }
-    const justOpened = !exploreModalWasOpenRef.current;
-    exploreModalWasOpenRef.current = true;
-    if (justOpened) {
-      setRideSearchError(null);
-      setRideSearchLoading(false);
-      setRideResults([]);
-      setFindRideTimeText(timeTravelText);
-      setFindRideStartFilter('');
-      setFindRideEndFilter('');
-      setFindRideStartName(null);
-      setStationStats(null);
-    }
-  }, [stationSearchOpen, timeTravelText]);
-
-  useEffect(() => {
-    const typingTarget = (t: EventTarget | null) => {
-      const el = t as HTMLElement | null;
-      if (!el) return false;
-      const tag = el.tagName;
-      return (
-        tag === 'INPUT' ||
-        tag === 'TEXTAREA' ||
-        tag === 'SELECT' ||
-        el.isContentEditable
-      );
-    };
-
     const onKey = (e: KeyboardEvent) => {
       if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
         e.preventDefault();
-        setStationSearchOpen((o) => !o);
+        if (exploreOpen) closeExplore();
+        else openExplore();
         return;
       }
 
+      // Esc closes the top-most layer first, and only then leaves the demo.
       if (e.key === 'Escape') {
-        if (spotlightTrip) {
-          e.preventDefault();
-          setSpotlightTrip(null);
-          return;
-        }
-        if (stationSearchOpen) {
-          e.preventDefault();
-          return;
-        }
-        if (onRequestProjectDetails) {
-          e.preventDefault();
-          onRequestProjectDetails();
-          return;
-        }
+        e.preventDefault();
+        if (exploreOpen) closeExplore();
+        else if (spotlightTrip) setSpotlightTrip(null);
+        else onRequestProjectDetails?.();
         return;
       }
+
+      if (isTypingTarget(e.target) || e.metaKey || e.ctrlKey || e.altKey) return;
 
       if (e.code === 'Space' || e.key === ' ') {
-        if (typingTarget(e.target)) return;
+        // Let a focused button handle its own Space press.
+        if ((e.target as HTMLElement | null)?.tagName === 'BUTTON') return;
         e.preventDefault();
-        setMapTimelinePaused((p) => !p);
-        return;
-      }
-
-      if (typingTarget(e.target)) return;
-      if (e.metaKey || e.ctrlKey || e.altKey) return;
-
-      if (e.key === 'r' || e.key === 'R') {
+        setPaused((p) => !p);
+      } else if (e.key === 'r' || e.key === 'R') {
         e.preventDefault();
-        if (!isLoading && trips.length > 0) pickRandomTrip();
-        return;
+        if (!isLoading) pickRandomTrip();
+      } else if (e.key === 'd' || e.key === 'D') {
+        setDebug((d) => !d);
       }
     };
 
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [
-    spotlightTrip,
-    stationSearchOpen,
-    isLoading,
-    trips.length,
-    pickRandomTrip,
-  ]);
+  }, [exploreOpen, spotlightTrip, isLoading, pickRandomTrip, openExplore, closeExplore, onRequestProjectDetails]);
 
-  const maxHourVal = Math.max(...HOUR_PROFILE);
+  const handleMapFps = useCallback((fps: number) => setMapFps(fps), []);
+  const handleRidingNowChange = useCallback((count: number) => setRidingNow(count), []);
+  const handleResetNorth = useCallback(() => setResetNorthNonce((n) => n + 1), []);
 
-  const handleSetHour = useCallback((h: number) => {
-    setCurrentHour(h);
-    bumpPlaybackReset();
-  }, [bumpPlaybackReset]);
+  const insights = useMemo(() => computeInsights(trips, playbackWindow), [trips, playbackWindow]);
 
-  useEffect(() => {
-    if (playing) {
-      const msPerSimHour = 60000 / SPEEDS[speedIdx];
-      playIntervalRef.current = setInterval(() => {
-        setCurrentHour(prev => (prev + 1) % 24);
-      }, msPerSimHour);
-    } else {
-      if (playIntervalRef.current) clearInterval(playIntervalRef.current);
+  /** Keep flights and route fits clear of the sheet, the trip card and the dock. */
+  const overlayPadding = useMemo(() => {
+    if (isNarrow) {
+      return exploreOpen
+        ? { top: 70, bottom: Math.round(window.innerHeight * 0.62), left: 24, right: 24 }
+        : { top: 80, bottom: 330, left: 24, right: 24 };
     }
-    return () => { if (playIntervalRef.current) clearInterval(playIntervalRef.current); };
-  }, [playing, speedIdx]);
+    return { top: 90, bottom: 250, left: exploreOpen ? 420 : 60, right: 260 };
+  }, [isNarrow, exploreOpen]);
 
-  const togglePlay = () => setPlaying(p => !p);
-
-  const cycleSpeed = () => {
-    setSpeedIdx(i => (i + 1) % SPEEDS.length);
-  };
-
-  const spotlightStats = useMemo(
-    () => (spotlightTrip ? tripStats(spotlightTrip) : null),
-    [spotlightTrip],
-  );
-
-  const insights = useMemo(() => {
-    if (trips.length === 0) return null;
-
-    let totalMembers = 0;
-    let totalEbike = 0;
-
-    for (const t of trips) {
-      if (t.color[0] === 0 && t.color[1] === 229) totalMembers++;
-      if (t.isEbike) totalEbike++;
-    }
-
-    const memberPct = Math.round((totalMembers / trips.length) * 100);
-    const ebikePct = Math.round((totalEbike / trips.length) * 100);
-
-    return { memberPct, ebikePct };
-  }, [trips]);
+  const hourlyCounts = hourly?.key === hourlyKey ? hourly.counts : null;
 
   return (
     <>
@@ -880,6 +457,7 @@ export default function BikeShareTorontoPage({
           'bs-page',
           embedded ? 'bs-page--embedded' : '',
           !embedded && portalFullscreen ? 'bs-page--fullscreen' : '',
+          exploreOpen ? 'bs-page--sheet-open' : '',
         ]
           .filter(Boolean)
           .join(' ')}
@@ -894,583 +472,86 @@ export default function BikeShareTorontoPage({
             <X className="bs-fullscreen-exit__icon" strokeWidth={2} aria-hidden />
           </button>
         )}
+
         <div className="bs-main">
           <div className="bs-map-stage">
-          <MapView
-            trips={trips}
-            playbackWindow={playbackWindow}
-            onTripCountChange={handleTripCountChange}
-            playbackTimeMsRef={playbackTimeMsRef}
-            paused={mapTimelinePaused}
-            onFpsChange={handleMapFps}
-            playbackResetNonce={playbackResetNonce}
-            onAdvanceHour={handleAdvanceHour}
-            onWarmNextHour={handleWarmNextHour}
-            spotlightTrip={spotlightTrip}
-            flyTo={mapFlyTo}
-            selectedStationPin={selectedStationPin}
-            onBearingChange={setMapBearing}
-          />
-
-          <div className="bs-map-clock-slot">
-            <MapFloatingClock
-              timeMsRef={playbackTimeMsRef}
-              hasTrips={trips.length > 0}
-              isLoading={isLoading}
-              loadError={error}
+            <MapView
+              trips={trips}
+              playbackWindow={playbackWindow}
+              onTripCountChange={handleRidingNowChange}
+              playbackTimeMsRef={playbackTimeMsRef}
+              paused={paused}
+              onFpsChange={debug ? handleMapFps : undefined}
+              playbackResetNonce={playbackResetNonce}
+              seekTimeMs={seekTimeMs}
+              onAdvanceHour={handleAdvanceHour}
+              onWarmNextHour={handleWarmNextHour}
+              spotlightTrip={spotlightTrip}
+              flyTo={mapFlyTo}
+              selectedStationPin={stationPin}
+              onBearingChange={setMapBearing}
+              speed={SPEEDS[speedIdx]}
+              resetNorthNonce={resetNorthNonce}
+              overlayPadding={overlayPadding}
             />
-          </div>
 
-          <div className="bs-map-controls-row">
-            <div className="bs-rides-panel__tools" aria-label="Map controls">
-              <button
-                type="button"
-                className="bs-tool-pill bs-tool-pill--icon-only"
-                onClick={() => setStationSearchOpen(true)}
-                title={`Search stations (${searchPaletteKbd})`}
-                aria-label="Search stations"
-              >
-                <Search className="bs-tool-pill__glyph" strokeWidth={2} aria-hidden />
-              </button>
-              <button
-                type="button"
-                className="bs-tool-pill bs-tool-pill--icon-only"
-                onClick={() => setMapTimelinePaused((p) => !p)}
-                title={mapTimelinePaused ? 'Resume map animation (Space)' : 'Pause map animation (Space)'}
-                aria-label={mapTimelinePaused ? 'Resume map animation' : 'Pause map animation'}
-              >
-                {mapTimelinePaused ? (
-                  <Play className="bs-tool-pill__glyph" strokeWidth={2} aria-hidden />
-                ) : (
-                  <Pause className="bs-tool-pill__glyph" strokeWidth={2} aria-hidden />
-                )}
-              </button>
-              <button
-                type="button"
-                className="bs-tool-pill bs-tool-pill--icon-only"
-                onClick={pickRandomTrip}
-                disabled={trips.length === 0 || isLoading}
-                title="Random trip — show route and details (R)"
-                aria-label="Random trip"
-              >
-                <Shuffle className="bs-tool-pill__glyph" strokeWidth={2} aria-hidden />
-              </button>
+            <div className="bs-top-center">
+              <MapClock timeMsRef={playbackTimeMsRef} monthWide={currentDay === null} hasTrips={trips.length > 0} />
+              <LoadingPill isLoading={isLoading} message={loadingMessage} error={error} />
             </div>
-          </div>
 
-            <div className="bs-map-banners-stack">
-            <div className="bs-active-rides-wrap" aria-label="Active rides">
-              <ActiveRidesPanel
-                graphData={rideGraphData}
-                simTimeMs={simTimeForGraph}
-                bearing={mapBearing}
-                ridesCount={tripCount}
+            <div className="bs-panel-slot">
+              <RidesPanel
+                ridingNow={ridingNow}
                 sampled={isSampled}
-                fps={trips.length > 0 ? mapFps : null}
+                monthWide={currentDay === null}
+                insights={insights}
+                bearing={mapBearing}
+                onResetNorth={handleResetNorth}
+                fps={debug ? mapFps : null}
               />
             </div>
 
-            <div className="bs-insights-banner" aria-label="Data insights">
-              <div className="bs-insights-banner__title">Data Insights</div>
-              {insights ? (
-                <>
-                  <div className="bs-insights-row" style={{ marginTop: 10 }}>
-                    <span className="bs-insights-label">Rider split</span>
-                  </div>
-                  <div className="bs-insights-row">
-                    <span className="bs-insights-label">Members</span>
-                    <span className="bs-insights-value">~{insights.memberPct}%</span>
-                  </div>
-                  <div className="bs-stat-bar">
-                    <div
-                      className="bs-stat-bar-fill member"
-                      style={{ width: `${insights.memberPct}%` }}
-                    />
-                  </div>
-                  <div className="bs-insights-row">
-                    <span className="bs-insights-label">Casual</span>
-                    <span className="bs-insights-value">~{100 - insights.memberPct}%</span>
-                  </div>
-                  <div className="bs-stat-bar">
-                    <div
-                      className="bs-stat-bar-fill casual"
-                      style={{ width: `${100 - insights.memberPct}%` }}
-                    />
-                  </div>
+            {spotlightTrip && (
+              <TripCard
+                trip={spotlightTrip}
+                playbackTimeMsRef={playbackTimeMsRef}
+                onClose={() => setSpotlightTrip(null)}
+                onJumpToStart={handleJumpToRideStart}
+              />
+            )}
 
-                  <div className="bs-insights-row" style={{ marginTop: 10 }}>
-                    <span className="bs-insights-label">Bike type</span>
-                  </div>
-                  <div className="bs-insights-row">
-                    <span className="bs-insights-label">Classic</span>
-                    <span className="bs-insights-value">~{100 - insights.ebikePct}%</span>
-                  </div>
-                  <div className="bs-stat-bar">
-                    <div
-                      className="bs-stat-bar-fill"
-                      style={{ width: `${100 - insights.ebikePct}%` }}
-                    />
-                  </div>
-                  <div className="bs-insights-row">
-                    <span className="bs-insights-label">E-bike</span>
-                    <span className="bs-insights-value">~{insights.ebikePct}%</span>
-                  </div>
-                  <div className="bs-stat-bar">
-                    <div
-                      className="bs-stat-bar-fill ebike"
-                      style={{ width: `${insights.ebikePct}%` }}
-                    />
-                  </div>
-                </>
-              ) : (
-                <>
-                  <div className="bs-insights-row" style={{ marginTop: 10 }}>
-                    <span className="bs-insights-label">Rider split</span>
-                  </div>
-                  <div className="bs-stat-bar">
-                    <div className="bs-stat-bar-fill" style={{ width: '0%' }} />
-                  </div>
-                  <div className="bs-insights-row" style={{ marginTop: 10 }}>
-                    <span className="bs-insights-label">Bike type</span>
-                  </div>
-                  <div className="bs-stat-bar">
-                    <div className="bs-stat-bar-fill" style={{ width: '0%' }} />
-                  </div>
-                  <div className="bs-stat-bar">
-                    <div className="bs-stat-bar-fill" style={{ width: '0%' }} />
-                  </div>
-                </>
-              )}
-
-              <div className="bs-insights-banner__legend">
-                <div className="bs-insights-banner__legend-title">Legend</div>
-                <div className="bs-insights-banner__legend-items">
-                  <div className="bs-legend-item">
-                    <div className="bs-legend-dot bs-legend-dot--member" />
-                    <div>
-                      <div className="bs-legend-text">Member trip</div>
-                      <div className="bs-legend-sub">Annual pass holder</div>
-                    </div>
-                  </div>
-                  <div className="bs-legend-item">
-                    <div className="bs-legend-dot bs-legend-dot--casual" />
-                    <div>
-                      <div className="bs-legend-text">Casual trip</div>
-                      <div className="bs-legend-sub">Pay-per-ride</div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
+            <div className="bs-dock-slot">
+              <TimelineDock
+                hourlyCounts={hourlyCounts}
+                averaged={currentDay === null}
+                currentHour={currentHour}
+                hourStartMs={playbackWindow.min}
+                playbackTimeMsRef={playbackTimeMsRef}
+                paused={paused}
+                speed={SPEEDS[speedIdx]!}
+                searchShortcut={searchShortcut}
+                randomDisabled={trips.length === 0 || isLoading}
+                onPickHour={handlePickHour}
+                onTogglePause={() => setPaused((p) => !p)}
+                onCycleSpeed={() => setSpeedIdx((i) => (i + 1) % SPEEDS.length)}
+                onOpenSearch={() => (exploreOpen ? closeExplore() : openExplore())}
+                onRandomTrip={pickRandomTrip}
+              />
             </div>
 
-          {spotlightTrip && spotlightStats && (
-            <div
-              className="bs-trip-card-wrap"
-              role="dialog"
-              aria-labelledby="bs-trip-card-title"
-            >
-              <div className="bs-trip-card">
-                <button
-                  type="button"
-                  className="bs-trip-card-dismiss"
-                  onClick={() => setSpotlightTrip(null)}
-                  aria-label="Close trip details"
-                >
-                  ×
-                </button>
-                <div className="bs-trip-card-head">
-                  <div className="bs-trip-card-bike-row">
-                    <span className="bs-trip-card-bike-label" id="bs-trip-card-title">
-                      {spotlightTrip.isEbike ? 'Electric bike' : 'Classic bike'}
-                    </span>
-                    <span className="bs-trip-card-id" title={spotlightTrip.id}>
-                      {shortTripId(spotlightTrip.id)}
-                    </span>
-                  </div>
-                  <p className="bs-trip-card-route">
-                    <span className="bs-trip-card-station">{spotlightTrip.startName}</span>
-                    <span className="bs-trip-card-to">to</span>
-                    <span className="bs-trip-card-station">{spotlightTrip.endName}</span>
-                  </p>
-                  <p className="bs-trip-card-time">
-                    {formatTripClock(spotlightTrip.startedAtMs)} –{' '}
-                    {formatTripClock(spotlightTrip.endedAtMs)}
-                  </p>
-                  <div className="bs-trip-card-metrics">
-                    <span>{spotlightStats.durMin} min</span>
-                    <span>{spotlightStats.miLabel} mi</span>
-                    <span>{spotlightStats.mphLabel} mph</span>
-                  </div>
-                  <p className="bs-trip-card-member">
-                    {spotlightTrip.memberCasual === 'member' ? 'Member' : 'Casual'} ride
-                  </p>
-                </div>
-                <div className="bs-trip-card-foot">
-                  <span className="bs-trip-card-kbd">
-                    <span className="bs-trip-card-hint-desktop">
-                      <kbd className="bs-kbd">Esc</kbd> to dismiss
-                    </span>
-                    <span className="bs-trip-card-hint-mobile">Tap × to dismiss</span>
-                  </span>
-                </div>
-              </div>
-            </div>
-          )}
+            {exploreOpen && (
+              <ExploreSheet
+                initialTimeMs={exploreOpenedAtMs}
+                dataRangeLabel={PUBLISHED_RANGE_LABEL}
+                onClose={closeExplore}
+                onJumpToTime={handleJumpToTime}
+                onPickRide={handlePickRide}
+                onPreviewStation={handlePreviewStation}
+              />
+            )}
           </div>
-
-          {stationSearchOpen && (
-            <div
-              className="bs-search-modal-wrap"
-              role="dialog"
-              aria-modal="true"
-              aria-labelledby="bs-search-title"
-              onClick={() => setStationSearchOpen(false)}
-            >
-              <div className="bs-search-modal" onClick={(e) => e.stopPropagation()}>
-                <div className="bs-search-modal__head">
-                  <div className="bs-search-modal__title" id="bs-search-title">
-                    Explore
-                  </div>
-                  <button
-                    type="button"
-                    className="bs-search-modal__close"
-                    onClick={() => setStationSearchOpen(false)}
-                    aria-label="Close"
-                  >
-                    ×
-                  </button>
-                </div>
-
-                <div className="bs-search-modal__tab-row">
-                  <div
-                    className="bs-search-modal__tablist"
-                    role="tablist"
-                    aria-label="Search mode"
-                  >
-                    <button
-                      type="button"
-                      role="tab"
-                      id="bs-tab-time"
-                      aria-selected={searchMode === 'time'}
-                      aria-controls="bs-tabpanel-time"
-                      className={`bs-search-modal__tab${searchMode === 'time' ? ' bs-search-modal__tab--active' : ''}`}
-                      onClick={() => setSearchMode('time')}
-                    >
-                      <Clock className="bs-search-modal__tab-icon" strokeWidth={2} aria-hidden />
-                      <span>Time travel</span>
-                    </button>
-                    <button
-                      type="button"
-                      role="tab"
-                      id="bs-tab-ride"
-                      aria-selected={searchMode === 'ride'}
-                      aria-controls="bs-tabpanel-ride"
-                      className={`bs-search-modal__tab${searchMode === 'ride' ? ' bs-search-modal__tab--active' : ''}`}
-                      onClick={() => setSearchMode('ride')}
-                    >
-                      <Search className="bs-search-modal__tab-icon" strokeWidth={2} aria-hidden />
-                      <span>Find ride</span>
-                    </button>
-                  </div>
-                </div>
-
-                {searchMode === 'time' && (
-                  <div
-                    className="bs-search-modal__tab-panel"
-                    id="bs-tabpanel-time"
-                    role="tabpanel"
-                    aria-labelledby="bs-tab-time"
-                  >
-                    <label className="bs-search-modal__prompt" htmlFor="bs-time-travel-input">
-                      What time do you want to jump to?
-                    </label>
-                    <textarea
-                      ref={timeTravelTextareaRef}
-                      id="bs-time-travel-input"
-                      className="bs-search-modal__textarea"
-                      rows={3}
-                      autoComplete="off"
-                      spellCheck={false}
-                      placeholder="e.g. 2025-01-01 4pm or July 4, 2019 8pm — last 3 hours"
-                      value={timeTravelText}
-                      onChange={(e) => setTimeTravelText(e.target.value)}
-                    />
-                    {timeTravelText.trim().length > 0 && !parsedTimeTravel.ok && (
-                      <p className="bs-search-modal__parse-error" role="status">
-                        {timeTravelParseErrorMessage(parsedTimeTravel)}
-                      </p>
-                    )}
-                    <button
-                      type="button"
-                      className="bs-search-modal__primary"
-                      onClick={jumpToSearchTime}
-                      disabled={!parsedTimeTravel.ok || !parsedSearchMonthHour}
-                    >
-                      Go to this time
-                    </button>
-                    <div className="bs-search-modal__footer">
-                      <p className="bs-search-modal__footer-line">
-                        Processed{' '}
-                        <span className="bs-search-modal__brand">Bike Share Toronto</span> trip
-                        data spans {dataRangeLabel || 'published months'}.
-                      </p>
-                      <p className="bs-search-modal__footer-line bs-search-modal__footer-examples">
-                        Try: <code>Jan 1 2025 4pm</code> or{' '}
-                        <code>July 4, 2019 8pm — last 3 hours</code>. The optional “last N hours”
-                        clause searches the N hours before that time when you look for a ride on the
-                        other tab.
-                      </p>
-                    </div>
-                  </div>
-                )}
-
-                {searchMode === 'ride' && (
-                  <div
-                    className="bs-search-modal__tab-panel"
-                    id="bs-tabpanel-ride"
-                    role="tabpanel"
-                    aria-labelledby="bs-tab-ride"
-                  >
-                    <label className="bs-search-modal__prompt" htmlFor="bs-find-ride-time">
-                      1. When did the trip start? (Toronto local time)
-                    </label>
-                    <textarea
-                      ref={findRideTimeTextareaRef}
-                      id="bs-find-ride-time"
-                      className="bs-search-modal__textarea"
-                      rows={2}
-                      autoComplete="off"
-                      spellCheck={false}
-                      placeholder="e.g. 2025-01-01 4pm — last 2 hours"
-                      value={findRideTimeText}
-                      onChange={(e) => setFindRideTimeText(e.target.value)}
-                    />
-                    {findRideTimeText.trim().length > 0 && !parsedFindRide.ok && (
-                      <p className="bs-search-modal__parse-error" role="status">
-                        {timeTravelParseErrorMessage(parsedFindRide)}
-                      </p>
-                    )}
-
-                    {parsedFindRide.ok && parsedFindRideMonthHour && !findRideMonthPublished && (
-                      <p className="bs-search-modal__empty bs-search-modal__error" role="status">
-                        That month is outside the published trip dataset (
-                        {dataRangeLabel || 'see published range'}).
-                      </p>
-                    )}
-
-                    {parsedFindRide.ok &&
-                      parsedFindRideMonthHour &&
-                      findRideMonthPublished &&
-                      !findRideStartName && (
-                        <>
-                          <p className="bs-search-modal__ride-intro">
-                            2. Choose a <strong>start</strong> station. A{' '}
-                            <span className="bs-search-modal__green-dot-label">green dot</span> marks
-                            it on the map. Add <code>— last N hours</code> above for a wider search
-                            window around that moment.
-                          </p>
-                          <input
-                            className="bs-search-modal__input"
-                            type="search"
-                            autoComplete="off"
-                            placeholder="Filter start stations…"
-                            value={findRideStartFilter}
-                            onChange={(e) => setFindRideStartFilter(e.target.value)}
-                          />
-                        </>
-                      )}
-
-                    {parsedFindRide.ok &&
-                      parsedFindRideMonthHour &&
-                      findRideMonthPublished &&
-                      findRideStartName && (
-                        <>
-                          <div className="bs-search-modal__find-ride-step-head">
-                            <p className="bs-search-modal__hint bs-search-modal__hint--selected">
-                              From: {findRideStartName}
-                            </p>
-                            <button
-                              type="button"
-                              className="bs-search-modal__text-btn"
-                              onClick={() => {
-                                setFindRideStartName(null);
-                                setRideResults([]);
-                                setStationStats(null);
-                                setFindRideEndFilter('');
-                                setRideSearchError(null);
-                              }}
-                            >
-                              Change start
-                            </button>
-                          </div>
-                          <p className="bs-search-modal__ride-intro">
-                            3. Choose an <strong>end</strong> station. The ride closest to your time
-                            is highlighted on the map.
-                          </p>
-                          <input
-                            ref={findRideEndFilterRef}
-                            className="bs-search-modal__input"
-                            type="search"
-                            autoComplete="off"
-                            placeholder="Filter end stations…"
-                            value={findRideEndFilter}
-                            onChange={(e) => setFindRideEndFilter(e.target.value)}
-                          />
-                        </>
-                      )}
-
-                    {stationStats && findRideStartName && (
-                      <div className="bs-search-modal__stats">
-                        <div className="bs-search-modal__stats-row">
-                          <span>Starts this hour</span>
-                          <span className="bs-search-modal__stats-val">
-                            {stationStats.startsInHour.toLocaleString()}
-                          </span>
-                        </div>
-                        <div className="bs-search-modal__stats-row">
-                          <span>Ends this hour</span>
-                          <span className="bs-search-modal__stats-val">
-                            {stationStats.endsInHour.toLocaleString()}
-                          </span>
-                        </div>
-                        <div className="bs-search-modal__stats-row">
-                          <span>Starts in month</span>
-                          <span className="bs-search-modal__stats-val">
-                            {stationStats.startsInMonth.toLocaleString()}
-                          </span>
-                        </div>
-                        <div className="bs-search-modal__stats-row">
-                          <span>Ends in month</span>
-                          <span className="bs-search-modal__stats-val">
-                            {stationStats.endsInMonth.toLocaleString()}
-                          </span>
-                        </div>
-                      </div>
-                    )}
-
-                    {rideSearchError && (
-                      <p className="bs-search-modal__empty bs-search-modal__error">{rideSearchError}</p>
-                    )}
-
-                    <ul className="bs-search-modal__list bs-search-modal__list--stations" role="listbox">
-                      {parsedFindRide.ok &&
-                        parsedFindRideMonthHour &&
-                        findRideMonthPublished &&
-                        !findRideStartName &&
-                        filteredFindRideStartStations.map((s) => (
-                          <li key={s.id} role="none">
-                            <button
-                              type="button"
-                              className={`bs-search-modal__row${selectedStationPin?.id === s.id ? ' bs-search-modal__row--station-active' : ''}`}
-                              role="option"
-                              disabled={rideSearchLoading}
-                              onClick={() => {
-                                if (!parsedFindRideMs) return;
-                                setFindRideStartName(s.name);
-                                setSelectedStationPin({
-                                  id: s.id,
-                                  lng: s.lng,
-                                  lat: s.lat,
-                                });
-                                setMapFlyTo({
-                                  lng: s.lng,
-                                  lat: s.lat,
-                                  zoom: 14,
-                                  id: Date.now(),
-                                });
-                                void runStationStats(
-                                  s.name,
-                                  parsedFindRideMonthHour.monthKey,
-                                  hourStartTorontoMs(parsedFindRideMs),
-                                );
-                                void runRideSearchFromStation(s.name, {
-                                  monthKey: parsedFindRideMonthHour.monthKey,
-                                  baseMs: parsedFindRideMs,
-                                  windowBeforeMs: parsedFindRide.ok ? parsedFindRide.windowBeforeMs : 0,
-                                  windowAfterMs: parsedFindRide.ok ? parsedFindRide.windowAfterMs : 0,
-                                });
-                              }}
-                            >
-                              {s.name}
-                            </button>
-                          </li>
-                        ))}
-
-                      {findRideStartName &&
-                        parsedFindRideMonthHour &&
-                        parsedFindRideMs &&
-                        filteredFindRideEndNames.map((endName) => (
-                          <li key={endName} role="none">
-                            <button
-                              type="button"
-                              className="bs-search-modal__row"
-                              role="option"
-                              disabled={rideSearchLoading}
-                              onClick={() =>
-                                handlePickEndStation(
-                                  endName,
-                                  parsedFindRideMonthHour.monthKey,
-                                  parsedFindRideMs,
-                                )
-                              }
-                            >
-                              {endName}
-                            </button>
-                          </li>
-                        ))}
-                    </ul>
-
-                    {rideSearchLoading && (
-                      <p className="bs-search-modal__empty">Searching…</p>
-                    )}
-
-                    {findRideStartName &&
-                      !rideSearchLoading &&
-                      rideResults.length === 0 &&
-                      !rideSearchError && (
-                        <p className="bs-search-modal__empty">
-                          No rides from that start in this time window. Try widening the window (
-                          <code>— last 3 hours</code>) or another time.
-                        </p>
-                      )}
-
-                    {findRideStartName &&
-                      rideResults.length > 0 &&
-                      filteredFindRideEndNames.length === 0 && (
-                        <p className="bs-search-modal__empty">No end stations match that filter.</p>
-                      )}
-
-                    {parsedFindRide.ok &&
-                      parsedFindRideMonthHour &&
-                      findRideMonthPublished &&
-                      !findRideStartName &&
-                      filteredFindRideStartStations.length === 0 &&
-                      findRideStartFilter.trim() !== '' && (
-                        <p className="bs-search-modal__empty">No stations match that filter.</p>
-                      )}
-                  </div>
-                )}
-
-                <p className="bs-search-modal__hint bs-search-modal__hint--dismiss">
-                  Tap outside or use × to close
-                </p>
-              </div>
-            </div>
-          )}
-
-          {/* Loading overlay */}
-          <div
-            className="bs-loading-overlay"
-            style={{ opacity: isLoading ? 1 : 0, pointerEvents: isLoading ? 'all' : 'none' }}
-          >
-            <div className="bs-loading-spinner" />
-            <div className="bs-loading-text">{loadingMessage}</div>
-            {error && <div className="bs-loading-error">{error}</div>}
-          </div>
-
         </div>
-
       </div>
     </>
   );
