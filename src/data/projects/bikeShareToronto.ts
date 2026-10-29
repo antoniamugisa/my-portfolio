@@ -4,7 +4,7 @@ export const bikeShareTorontoProject: Project = {
   id: 'bike-share-toronto',
   title: 'Toronto Bike Share Flow Map',
   description:
-    'More than 15 million real Bike Share Toronto rides, replayed street by street in the browser. Watch the city move, ' +
+    'More than 23 million real Bike Share Toronto rides, replayed street by street in the browser. Watch the city move, ' +
     'or pick one ride and follow it from dock to dock.',
   image: '/images/projects/bike-share-toronto.webp',
   thumbnailVideo: '/images/projects/bike-share-toronto.mp4',
@@ -17,7 +17,7 @@ export const bikeShareTorontoProject: Project = {
   tags: ['Data Viz', 'Open Data', 'Toronto'],
   status: 'Ongoing',
   longDescription:
-    'Every ride comes from City of Toronto open data, from 2017 to 2025, and is drawn along the route a cyclist would most ' +
+    'Every ride comes from City of Toronto open data, from January 2017 to February 2026, and is drawn along the route a cyclist would most ' +
     'likely take between its two stations. There is no backend: the browser queries the data directly with DuckDB-WASM ' +
     'and animates every ride on the GPU with deck.gl. The demo opens on a July weekday at 5pm, when nearly 4,000 rides ' +
     'cross the city in a single hour.',

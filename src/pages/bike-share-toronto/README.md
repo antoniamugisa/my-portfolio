@@ -1,13 +1,13 @@
 # Toronto Bike Share Flow Map
 
 An animated map that replays real Bike Share Toronto rides, street by street, at the time they happened.
-Jump to an hour from 2017 to 2025, watch the city move, or pick a single ride and follow it from dock to dock.
+Jump to an hour from 2017 to early 2026, watch the city move, or pick a single ride and follow it from dock to dock.
 
 **[Live demo →](https://antoniamugisa.com/projects/bike-share-toronto#bike-share-demo)**
 
 ![Bike Share Toronto flow map](../../../public/images/projects/bike-share-toronto.webp)
 
-- **15+ million rides** across 41 months (summers of 2017–2024 and 2025), from City of Toronto open data
+- **23+ million rides** across 107 months (January 2017 to February 2026; October–December 2024 aren't in the City's data), from City of Toronto open data
 - **~370,000 station-to-station routes**, each one routed along real streets
 - **No backend.** The browser queries the trip data directly with DuckDB-WASM and draws it on the GPU with deck.gl
 

@@ -233,8 +233,9 @@ new month, add it to `publishedMonths.ts`.
 
 - **Station matching uses today's station list**, so years with many since-renamed stations
   lose a large share of trips. Fixing this needs historical station coordinates.
-- **2025 Parquets predate the Toronto-month fix**: trips from roughly the last 4–5 evening
-  hours of each month sit in the next month's file. Rebuild 2025 to fix.
+- **November 2022 ships as a ZIP inside the 2022 ZIP**, and `build-stations.ts` only extracts one
+  level, so a fresh run skips that month. Unzip `Bike share ridership 2022-11.zip` by hand before
+  `bun run parquet -- 2022`.
 - **Elevation is never filled in.** The existing `routes.db` has `elevation_up` /
   `elevation_down` columns (from an older version of the script), but they're empty for every
   route. The current `build-routes.ts` doesn't create those columns at all, while

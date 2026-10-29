@@ -14,7 +14,7 @@ export default function BikeShareCaseStudy({ onOpenMoment }: BikeShareCaseStudyP
         What I Built
       </CaseHeading>
       <P>
-        A map that replays more than 15 million Bike Share Toronto rides, from 2017 to 2025. Pick an hour and every ride
+        A map that replays more than 23 million Bike Share Toronto rides, from 2017 to early 2026. Pick an hour and every ride
         in it moves across the city from dock to dock, cyan for members and orange for casual riders. You can jump to any
         moment, find a real ride that left a station and follow it, or just sit back and watch a weekday rush hour fill
         up downtown.
