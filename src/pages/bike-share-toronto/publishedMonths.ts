@@ -13,7 +13,7 @@ export const PUBLISHED_MONTHS: readonly string[] = [
   '2024-06', '2024-07', '2024-08', '2024-09',
   '2025-01', '2025-02', '2025-03', '2025-04',
   '2025-05', '2025-06', '2025-07', '2025-08',
-  '2025-09', '2025-10',
+  '2025-09', '2025-10', '2025-11', '2025-12',
 ];
 
 const publishedSet = new Set<string>(PUBLISHED_MONTHS);
@@ -23,4 +23,4 @@ export function isPublishedParquetMonth(month: string): boolean {
 }
 
 /** Plain-language summary of `PUBLISHED_MONTHS` for messages; keep in step with the list. */
-export const PUBLISHED_RANGE_LABEL = 'summers of 2017–2024, and January–October 2025';
+export const PUBLISHED_RANGE_LABEL = 'summers of 2017–2024, and all of 2025';
