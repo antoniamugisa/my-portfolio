@@ -92,7 +92,7 @@ export function TableOfContents({ containerRef }: { containerRef: RefObject<HTML
   const active = useActiveId(entries);
   if (entries.length < 3) return null;
   return (
-    <nav aria-label="On this page" className="sticky top-28 text-[13px]">
+    <nav aria-label="On this page" className="sticky top-36 max-h-[calc(100vh-10rem)] overflow-y-auto text-[13px]">
       <div className="mb-3 text-xs uppercase tracking-[0.14em] text-muted-foreground">On this page</div>
       <EntryLinks entries={entries} active={active} />
     </nav>
