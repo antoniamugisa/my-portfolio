@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Briefcase, FolderOpen, BookOpen, Heart, Camera } from 'lucide-react';
 import { ThemeToggle } from '@/components/ui/theme-toggle';
@@ -15,8 +15,45 @@ const prefetchRoute = (path: string) => {
   routePrefetchers[path]?.();
 };
 
+/** Below this, the pill always shows; past it, it slides away while scrolling down. */
+const SHOW_NEAR_TOP_PX = 160;
+/** Ignore tiny scroll jitters (trackpads, rubber-banding). */
+const SCROLL_DELTA_PX = 6;
+
+/** True while the reader is scrolling down a page, so the pill doesn't sit on top of the text. */
+function useHiddenWhileScrollingDown(): boolean {
+  const [hidden, setHidden] = useState(false);
+  useEffect(() => {
+    let lastY = window.scrollY;
+    let raf = 0;
+    const update = () => {
+      raf = 0;
+      const y = window.scrollY;
+      if (y < SHOW_NEAR_TOP_PX) setHidden(false);
+      else if (y > lastY + SCROLL_DELTA_PX) setHidden(true);
+      else if (y < lastY - SCROLL_DELTA_PX) setHidden(false);
+      else return;
+      lastY = y;
+    };
+    const onScroll = () => {
+      if (!raf) raf = requestAnimationFrame(update);
+    };
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => {
+      window.removeEventListener('scroll', onScroll);
+      cancelAnimationFrame(raf);
+    };
+  }, []);
+  return hidden;
+}
+
 const Navigation = () => {
   const location = useLocation();
+  const hidden = useHiddenWhileScrollingDown();
+  // Keyboard users tabbing into the nav always get it back.
+  const hideClass = `transition-[transform,opacity] duration-300 motion-reduce:transition-none focus-within:translate-y-0 focus-within:opacity-100 ${
+    hidden ? '-translate-y-24 opacity-0 pointer-events-none' : ''
+  }`;
 
   const navItems = [
     { name: 'Experiences', shortName: 'Experiences', path: '/experience', icon: Briefcase },
@@ -46,7 +83,7 @@ const Navigation = () => {
   return (
     <>
       {/* Desktop centered pill navigation */}
-      <nav className="hidden md:flex fixed top-8 left-1/2 z-50 -translate-x-1/2">
+      <nav className={`hidden md:flex fixed top-8 left-1/2 z-50 -translate-x-1/2 ${hideClass}`}>
         <div className="flex items-center gap-1 rounded-full border border-border/60 bg-background/80 px-2 py-1.5 shadow-sm backdrop-blur-md">
           <Link
             to="/"
@@ -75,7 +112,7 @@ const Navigation = () => {
       </nav>
 
       {/* Mobile centered pill navigation */}
-      <nav className="md:hidden fixed top-5 left-1/2 z-50 w-[calc(100%-2.5rem)] max-w-md -translate-x-1/2 pt-safe">
+      <nav className={`md:hidden fixed top-5 left-1/2 z-50 w-[calc(100%-2.5rem)] max-w-md -translate-x-1/2 pt-safe ${hideClass}`}>
         <div className="flex items-center justify-between gap-0.5 rounded-full border border-border/60 bg-background/80 px-1.5 py-1.5 shadow-sm backdrop-blur-md">
           <Link
             to="/"

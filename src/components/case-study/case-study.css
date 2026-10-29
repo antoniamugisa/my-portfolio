@@ -1,0 +1,20 @@
+/* Case study pages: numbered figures and the dotted figure canvas. Everything else is Tailwind. */
+
+.case-study-body {
+  counter-reset: case-figure;
+}
+
+.case-figure {
+  counter-increment: case-figure;
+}
+
+.case-figure__number::before {
+  content: 'Fig. ' counter(case-figure) '.';
+}
+
+/* A faint dot grid behind diagrams, drawn from the theme's foreground so it works in both modes. */
+.case-figure__canvas {
+  background-color: hsl(var(--muted) / 0.35);
+  background-image: radial-gradient(hsl(var(--foreground) / 0.09) 1px, transparent 1px);
+  background-size: 14px 14px;
+}

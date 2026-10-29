@@ -322,21 +322,37 @@ export default function BikeShareTorontoPage({
     [goToSlice],
   );
 
-  // A shared link to a ride: look it up by id and follow it like a picked ride.
+  /** Follow a ride that is already loaded, from just before it leaves its dock. */
+  const followLoadedTrip = useCallback(
+    (trip: DeckTrip) => {
+      const slice = torontoSliceAt(trip.startedAtMs);
+      const hourWindow = getPlaybackHourWindow(slice.month, slice.hour, slice.day);
+      pendingSpotlightRef.current = { id: trip.id, windowMin: hourWindow.min };
+      setSpotlightTrip(trip);
+      setPaused(false);
+      goToSlice(slice, Math.max(hourWindow.min, trip.startedAtMs - RIDE_LEAD_IN_MS));
+    },
+    [goToSlice],
+  );
+
+  // A shared link to a ride: use it straight from the loaded hour when it's there (the opening
+  // hour loads instantly), otherwise look it up with DuckDB. Only for the link the demo opened with.
+  const sharedRideHandledRef = useRef(false);
   useEffect(() => {
-    if (!sharedMoment?.rideId) return;
-    let cancelled = false;
-    fetchRideById(sharedMoment.slice.month, sharedMoment.rideId)
+    const rideId = sharedMoment?.rideId;
+    if (!rideId || sharedRideHandledRef.current || trips.length === 0) return;
+    sharedRideHandledRef.current = true;
+    const loaded = trips.find((t) => t.id === rideId);
+    if (loaded) {
+      followLoadedTrip(loaded);
+      return;
+    }
+    fetchRideById(sharedMoment.slice.month, rideId)
       .then((ride) => {
-        if (ride && !cancelled) followRide(ride.row, ride.startedAtMs);
+        if (ride) followRide(ride.row, ride.startedAtMs);
       })
       .catch((e) => console.error('[BikeShare] shared ride lookup failed:', e));
-    return () => {
-      cancelled = true;
-    };
-    // Only for the link the demo was opened with.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [sharedMoment, trips, followLoadedTrip, followRide]);
 
   // Keep the address bar on the hour being played (and the followed ride), so it can be shared.
   useEffect(() => {
@@ -393,13 +409,8 @@ export default function BikeShareTorontoPage({
   );
 
   const handleJumpToRideStart = useCallback(() => {
-    if (!spotlightTrip) return;
-    const slice = torontoSliceAt(spotlightTrip.startedAtMs);
-    const hourWindow = getPlaybackHourWindow(slice.month, slice.hour, slice.day);
-    pendingSpotlightRef.current = { id: spotlightTrip.id, windowMin: hourWindow.min };
-    setPaused(false);
-    goToSlice(slice, Math.max(hourWindow.min, spotlightTrip.startedAtMs - RIDE_LEAD_IN_MS));
-  }, [spotlightTrip, goToSlice]);
+    if (spotlightTrip) followLoadedTrip(spotlightTrip);
+  }, [spotlightTrip, followLoadedTrip]);
 
   const handlePickHour = useCallback(
     (hour: number) => {
