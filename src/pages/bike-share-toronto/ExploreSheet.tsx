@@ -1,6 +1,6 @@
 import { useEffect, useId, useMemo, useRef, useState, type KeyboardEvent } from 'react';
 import { ArrowRight, X } from 'lucide-react';
-import { STATIONS, type StationLocation } from './types';
+import { STATIONS, type MapBounds, type StationLocation } from './types';
 import { parseTimeTravelQuery } from './parseTimeTravelQuery';
 import { isPublishedParquetMonth } from './publishedMonths';
 import { torontoSliceAt } from './torontoTime';
@@ -16,11 +16,16 @@ const TORONTO_TZ = 'America/Toronto';
 const MIN_MS = 60000;
 const HOUR_MS = 3600000;
 
-/** Moments worth replaying, all inside the published months. */
-const SUGGESTIONS: { label: string; query: string }[] = [
+/**
+ * Moments worth replaying, all inside the published months. `bounds` frames where the moment
+ * happens, so it isn't cropped out on a narrow screen.
+ */
+const SUGGESTIONS: { label: string; query: string; bounds?: MapBounds }[] = [
   { label: 'Weekday rush', query: 'July 15, 2025 5:30pm' },
-  { label: 'Canada Day night', query: 'July 1, 2025 10pm' },
-  { label: 'Pride Parade', query: 'June 29, 2025 2pm' },
+  // Downtown out to the fireworks at Ashbridge's Bay.
+  { label: 'Canada Day night', query: 'July 1, 2025 10pm', bounds: [[-79.42, 43.635], [-79.295, 43.68]] },
+  // Yonge St from Bloor down to Dundas, and the Church–Wellesley Village.
+  { label: 'Pride Parade', query: 'June 29, 2025 2pm', bounds: [[-79.405, 43.648], [-79.365, 43.675]] },
   { label: 'Winter commute', query: 'Feb 5, 2025 8am' },
   { label: 'Summer 2020', query: 'July 15, 2020 6pm' },
 ];
@@ -83,7 +88,8 @@ type ExploreSheetProps = {
   initialTimeMs: number;
   dataRangeLabel: string;
   onClose: () => void;
-  onJumpToTime: (atMs: number) => void;
+  /** `bounds` is the area to show, when the time came from a suggested moment. */
+  onJumpToTime: (atMs: number, bounds?: MapBounds) => void;
   onPickRide: (ride: RideRow, monthKey: string) => void;
   /** Station being searched from, so the map can pin and fly to it (null clears). */
   onPreviewStation: (station: StationLocation | null) => void;
@@ -202,7 +208,7 @@ export function ExploreSheet({
   }, [drawable, atMs]);
 
   const jump = () => {
-    if (atMs != null && published) onJumpToTime(atMs);
+    if (atMs != null && published) onJumpToTime(atMs, SUGGESTIONS.find((s) => s.query === query)?.bounds);
   };
 
   const pickStation = (s: StationLocation) => {
@@ -411,6 +417,9 @@ export function ExploreSheet({
               {countsError && <p className="bs-sheet__empty bs-sheet__empty--error">{countsError}</p>}
               {!countsForMonth && !countsError && (
                 <p className="bs-sheet__hint">Loading {monthLabel(monthKey!)} trips…</p>
+              )}
+              {countsForMonth && stationOptions.length > 0 && (
+                <p className="bs-sheet__hint">Busiest first, with rides started there in {monthLabel(monthKey!)}.</p>
               )}
               <ul className="bs-station-list" id={listId} role="listbox" aria-label="Start stations">
                 {stationOptions.slice(0, MAX_STATION_ROWS).map((s, i) => (

@@ -13,7 +13,7 @@ import { RidesPanel, type HourInsights } from './RidesPanel';
 import { TimelineDock } from './TimelineDock';
 import { TripCard } from './TripCard';
 import { ExploreSheet } from './ExploreSheet';
-import type { DeckTrip, StationLocation } from './types';
+import type { DeckTrip, MapBounds, MapFlyTo, StationLocation } from './types';
 import { deckTripFromDuckRow, useTripStream } from './useTripStream';
 import { fetchHourlyRideCounts, fetchRideById, type RideRow } from './queries';
 import { FIRST_HOUR, loadFirstHour } from './firstHour';
@@ -213,7 +213,9 @@ export default function BikeShareTorontoPage({
   const [exploreOpen, setExploreOpen] = useState(false);
   const [exploreOpenedAtMs, setExploreOpenedAtMs] = useState(0);
   const [stationPin, setStationPin] = useState<StationLocation | null>(null);
-  const [mapFlyTo, setMapFlyTo] = useState<{ lng: number; lat: number; zoom?: number; id: number } | null>(null);
+  const [mapFlyTo, setMapFlyTo] = useState<MapFlyTo | null>(null);
+  /** False until the map has loaded and is drawing rides; the HUD waits for it. */
+  const [mapDrawing, setMapDrawing] = useState(false);
   const [hourly, setHourly] = useState<{ key: string; counts: number[] } | null>(null);
   const playbackTimeMsRef = useRef(0);
   /** A ride picked for an hour that is still loading: kept until that hour's trips arrive. */
@@ -397,12 +399,13 @@ export default function BikeShareTorontoPage({
   );
 
   const handleJumpToTime = useCallback(
-    (atMs: number) => {
+    (atMs: number, bounds?: MapBounds) => {
       const slice = torontoSliceAt(atMs);
       if (!isPublishedParquetMonth(slice.month)) return;
       setExploreOpen(false);
       setStationPin(null);
       setSpotlightTrip(null);
+      if (bounds) setMapFlyTo({ bounds, id: Date.now() });
       goToSlice(slice, atMs);
     },
     [goToSlice],
@@ -493,6 +496,7 @@ export default function BikeShareTorontoPage({
   const handleMapFps = useCallback((fps: number) => setMapFps(fps), []);
   const handleRidingNowChange = useCallback((count: number) => setRidingNow(count), []);
   const handleResetNorth = useCallback(() => setResetNorthNonce((n) => n + 1), []);
+  const handleMapDrawing = useCallback(() => setMapDrawing(true), []);
 
   const insights = useMemo(() => computeInsights(trips, playbackWindow), [trips, playbackWindow]);
 
@@ -558,22 +562,23 @@ export default function BikeShareTorontoPage({
               flyTo={mapFlyTo}
               selectedStationPin={stationPin}
               onBearingChange={setMapBearing}
+              onDrawing={handleMapDrawing}
               speed={SPEEDS[speedIdx]}
               resetNorthNonce={resetNorthNonce}
               overlayPadding={overlayPadding}
             />
 
             <div className="bs-top-center">
-              <MapClock timeMsRef={playbackTimeMsRef} monthWide={currentDay === null} hasTrips={trips.length > 0} />
+              <MapClock timeMsRef={playbackTimeMsRef} monthWide={currentDay === null} hasTrips={mapDrawing && trips.length > 0} />
               <LoadingPill isLoading={isLoading} message={loadingMessage} error={error} />
             </div>
 
             <div className="bs-panel-slot">
               <RidesPanel
-                ridingNow={ridingNow}
+                ridingNow={mapDrawing ? ridingNow : 0}
                 sampled={isSampled}
                 monthWide={currentDay === null}
-                insights={insights}
+                insights={mapDrawing ? insights : null}
                 bearing={mapBearing}
                 onResetNorth={handleResetNorth}
                 fps={debug ? mapFps : null}

@@ -14,7 +14,7 @@ import { MapboxOverlay } from "@deck.gl/mapbox";
 import { TripsLayer } from "@deck.gl/geo-layers";
 import { PathLayer, ScatterplotLayer } from "@deck.gl/layers";
 import "mapbox-gl/dist/mapbox-gl.css";
-import type { DeckTrip } from "./types";
+import type { DeckTrip, MapFlyTo } from "./types";
 import { MAP_BOUNDS } from "./types";
 import { createThrottledSampler } from "./createThrottledSampler";
 import {
@@ -44,13 +44,15 @@ interface MapViewProps {
   /** When set, full start→end path plus same head dot as normal view; other trips dimmed. */
   spotlightTrip: DeckTrip | null;
   /**
-   * Fly the map when `id` changes (e.g. station picked from search). `id` should be unique per request.
+   * Fly the map when `id` changes (e.g. station picked from search, or a suggested moment's area).
    */
-  flyTo?: { lng: number; lat: number; zoom?: number; id: number } | null;
+  flyTo?: MapFlyTo | null;
   /** Selected station from the list — shown as a green dot on the map. */
   selectedStationPin?: { lng: number; lat: number; id: number } | null;
   /** Map rotation (degrees) for HUD compass. */
   onBearingChange?: (bearing: number) => void;
+  /** Called once the rides layer is on the map (after the basemap loads), so the HUD can wait for it. */
+  onDrawing?: () => void;
   /** Playback speed multiplier (1 = one simulated hour per 45 s). */
   speed?: number;
   /**
@@ -181,6 +183,7 @@ export default function MapView({
   flyTo,
   selectedStationPin = null,
   onBearingChange,
+  onDrawing,
   speed = 1,
   seekTimeMs = null,
   resetNorthNonce = 0,
@@ -236,6 +239,8 @@ export default function MapView({
   selectedStationPinRef.current = selectedStationPin;
   const onBearingChangeRef = useRef(onBearingChange);
   onBearingChangeRef.current = onBearingChange;
+  const onDrawingRef = useRef(onDrawing);
+  onDrawingRef.current = onDrawing;
 
   const createStationPinLayer = useCallback(
     (pin: { lng: number; lat: number }) =>
@@ -790,6 +795,7 @@ export default function MapView({
 
       map.resize();
       pushLayer();
+      onDrawingRef.current?.();
 
       animFrameRef.current = requestAnimationFrame(animate);
     });
@@ -812,13 +818,9 @@ export default function MapView({
     if (!map) return;
 
     const run = () => {
-      map.flyTo({
-        center: [flyTo.lng, flyTo.lat],
-        zoom: flyTo.zoom ?? 14,
-        padding: overlayPaddingRef.current,
-        duration: 1100,
-        essential: true,
-      });
+      const options = { padding: overlayPaddingRef.current, duration: 1100, essential: true };
+      if ("bounds" in flyTo) map.fitBounds(flyTo.bounds, options);
+      else map.flyTo({ ...options, center: [flyTo.lng, flyTo.lat], zoom: flyTo.zoom ?? 14 });
     };
 
     if (map.isStyleLoaded()) run();
