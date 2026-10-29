@@ -30,7 +30,7 @@ export default function BikeShareCaseStudy({ onOpenMoment }: BikeShareCaseStudyP
       </CaseHeading>
       <P>
         I didn't want a backend I'd have to pay for and keep alive just so people could look at bikes. So the ride data
-        lives as one compressed Parquet file per month, about half a gigabyte in total, and the browser queries it
+        lives as one compressed Parquet file per month, about three quarters of a gigabyte in total, and the browser queries it
         directly with DuckDB-WASM, a full analytical database that runs inside the page. Every hour you watch is one SQL
         query, and the next hour loads while the current one plays, so it never stops to think.
       </P>
@@ -43,7 +43,7 @@ export default function BikeShareCaseStudy({ onOpenMoment }: BikeShareCaseStudyP
             {
               label: 'Offline pipeline',
               steps: [
-                { title: 'Download ridership CSVs', detail: 'City of Toronto open data, 2014–2026' },
+                { title: 'Download ridership CSVs', detail: 'City of Toronto open data, 2017–2026' },
                 { title: 'Match stations', detail: 'Names → coordinates from the live GBFS feed' },
                 { title: 'Route every station pair', detail: 'Self-hosted GraphHopper on OpenStreetMap' },
                 { title: 'Write monthly Parquet', detail: 'Trips + route polylines → Cloudflare R2' },
@@ -74,7 +74,7 @@ export default function BikeShareCaseStudy({ onOpenMoment }: BikeShareCaseStudyP
       </P>
       <Figure
         title="One ride, routed versus straight"
-        caption="A real ride from the demo's opening hour. As the crow flies it's 3.4 km; by bike, winding through the ravines and across the Don Valley, it's 5.3 km."
+        caption="A real ride from a July evening rush hour. As the crow flies it's 3.4 km; by bike, winding through the ravines and across the Don Valley, it's 5.3 km."
       >
         <RouteFigure onFollowRide={onOpenMoment ? () => onOpenMoment(EXAMPLE_RIDE.startedAtLocal, EXAMPLE_RIDE.id) : undefined} />
       </Figure>
@@ -155,8 +155,8 @@ LEFT JOIN start_names
         Shipping the First Hour
       </CaseHeading>
       <P>
-        The fix was to get the database out of the way. The demo now opens on a July weekday at 5pm, when nearly 4,000
-        rides cross the city in a single hour, and that hour ships as a small static file, under half a megabyte
+        The fix was to get the database out of the way. The demo now opens on a July weekday at 5pm, the busiest rush hour of 2025,
+        when nearly 4,900 rides start in a single hour, and that hour ships as a static file, under a megabyte
         compressed. The map draws it straight away and only then starts DuckDB in the background for everything else. I
         also stopped the extra queries from racing the first one.
       </P>
@@ -224,7 +224,7 @@ LEFT JOIN start_names
       </CaseHeading>
       <P>Two lessons really stuck with me.</P>
       <P>
-        Measure before you optimise. The slow part was never drawing 4,000 rides on the GPU, it was everything that had
+        Measure before you optimise. The slow part was never drawing 5,000 rides on the GPU, it was everything that had
         to come over the network first.
       </P>
       <P>

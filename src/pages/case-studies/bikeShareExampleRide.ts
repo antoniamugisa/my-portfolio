@@ -1,6 +1,6 @@
 /**
- * One real ride from the demo's opening hour (Thu 18 July 2024), used to show routing on the case
- * study page. Route exported from public/bike-share/first-hour.json (ride 30270666).
+ * One real ride from a July 2024 evening rush (Thu 18 July, 5pm), used to show routing on the case
+ * study page. Route exported from that hour's rides (ride 30270666).
  */
 export const EXAMPLE_RIDE = {
   id: '30270666',

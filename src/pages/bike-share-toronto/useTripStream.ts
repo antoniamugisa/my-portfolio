@@ -347,8 +347,8 @@ function sliceWhere(month: string, day: number | null, hour: number): string {
 }
 
 /**
- * Rows per playback hour. A real day-hour is loaded whole (the busiest, July 2024 at 5pm, is ~4,000
- * rides with carry-over). A month-wide hour overlays ~30 days, so it is always a sample.
+ * Rows per playback hour. A real day-hour is loaded whole (the opening hour, July 17, 2025 at 5pm, is
+ * ~5,700 rides with carry-over). A month-wide hour overlays ~30 days, so it is always a sample.
  */
 const DAY_SLICE_LIMIT = 6000;
 const MONTH_SLICE_LIMIT = 1800;

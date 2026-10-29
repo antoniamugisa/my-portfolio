@@ -58,13 +58,13 @@ The pipeline lives in [`pipeline/`](../../../pipeline) and runs once per data re
 
 ### 2. Storage
 
-The monthly Parquet files (467 MB across the published months) sit in a public Cloudflare R2 bucket.
+The monthly Parquet files (about 740 MB across the published months) sit in a public Cloudflare R2 bucket.
 In development, Vite proxies them so DuckDB isn't blocked by CORS.
 
 ### 3. In the browser
 
-- **First frame.** The demo opens on a July 2024 weekday rush hour. That hour ships as a static JSON file
-  ([`firstHour.ts`](firstHour.ts)), so ~3,800 rides draw without waiting for DuckDB-WASM, which loads in the background.
+- **First frame.** The demo opens on the busiest rush hour of 2025, Thursday July 17 at 5pm. That hour ships as a static JSON file
+  ([`firstHour.ts`](firstHour.ts)), so ~5,700 rides (4,881 starting that hour, plus ones still riding from before) draw without waiting for DuckDB-WASM, which loads in the background.
   On the live site, the first ride now appears about 6 s after page load instead of 17.5 s; the demo's own part went
   from about 14 s to 2 s.
 - **Query.** [`useTripStream.ts`](useTripStream.ts) registers each month as a DuckDB-WASM view over its Parquet file and
