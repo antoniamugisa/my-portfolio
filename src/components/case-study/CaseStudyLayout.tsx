@@ -35,7 +35,7 @@ export function CaseStudyLayout({ project, meta, onOpenDemo, demoHref, children 
     <div className="min-h-screen bg-background pt-20 md:pt-24">
       <div className="mx-auto grid w-full max-w-6xl grid-cols-1 gap-x-12 px-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,42rem)_minmax(0,1fr)]">
         <aside className="hidden lg:block" aria-hidden={false}>
-          <div className="h-full pt-[20rem]">
+          <div className="h-full pt-12">
             <TableOfContents containerRef={bodyRef} />
           </div>
         </aside>
