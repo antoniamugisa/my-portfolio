@@ -31,3 +31,11 @@ export interface DeckTrip {
   color: [number, number, number, number];
   isEbike: boolean;
 }
+
+/** A map area as [[west, south], [east, north]], e.g. the camera for a suggested moment. */
+export type MapBounds = [[number, number], [number, number]];
+
+/** A camera move: fly to a point, or fit an area. `id` must change per request. */
+export type MapFlyTo =
+  | { lng: number; lat: number; zoom?: number; id: number }
+  | { bounds: MapBounds; id: number };
