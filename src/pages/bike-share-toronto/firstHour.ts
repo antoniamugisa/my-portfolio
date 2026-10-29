@@ -1,14 +1,15 @@
 import type { PlaybackSlice } from './torontoTime';
 
 /**
- * The hour the demo opens on: a Thursday evening rush in July 2024, the busiest hour we ship.
+ * The hour the demo opens on: the busiest evening rush of 2025, a Thursday in July. 2025 also has
+ * reliable member/casual labels; 2023–2024 mark most riders casual at the source.
  * Its rides are exported to `public/bike-share/first-hour.json`
- * (`bun run scripts/export-first-hour.ts 2024-07 18 17` in `pipeline/`), so the first frame draws
+ * (`bun run scripts/export-first-hour.ts 2025-07 17 17` in `pipeline/`), so the first frame draws
  * without waiting for DuckDB-WASM. Change both together.
  */
 export const FIRST_HOUR: { month: string; day: number; hour: number } = {
-  month: '2024-07',
-  day: 18,
+  month: '2025-07',
+  day: 17,
   hour: 17,
 };
 

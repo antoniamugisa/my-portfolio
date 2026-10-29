@@ -428,6 +428,7 @@ export default function MapView({
 
     if (
       !pausedRef.current &&
+      pendingSeekRef.current == null &&
       tripsRef.current.length > 0 &&
       pw.max > pw.min
     ) {
@@ -563,6 +564,14 @@ export default function MapView({
       const active = countActiveTrips(trips, currentTimeRelRef.current);
       lastActiveTripCountRef.current = active;
       onTripCountChange(active);
+      return;
+    }
+    if (seek != null) {
+      /** The picked moment's hour is still loading: hold the clock on it (`animate` doesn't advance
+       *  while a seek is pending) instead of playing the previous hour from its top. */
+      simEpochMsRef.current = seek;
+      playbackTimeMsRef.current = seek;
+      lastRealTRef.current = null;
       return;
     }
 

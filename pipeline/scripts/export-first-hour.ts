@@ -2,7 +2,7 @@
  * Exports one playback hour as a static JSON file so the map can draw its first frame without
  * waiting for DuckDB-WASM to download and query a month of Parquet.
  *
- *   bun run scripts/export-first-hour.ts 2024-07 18 17
+ *   bun run scripts/export-first-hour.ts 2025-07 17 17
  *
  * Writes `public/bike-share/first-hour.json` at the repo root. Keep the slice in step with
  * `FIRST_HOUR` in `src/pages/bike-share-toronto/firstHour.ts`.

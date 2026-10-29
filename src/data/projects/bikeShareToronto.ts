@@ -19,8 +19,8 @@ export const bikeShareTorontoProject: Project = {
   longDescription:
     'Every ride comes from City of Toronto open data, from January 2017 to February 2026, and is drawn along the route a cyclist would most ' +
     'likely take between its two stations. There is no backend: the browser queries the data directly with DuckDB-WASM ' +
-    'and animates every ride on the GPU with deck.gl. The demo opens on a July weekday at 5pm, when nearly 4,000 rides ' +
-    'cross the city in a single hour.',
+    'and animates every ride on the GPU with deck.gl. The demo opens on the busiest rush hour of 2025, a July ' +
+    'Thursday at 5pm, when nearly 4,900 rides start in a single hour.',
   keyFeatures:
     'A timeline of rides per hour lets you jump through the day and speed playback up to 4×. You can jump to any moment in ' +
     'the data, or a suggested one like Canada Day night. Find a real ride from a station and follow it with a live ' +
@@ -31,8 +31,8 @@ export const bikeShareTorontoProject: Project = {
     'and normalised across a decade of format changes. Station names are matched to the live GBFS feed for coordinates.\n\n' +
     '2. Routing. Every start/end station pair, about 370,000 of them, is routed along real streets with a self-hosted ' +
     'GraphHopper server on OpenStreetMap data, then cached in SQLite so the multi-hour run can resume.\n\n' +
-    '3. Storage. Trips and their routes are written as one compressed Parquet file per month, about half a gigabyte in ' +
-    'all, and served from Cloudflare R2.\n\n' +
+    '3. Storage. Trips and their routes are written as one compressed Parquet file per month, about three quarters of a ' +
+    'gigabyte in all, and served from Cloudflare R2.\n\n' +
     '4. In the browser. DuckDB-WASM reads each month\'s Parquet file over HTTP and runs one SQL query per playback hour, ' +
     'prefetching the next so playback never stalls. deck.gl\'s TripsLayer animates the rides on a Mapbox basemap, with the ' +
     'animation loop running outside React so the interface never re-renders per frame.',

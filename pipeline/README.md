@@ -156,7 +156,7 @@ Pass year filters to limit the run to those year folders, e.g. `bun run parquet 
 
 `bun run all` runs steps 4–6 in order.
 
-### 7. Export the opening hour — `bun run scripts/export-first-hour.ts 2024-07 18 17`
+### 7. Export the opening hour — `bun run scripts/export-first-hour.ts 2025-07 17 17`
 
 Writes `public/bike-share/first-hour.json`, the hour the demo opens on, so its first frame draws without
 DuckDB-WASM. If you change the hour, update `FIRST_HOUR` in `src/pages/bike-share-toronto/firstHour.ts` to match.
