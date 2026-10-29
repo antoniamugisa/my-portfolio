@@ -42,6 +42,10 @@ export interface Project {
   teamImage?: string;
   teamCaption?: string;
   demoVideo?: string;
+  /** Text for an external demo link, when it isn't a live app (e.g. "Devpost"). Default "Live Demo". */
+  demoLabel?: string;
+  /** Short silent loop for the top of the case study, when the preview clip doesn't fit there. */
+  heroVideo?: string;
   /** Short looping preview shown on the projects grid thumbnail */
   thumbnailVideo?: string;
   /** Background image behind an inset thumbnail video */
