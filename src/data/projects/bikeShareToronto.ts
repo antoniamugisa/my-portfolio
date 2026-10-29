@@ -15,7 +15,7 @@ export const bikeShareTorontoProject: Project = {
   featured: true,
   date: '2026-04-02',
   tags: ['Data Viz', 'Open Data', 'Toronto'],
-  status: 'Ongoing',
+  status: 'Completed',
   longDescription:
     'Every ride comes from City of Toronto open data, from January 2017 to February 2026, and is drawn along the route a cyclist would most ' +
     'likely take between its two stations. There is no backend: the browser queries the data directly with DuckDB-WASM ' +
