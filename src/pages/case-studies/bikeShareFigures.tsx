@@ -119,7 +119,10 @@ export function LoadTimelineFigure() {
                 <span
                   className="absolute top-1/2 -translate-y-1/2 whitespace-nowrap pl-2 text-[11px] text-foreground/80"
                   style={
-                    b.to / SCALE_S > 0.62
+                    // The faded bar is light enough to label inside, which keeps it on a phone screen.
+                    b.tone === 'background'
+                      ? { left: `${(b.from / SCALE_S) * 100}%` }
+                      : b.to / SCALE_S > 0.62
                       ? { right: `${100 - (b.from / SCALE_S) * 100}%`, paddingRight: 8, paddingLeft: 0 }
                       : { left: `${(b.to / SCALE_S) * 100}%` }
                   }

@@ -117,6 +117,8 @@ export function ExploreSheet({
   const listId = useId();
 
   useEffect(() => {
+    // On a touch screen, focusing opens the keyboard over the suggestions and the station list.
+    if (!window.matchMedia('(pointer: fine)').matches) return;
     timeInputRef.current?.focus();
     timeInputRef.current?.select();
   }, []);

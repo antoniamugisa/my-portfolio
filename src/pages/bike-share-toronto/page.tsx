@@ -155,18 +155,22 @@ function computeInsights(trips: DeckTrip[], hourWindow: { min: number; max: numb
   };
 }
 
-function useIsNarrow(): boolean {
-  const query = '(max-width: 767px)';
-  const [narrow, setNarrow] = useState(() =>
+/** Keep in sync with the phone and short-screen media queries in bikeshare.css. */
+const NARROW_QUERY = '(max-width: 767px) and (min-height: 521px)';
+const SHORT_QUERY = '(max-height: 520px)';
+
+function useMediaQuery(query: string): boolean {
+  const [matches, setMatches] = useState(() =>
     typeof window === 'undefined' ? false : window.matchMedia(query).matches,
   );
   useEffect(() => {
     const mq = window.matchMedia(query);
-    const onChange = () => setNarrow(mq.matches);
+    const onChange = () => setMatches(mq.matches);
+    onChange();
     mq.addEventListener('change', onChange);
     return () => mq.removeEventListener('change', onChange);
-  }, []);
-  return narrow;
+  }, [query]);
+  return matches;
 }
 
 function isTypingTarget(t: EventTarget | null): boolean {
@@ -220,7 +224,8 @@ export default function BikeShareTorontoPage({
   const playbackTimeMsRef = useRef(0);
   /** A ride picked for an hour that is still loading: kept until that hour's trips arrive. */
   const pendingSpotlightRef = useRef<{ id: string; windowMin: number } | null>(null);
-  const isNarrow = useIsNarrow();
+  const isNarrow = useMediaQuery(NARROW_QUERY);
+  const isShort = useMediaQuery(SHORT_QUERY);
 
   /** Ref + stable callback avoids TDZ / HMR edge cases around `useTripStream(..., cb)`. */
   const autoPickHourRef = useRef<(hour: number) => void>(() => {});
@@ -507,8 +512,13 @@ export default function BikeShareTorontoPage({
         ? { top: 70, bottom: Math.round(window.innerHeight * 0.62), left: 24, right: 24 }
         : { top: 80, bottom: 330, left: 24, right: 24 };
     }
+    // Phones held sideways: only the dock is below, and the panel or trip card is on the right.
+    if (isShort) {
+      const sheetW = Math.min(380, window.innerWidth * 0.62);
+      return { top: 70, bottom: 110, left: exploreOpen ? Math.round(sheetW + 40) : 40, right: exploreOpen ? 40 : 320 };
+    }
     return { top: 90, bottom: 250, left: exploreOpen ? 420 : 60, right: 260 };
-  }, [isNarrow, exploreOpen]);
+  }, [isNarrow, isShort, exploreOpen]);
 
   const hourlyCounts = hourly?.key === hourlyKey ? hourly.counts : null;
 
@@ -530,6 +540,7 @@ export default function BikeShareTorontoPage({
           embedded ? 'bs-page--embedded' : '',
           !embedded && portalFullscreen ? 'bs-page--fullscreen' : '',
           exploreOpen ? 'bs-page--sheet-open' : '',
+          spotlightTrip ? 'bs-page--following' : '',
         ]
           .filter(Boolean)
           .join(' ')}
