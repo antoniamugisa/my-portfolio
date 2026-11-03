@@ -779,6 +779,18 @@
   display: none;
 }
 
+/* Centre the clock over the map that's left, so the sheet doesn't cover it. */
+.bs-page--sheet-open .bs-top-center {
+  left: calc(50% + (var(--bs-sheet-w) + var(--bs-gutter)) / 2);
+}
+
+/* Up to this width the shifted clock reaches the panel's column, so the panel drops below it. */
+@media (min-width: 768px) and (max-width: 1089px) and (min-height: 521px) {
+  .bs-page--sheet-open:not(.bs-page--embedded) .bs-panel-slot {
+    top: calc(92px + env(safe-area-inset-top, 0px));
+  }
+}
+
 .bs-sheet__head {
   display: flex;
   align-items: center;
@@ -1106,7 +1118,8 @@
 }
 
 /* ── Mobile ─────────────────────────────────────────────────────────────── */
-@media (max-width: 767px) {
+/* Phones held upright. Held sideways they're too short to stack panels, so they get the wide layout. */
+@media (max-width: 767px) and (min-height: 521px) {
   .bs-page {
     --bs-gutter: 10px;
   }
@@ -1253,6 +1266,10 @@
     display: none;
   }
 
+  .bs-page--sheet-open .bs-top-center {
+    left: 50%;
+  }
+
   .bs-station-row,
   .bs-ride-row {
     min-height: 44px;
@@ -1277,9 +1294,75 @@
 }
 
 /* Short screens (phones held sideways): keep the panel to the count so it clears the dock. */
-@media (min-width: 768px) and (max-height: 520px) {
+@media (max-height: 520px) {
+  .bs-page {
+    --bs-gutter: 10px;
+    --bs-sheet-w: min(380px, 62vw);
+  }
+
+  .bs-clock {
+    min-width: 0;
+    padding: 6px 12px 8px;
+  }
+
+  .bs-clock__date {
+    font-size: 10px;
+    margin-bottom: 3px;
+  }
+
+  .bs-clock__time {
+    font-size: 16px;
+  }
+
   .bs-panel__section {
     display: none;
+  }
+
+  /* Next to the sheet the timeline is too narrow to use, so it steps aside as it does on phones. */
+  .bs-page--sheet-open .bs-dock-slot {
+    display: none;
+  }
+
+  /* The followed ride takes the panel's place, so it doesn't cover the clock or the ride. */
+  .bs-page--following .bs-panel-slot {
+    display: none;
+  }
+
+  .bs-trip-card-wrap {
+    top: calc(66px + env(safe-area-inset-top, 0px));
+    right: max(var(--bs-gutter), env(safe-area-inset-right, 0px));
+    bottom: auto;
+    left: auto;
+    width: min(340px, calc(100% - 2 * var(--bs-gutter)));
+    transform: none;
+  }
+
+  .bs-page--embedded .bs-trip-card-wrap {
+    top: var(--bs-gutter);
+  }
+
+  .bs-trip-card {
+    padding: 10px 14px 8px;
+  }
+
+  .bs-trip-card__route {
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 0 6px;
+    margin-top: 4px;
+    font-size: 14px;
+  }
+
+  .bs-trip-card__to {
+    font-size: 13px;
+  }
+
+  .bs-trip-card__metrics {
+    margin-top: 6px;
+  }
+
+  .bs-trip-card__status {
+    margin-top: 8px;
   }
 
   .bs-timeline__track {
