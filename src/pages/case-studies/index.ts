@@ -5,7 +5,8 @@ import { bikeShareMeta } from './bikeShareMeta';
 import EmotifCaseStudy from './EmotifCaseStudy';
 import AnidojoCaseStudy from './AnidojoCaseStudy';
 import DalGazetteCaseStudy from './DalGazetteCaseStudy';
-import { anidojoMeta, dalGazetteMeta, emotifMeta } from './otherMeta';
+import CompassVisasCaseStudy from './CompassVisasCaseStudy';
+import { anidojoMeta, compassVisasMeta, dalGazetteMeta, emotifMeta } from './otherMeta';
 
 export type CaseStudy = {
   meta: CaseStudyMeta;
@@ -19,4 +20,5 @@ export const caseStudies: Record<string, CaseStudy> = {
   emotif: { meta: emotifMeta, Content: EmotifCaseStudy },
   anidojo: { meta: anidojoMeta, Content: AnidojoCaseStudy },
   'dal gazette app': { meta: dalGazetteMeta, Content: DalGazetteCaseStudy },
+  'compass-visas': { meta: compassVisasMeta, Content: CompassVisasCaseStudy },
 };

@@ -34,3 +34,15 @@ export const dalGazetteMeta: CaseStudyMeta = {
     </>
   ),
 };
+
+export const compassVisasMeta: CaseStudyMeta = {
+  role: 'One of two engineers: full stack',
+  timeline: 'Jun 2025 – present',
+  stack: ['React + TypeScript', 'Express on Vercel', 'Postgres on Supabase', 'Stripe', 'Claude API'],
+  overview: (
+    <>
+      A live legal platform built by a team of two: more than 100 clients and 200 cases so far, from signed agreement
+      to filed petition, with passports and personal records that have to stay private.
+    </>
+  ),
+};

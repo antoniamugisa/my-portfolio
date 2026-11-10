@@ -3,19 +3,22 @@ export { emotifProject } from './emotif';
 export { anidojoProject } from './anidojo';
 export { dalGazetteProject } from './dalGazette';
 export { bikeShareTorontoProject } from './bikeShareToronto';
+export { compassVisasProject } from './compassVisas';
 
 // Import all projects for the projects array
 import { emotifProject } from './emotif';
 import { anidojoProject } from './anidojo';
 import { dalGazetteProject } from './dalGazette';
 import { bikeShareTorontoProject } from './bikeShareToronto';
+import { compassVisasProject } from './compassVisas';
 
 // Export the projects array
 export const projects: Project[] = [
-  emotifProject,
-  anidojoProject,
-  dalGazetteProject,
+  compassVisasProject,
   bikeShareTorontoProject,
+  dalGazetteProject,
+  anidojoProject,
+  emotifProject,
 ];
 
 // Export project types for TypeScript
