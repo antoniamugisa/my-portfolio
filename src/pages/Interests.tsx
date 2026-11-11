@@ -14,10 +14,10 @@ const Interests = () => {
 
   return (
     <div className="min-h-screen overflow-x-hidden bg-background pt-20 md:pt-24 flex flex-col">
-      <div className="mx-auto w-full max-w-5xl px-6 md:px-6 flex-grow">
+      <div className="mx-auto w-full max-w-5xl px-6 flex-grow">
         <section className="py-8 md:py-12 text-[15px] md:text-base leading-relaxed">
           <p className="mb-8 max-w-2xl text-foreground/70">
-            Everything I&apos;m currently consuming and have loved very much. (I'm aiming for this to be a large, living library of content I consume. Stay tuned!)
+            Things I&apos;ve loved lately. It&apos;s a living list, so it keeps growing.
           </p>
 
           <div className="space-y-5 md:space-y-6">
@@ -35,14 +35,14 @@ const Interests = () => {
                     </h2>
                   </div>
 
-                  <div className="overflow-x-auto pt-2 pb-2 scroll-smooth snap-x snap-mandatory [scrollbar-width:thin]">
-                    <div className="flex w-max gap-3 pr-4 md:gap-4 md:pr-6">
+                  <div className="overflow-x-auto [mask-image:linear-gradient(to_right,black_calc(100%-3rem),transparent)] pt-2 pb-2 scroll-smooth snap-x snap-proximity [scrollbar-width:thin]">
+                    <div className="flex w-max gap-3 pr-12 md:gap-4">
                       {items.map((item, itemIndex) => (
                         <MediaCard
                           key={item.id}
                           item={item}
                           square={section.id === 'music'}
-                          landscape={item.type === 'book' && item.description === 'Essay'}
+                          landscape={item.shape === 'landscape'}
                           priority={sectionIndex === 0 && itemIndex < 4}
                         />
                       ))}

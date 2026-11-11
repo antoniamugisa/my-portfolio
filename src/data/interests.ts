@@ -1,13 +1,15 @@
 export interface MediaItem {
   id: string;
   title: string;
-  type: 'book' | 'film' | 'tv' | 'anime' | 'game' | 'music';
+  type: 'book' | 'film' | 'tv' | 'game' | 'music';
   /** Short label shown in UI context, e.g. Movie, Album, Essay */
   description: string;
   image?: string;
   author?: string;
   platform?: string;
   url?: string;
+  /** Card shape; defaults to portrait (square for albums) */
+  shape?: 'landscape';
 }
 
 /** Color-coded section titles (chip style) + which media types they include */
@@ -24,7 +26,7 @@ export const genreSections = [
     label: 'Shows',
     singular: 'show',
     plural: 'shows',
-    types: ['tv', 'anime'] as const,
+    types: ['tv'] as const,
   },
   {
     id: 'music',
@@ -119,7 +121,7 @@ export const mediaItems: MediaItem[] = [
   },
   {
     id: 'infinity-castle',
-    title: 'Demon Slayer: Kimetsu no Yaiba Infinity Castle',
+    title: 'Demon Slayer: Infinity Castle',
     type: 'film',
     description: 'Movie',
     author: 'Haruo Sotozaki',
@@ -194,7 +196,7 @@ export const mediaItems: MediaItem[] = [
   {
     id: 'demon-slayer',
     title: 'Demon Slayer',
-    type: 'anime',
+    type: 'tv',
     description: 'Anime Series',
     author: 'Koyoharu Gotouge',
     url: 'https://www.netflix.com/title/81091393',
@@ -208,7 +210,7 @@ export const mediaItems: MediaItem[] = [
     type: 'music',
     description: 'Album',
     author: 'TWICE',
-    url: 'https://open.spotify.com/album/02dUOPB3MtmV5fawzaZiq6?si=RBNpM2eURtaDntVrIbQuLQ',
+    url: 'https://open.spotify.com/album/02dUOPB3MtmV5fawzaZiq6',
     image: '/images/recs/this-is-for.webp',
   },
   {
@@ -217,7 +219,7 @@ export const mediaItems: MediaItem[] = [
     type: 'music',
     description: 'Album',
     author: 'Olivia Rodrigo',
-    url: 'https://open.spotify.com/album/3WZZF72ihlKPZBS4zSsNHl?si=BBijLQmKR0Oid14xkS5IEA',
+    url: 'https://open.spotify.com/album/3WZZF72ihlKPZBS4zSsNHl',
     image: '/images/recs/you-seem-pretty-sad.webp',
   },
   {
@@ -226,7 +228,7 @@ export const mediaItems: MediaItem[] = [
     type: 'music',
     description: 'Album',
     author: 'ROSÉ',
-    url: 'https://open.spotify.com/album/7kFyd5oyJdVX2pIi6P4iHE?si=9VYBnDHASXCdVBMFz4taGA',
+    url: 'https://open.spotify.com/album/7kFyd5oyJdVX2pIi6P4iHE',
     image: '/images/recs/rosie.webp',
   },
   {
@@ -235,7 +237,7 @@ export const mediaItems: MediaItem[] = [
     type: 'music',
     description: 'Album',
     author: 'Reneé Rapp',
-    url: 'https://open.spotify.com/album/6ULnaZahd0zTGVUBVQO6mN?si=u5EQGGUnTAy3J683nYsGPw',
+    url: 'https://open.spotify.com/album/6ULnaZahd0zTGVUBVQO6mN',
     image: '/images/recs/bite-me.webp',
   },
   {
@@ -244,7 +246,7 @@ export const mediaItems: MediaItem[] = [
     type: 'music',
     description: 'Album',
     author: 'Olivia Dean',
-    url: 'https://open.spotify.com/album/0l8zYqoUeBYg47Gmevq9HZ?si=9rZ7g8KkQSOx2bwvrV7Fdg',
+    url: 'https://open.spotify.com/album/0l8zYqoUeBYg47Gmevq9HZ',
     image: '/images/recs/the-art-of-loving.webp',
   },
   {
@@ -253,7 +255,7 @@ export const mediaItems: MediaItem[] = [
     type: 'music',
     description: 'Album',
     author: 'Don Toliver',
-    url: 'https://open.spotify.com/album/131x9G87mD0hP0hGZc9qYN?si=S2NLDTsvRNWfRS00LbByoQ',
+    url: 'https://open.spotify.com/album/131x9G87mD0hP0hGZc9qYN',
     image: '/images/recs/octane.webp',
   },
 
@@ -301,6 +303,7 @@ export const mediaItems: MediaItem[] = [
     title: 'The Intimacy of Inconvenience',
     type: 'book',
     description: 'Essay',
+    shape: 'landscape',
     author: 'Emilie Mendham',
     url: 'https://emiliemendham.substack.com/p/the-intimacy-of-inconvenience',
     image: '/images/recs/intimacy-of-inconvenience.webp',
@@ -310,6 +313,7 @@ export const mediaItems: MediaItem[] = [
     title: "what's meant for you, will never pass you by",
     type: 'book',
     description: 'Essay',
+    shape: 'landscape',
     author: 'Daphne',
     url: 'https://coldmemories.substack.com/p/whats-meant-for-you-will-never-pass',
     image: '/images/recs/whats-meant-for-you.webp',
@@ -324,34 +328,6 @@ export const mediaItems: MediaItem[] = [
     image: '/images/recs/mouths-of-rain.webp',
   },
 ];
-
-/** @deprecated Prefer mediaItems + genreSections */
-export const interestsData = [
-  {
-    id: 'all',
-    title: 'All',
-    description: "Everything I'm currently consuming",
-    items: mediaItems,
-  },
-];
-
-export function getTypeHighlight(type: MediaItem['type']): string {
-  switch (type) {
-    case 'book':
-      return 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200';
-    case 'film':
-      return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200';
-    case 'tv':
-    case 'anime':
-      return 'bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200';
-    case 'game':
-      return 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200';
-    case 'music':
-      return 'bg-indigo-100 text-indigo-800 dark:bg-indigo-900 dark:text-indigo-200';
-    default:
-      return 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200';
-  }
-}
 
 export function getSectionHighlight(sectionId: (typeof genreSections)[number]['id']): string {
   switch (sectionId) {
