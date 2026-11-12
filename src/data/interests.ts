@@ -176,6 +176,15 @@ export const mediaItems: MediaItem[] = [
 
   // —— Series ——
   {
+    id: 'overcompensating',
+    title: 'Overcompensating',
+    type: 'tv',
+    description: 'TV Series',
+    author: 'Benito Skinner',
+    url: 'https://www.primevideo.com/detail/0GZX4440MSC23NHW3P0BSQB1TE',
+    image: '/images/recs/overcompensating.webp',
+  },
+  {
     id: 'attack-on-titan',
     title: 'Attack on Titan',
     type: 'tv',
