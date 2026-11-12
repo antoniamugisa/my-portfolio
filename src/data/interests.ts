@@ -57,6 +57,33 @@ export type GenreSectionId = (typeof genreSections)[number]['id'] | 'all';
 export const mediaItems: MediaItem[] = [
   // —— Film ——
   {
+    id: 'hope',
+    title: 'Hope',
+    type: 'film',
+    description: 'Movie',
+    author: 'Na Hong-jin',
+    url: 'https://www.neonrated.com/film/hope',
+    image: '/images/recs/hope.webp',
+  },
+  {
+    id: 'spider-man-brand-new-day',
+    title: 'Spider-Man: Brand New Day',
+    type: 'film',
+    description: 'Movie',
+    author: 'Destin Daniel Cretton',
+    url: 'https://www.marvel.com/movies/spider-man-brand-new-day',
+    image: '/images/recs/spider-man-brand-new-day.webp',
+  },
+  {
+    id: 'saving-face',
+    title: 'Saving Face',
+    type: 'film',
+    description: 'Movie',
+    author: 'Alice Wu',
+    url: 'https://www.sonypictures.com/movies/savingface',
+    image: '/images/recs/saving-face.webp',
+  },
+  {
     id: 'no-other-choice',
     title: 'No Other Choice',
     type: 'film',
@@ -149,6 +176,33 @@ export const mediaItems: MediaItem[] = [
 
   // —— Series ——
   {
+    id: 'attack-on-titan',
+    title: 'Attack on Titan',
+    type: 'tv',
+    description: 'Anime Series',
+    author: 'Hajime Isayama',
+    url: 'https://www.crunchyroll.com/series/GR751KNZY/attack-on-titan',
+    image: '/images/recs/attack-on-titan.webp',
+  },
+  {
+    id: 'enemies-with-benefits',
+    title: 'Enemies with Benefits',
+    type: 'tv',
+    description: 'TV Series',
+    author: 'Arisa Wawwanjit, Tawan Jarujinda',
+    url: 'https://mydramalist.com/784664-enemies-with-benefits',
+    image: '/images/recs/enemies-with-benefits.webp',
+  },
+  {
+    id: 'shades',
+    title: 'Shades',
+    type: 'tv',
+    description: 'TV Series',
+    author: 'Justina Suvanvihok',
+    url: 'https://mydramalist.com/779160-shades',
+    image: '/images/recs/shades.webp',
+  },
+  {
     id: 'jujutsu-kaisen',
     title: 'Jujutsu Kaisen',
     type: 'tv',
@@ -205,6 +259,51 @@ export const mediaItems: MediaItem[] = [
 
   // —— Music ——
   {
+    id: 'pulse',
+    title: 'PULSE',
+    type: 'music',
+    description: 'Album',
+    author: 'RESCENE',
+    url: 'https://open.spotify.com/album/0OttvVI4SPZ9DbvEmlDceI',
+    image: '/images/recs/pulse.webp',
+  },
+  {
+    id: 'heavy-serenade',
+    title: 'Heavy Serenade',
+    type: 'music',
+    description: 'Album',
+    author: 'NMIXX',
+    url: 'https://open.spotify.com/album/18i8wouCElE4oR6OqfFecg',
+    image: '/images/recs/heavy-serenade.webp',
+  },
+  {
+    id: 'strange-muse',
+    title: 'Strange Muse',
+    type: 'music',
+    description: 'Album',
+    author: 'NMIXX',
+    url: 'https://open.spotify.com/album/68dI3yXiCXbAHRbW2T09Uy',
+    image: '/images/recs/strange-muse.webp',
+  },
+  {
+    id: 'na',
+    title: 'NA',
+    type: 'music',
+    description: 'Album',
+    author: 'NAYEON',
+    url: 'https://open.spotify.com/album/5zQI9dFbS9TrhvC9clgjz7',
+    image: '/images/recs/na.webp',
+  },
+  {
+    id: 'popstar',
+    title: 'Popstar',
+    type: 'music',
+    description: 'Album',
+    author: 'Tinashe',
+    url: 'https://open.spotify.com/album/06CjF89lLSSiVWXujVVtQs',
+    image: '/images/recs/popstar.webp',
+  },
+  {
     id: 'this-is-for',
     title: 'THIS IS FOR',
     type: 'music',
@@ -260,6 +359,24 @@ export const mediaItems: MediaItem[] = [
   },
 
   // —— Games ——
+  {
+    id: 'god-of-war-ragnarok',
+    title: 'God of War Ragnarök',
+    type: 'game',
+    description: 'Game',
+    author: 'Santa Monica Studio',
+    url: 'https://www.playstation.com/en-us/games/god-of-war-ragnarok/',
+    image: '/images/recs/god-of-war-ragnarok.webp',
+  },
+  {
+    id: 'spider-man',
+    title: "Marvel's Spider-Man",
+    type: 'game',
+    description: 'Game',
+    author: 'Insomniac Games',
+    url: 'https://www.playstation.com/en-us/games/marvels-spider-man/',
+    image: '/images/recs/spider-man.webp',
+  },
   {
     id: 'ghost-of-tsushima',
     title: 'Ghost of Tsushima',
