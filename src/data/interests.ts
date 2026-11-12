@@ -176,6 +176,15 @@ export const mediaItems: MediaItem[] = [
 
   // —— Series ——
   {
+    id: 'severance',
+    title: 'Severance',
+    type: 'tv',
+    description: 'TV Series',
+    author: 'Dan Erickson',
+    url: 'https://tv.apple.com/us/show/severance/umc.cmc.1srk2goyh2q2zdxcx605w8vtx',
+    image: '/images/recs/severance.webp',
+  },
+  {
     id: 'overcompensating',
     title: 'Overcompensating',
     type: 'tv',
