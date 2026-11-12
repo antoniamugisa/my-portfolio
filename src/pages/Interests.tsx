@@ -35,7 +35,7 @@ const Interests = () => {
                     </h2>
                   </div>
 
-                  <div className="overflow-x-auto [mask-image:linear-gradient(to_right,black_calc(100%-3rem),transparent)] pt-2 pb-2 scroll-smooth snap-x snap-proximity [scrollbar-width:thin]">
+                  <div className="overflow-x-auto [mask-image:linear-gradient(to_right,black_calc(100%-3rem),transparent)] pt-2 pb-2 scroll-smooth snap-x snap-proximity [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
                     <div className="flex w-max gap-3 pr-12 md:gap-4">
                       {items.map((item, itemIndex) => (
                         <MediaCard
