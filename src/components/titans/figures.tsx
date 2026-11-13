@@ -36,7 +36,14 @@ const C = {
 };
 
 
-const line = (color: string, width = 1) => ({
+/**
+ * One pen for the whole scene: characters are outlined at 1px, scenery a
+ * touch lighter so it sits behind them, and interior details (ribs, teeth,
+ * creases) lighter still. Widths are screen pixels whatever the figure's size.
+ */
+const W = { figure: 1, scenery: 0.75, detail: 0.6, feature: 1.2 };
+
+const line = (color: string, width = W.figure) => ({
   stroke: color,
   strokeWidth: width,
   strokeLinejoin: 'round' as const,
@@ -44,7 +51,7 @@ const line = (color: string, width = 1) => ({
   vectorEffect: 'non-scaling-stroke' as const,
 });
 
-/** A stroke that scales with the figure (for limbs drawn as thick lines). */
+/** A stroke that scales with the figure (for a scout's limbs drawn as thick lines). */
 const limb = (color: string, width: number) => ({
   stroke: color,
   strokeWidth: width,
@@ -53,15 +60,74 @@ const limb = (color: string, width: number) => ({
   fill: 'none',
 });
 
+type Pt = { x: number; y: number };
+const D2R = Math.PI / 180;
+const n2 = (v: number) => Math.round(v * 100) / 100;
+
+/** A tapered capsule from `a` (half-width `ra`) to `b` (half-width `rb`), with rounded ends. */
+const capsule = (a: Pt, b: Pt, ra: number, rb: number) => {
+  const len = Math.hypot(b.x - a.x, b.y - a.y) || 1;
+  const ux = (b.x - a.x) / len;
+  const uy = (b.y - a.y) / len;
+  const [nx, ny] = [-uy, ux];
+  const k = 1.8; // quadratic cap control distance, in half-widths: close to a semicircle
+  return [
+    `M${n2(a.x + nx * ra)} ${n2(a.y + ny * ra)}`,
+    `L${n2(b.x + nx * rb)} ${n2(b.y + ny * rb)}`,
+    `Q${n2(b.x + ux * rb * k)} ${n2(b.y + uy * rb * k)} ${n2(b.x - nx * rb)} ${n2(b.y - ny * rb)}`,
+    `L${n2(a.x - nx * ra)} ${n2(a.y - ny * ra)}`,
+    `Q${n2(a.x - ux * ra * k)} ${n2(a.y - uy * ra * k)} ${n2(a.x + nx * ra)} ${n2(a.y + ny * ra)}`,
+    'Z',
+  ].join(' ');
+};
+
+/**
+ * Where a two-part limb's joint and end land. `a` is the upper part's angle
+ * from straight down (positive swings toward -x, the way the figures face);
+ * the lower part is turned back by `bend` (negative bends it forward, like an elbow).
+ */
+const joint = (root: Pt, a: number, bend: number, l1: number, l2: number) => {
+  const mid = { x: root.x - Math.sin(a * D2R) * l1, y: root.y + Math.cos(a * D2R) * l1 };
+  const end = { x: mid.x - Math.sin((a - bend) * D2R) * l2, y: mid.y + Math.cos((a - bend) * D2R) * l2 };
+  return { mid, end, lower: a - bend };
+};
+
+/**
+ * A jointed, tapered limb: the lower part is drawn first so the upper part's
+ * rounded end sits over it and reads as the knee or elbow.
+ */
+const Limb: React.FC<{
+  root: Pt;
+  a: number;
+  bend: number;
+  l1: number;
+  l2: number;
+  r: [number, number, number];
+  fill: string;
+  stroke: string;
+  /** Drawn on top of the lower part: a foot, hand or fist. */
+  end?: (j: ReturnType<typeof joint>) => React.ReactNode;
+}> = ({ root, a, bend, l1, l2, r, fill, stroke, end }) => {
+  const j = joint(root, a, bend, l1, l2);
+  return (
+    <g>
+      <path d={capsule(j.mid, j.end, r[1] * 0.92, r[2])} fill={fill} {...line(stroke)} />
+      {end?.(j)}
+      <path d={capsule(root, j.mid, r[0], r[1])} fill={fill} {...line(stroke)} />
+    </g>
+  );
+};
+
+/** A flat foot pointing forward (-x) from the ankle. */
+const footAt = (ankle: Pt, size: number, fill: string, stroke: string) => (
+  <path
+    d={capsule({ x: ankle.x + size * 0.2, y: ankle.y + size * 0.2 }, { x: ankle.x - size * 1.9, y: ankle.y + size * 0.55 }, size * 0.75, size * 0.55)}
+    fill={fill}
+    {...line(stroke)}
+  />
+);
+
 /* ------------------------------------------------------------------ titans */
-
-const LEG =
-  'M-5 -47 L6 -47 C7 -37 5 -29 4.5 -23 C4.5 -15 3.6 -8 3.4 -3 L4.6 0 L-10 0 C-10 -2.4 -6 -3 -3.4 -3.4 C-3.2 -10 -4 -16 -4.2 -23 C-5 -30 -6.4 -38 -5 -47 Z';
-
-const armPath = (L: number) =>
-  `M-3.6 0 C-4.4 ${L * 0.2} -3.4 ${L * 0.38} -2.8 ${L * 0.48} C-3 ${L * 0.64} -2.4 ${L * 0.8} -2.2 ${L * 0.88}
-   L-3.8 ${L * 0.99} L-2.2 ${L + 2.6} L-0.6 ${L * 0.98} L0.6 ${L + 3} L1.8 ${L * 0.98} L3 ${L + 2} L3.2 ${L * 0.88}
-   C3.2 ${L * 0.8} 3.6 ${L * 0.64} 3 ${L * 0.48} C3.8 ${L * 0.38} 4.6 ${L * 0.2} 3.8 0 Z`;
 
 const TORSO: Record<TitanLook['kind'], string> = {
   lanky:
@@ -104,14 +170,14 @@ const TitanHead: React.FC<{ look: TitanLook }> = ({ look }) => {
         {...line(C.titanLine)}
       />
       {/* deep-set eye under a heavy brow */}
-      <path d="M-10 -5.4 Q-6.6 -7 -3 -5" fill="none" {...line(C.titanLine, 1.1)} />
-      <ellipse cx={-6.4} cy={-2.6} rx={2.6} ry={1.9} fill={C.bg} {...line(C.titanLine, 0.8)} />
+      <path d="M-10 -5.4 Q-6.6 -7 -3 -5" fill="none" {...line(C.titanLine, W.feature)} />
+      <ellipse cx={-6.4} cy={-2.6} rx={2.6} ry={1.9} fill={C.bg} {...line(C.titanLine, W.detail)} />
       <circle cx={-7} cy={-2.6} r={0.95} fill={C.titanLine} />
       {/* the grin: lips pulled back over rows of teeth */}
       <path
         d={grin ? 'M-13.4 3 Q-3 10.6 7.6 4.4 Q-2 13.4 -13 6.4 Z' : 'M-11.6 4.4 Q-4.6 8.6 3 5.6 Q-4 11.4 -11.2 6.8 Z'}
         fill={C.bg}
-        {...line(C.titanLine, 0.9)}
+        {...line(C.titanLine)}
       />
       <path
         d={
@@ -120,10 +186,10 @@ const TitanHead: React.FC<{ look: TitanLook }> = ({ look }) => {
             : 'M-9 5.8 L-8.8 7.8 M-6.6 6.6 L-6.4 8.8 M-4 7 L-3.8 9 M-1.4 6.8 L-1.2 8.6 M1 6.2 L1.2 7.6'
         }
         fill="none"
-        {...line(C.titanLine, 0.6)}
+        {...line(C.titanLine, W.detail)}
       />
       {/* cheek crease */}
-      <path d="M-4 1.2 Q-1.4 3.6 -2 6.4" fill="none" {...line(C.titanDetail, 0.7)} />
+      <path d="M-4 1.2 Q-1.4 3.6 -2 6.4" fill="none" {...line(C.titanDetail, W.detail)} />
       {look.hair === 1 && (
         <path
           d="M-10 -5 C-9.4 -14 0 -16.4 8 -12.4 C12 -10 13.4 -4 12.4 2.4 L9.6 -1.6 L8.8 3.6 L5.6 -3.4 L3.4 0 L1.4 -6.4 L-2.6 -4.4 L-4.6 -9.4 L-7.4 -5 Z"
@@ -135,59 +201,96 @@ const TitanHead: React.FC<{ look: TitanLook }> = ({ look }) => {
   );
 };
 
+/** Limb thickness per titan kind: brutes are heavy-limbed, lanky ones stringy. */
+const BUILD: Record<TitanLook['kind'], number> = { lanky: 0.9, brute: 1.25, grinner: 1 };
+
 /**
- * A titan facing left, feet at (0,0), roughly 105 units tall.
- * `swing` is the leg swing angle in degrees for the walk cycle.
+ * A titan facing left, feet at (0,0), roughly 105 units tall. `phase` is the
+ * walk cycle in radians and `stride` scales it (0 stands still): knees bend
+ * as each leg swings through, arms swing a beat behind the legs, and the head
+ * nods a beat behind that.
  */
-export const TitanFigure: React.FC<{ look: TitanLook; swing: number }> = ({ look, swing }) => {
+export const TitanFigure: React.FC<{ look: TitanLook; phase: number; stride: number }> = ({
+  look,
+  phase,
+  stride,
+}) => {
   const hipY = -45;
   const shoulderY = NECK_TOP[look.kind] + 8;
   const armLen = (look.kind === 'grinner' ? 34 : 46) * look.arm;
   const hs = HEAD_SCALE[look.kind];
   const headY = NECK_TOP[look.kind] - 10 * hs;
+  const b = BUILD[look.kind];
 
-  const leg = (angle: number, far: boolean) => (
-    <g transform={`rotate(${angle} 0 ${hipY})`}>
-      <path d={LEG} fill={far ? C.titanFar : C.titan} {...line(C.titanLine)} />
-      <path d="M-4 -25 Q0 -21.4 4.4 -24.6" fill="none" {...line(C.titanDetail, 0.7)} />
-    </g>
-  );
-
-  const arm = (angle: number, far: boolean) => (
-    <g transform={`translate(1 ${shoulderY}) rotate(${angle})`}>
-      <path d={armPath(armLen)} fill={far ? C.titanFar : C.titan} {...line(C.titanLine)} />
-      <path
-        d={`M-2.6 ${armLen * 0.48} Q0 ${armLen * 0.52} 3 ${armLen * 0.48}`}
-        fill="none"
-        {...line(C.titanDetail, 0.6)}
+  const leg = (p: number, far: boolean) => {
+    const fill = far ? C.titanFar : C.titan;
+    return (
+      <Limb
+        root={{ x: far ? 1.5 : -1, y: hipY }}
+        a={Math.sin(p) * 24 * stride}
+        // the knee folds most while the leg swings forward under the body
+        bend={4 + 32 * Math.max(0, Math.cos(p)) * stride}
+        l1={23}
+        l2={23}
+        r={[6 * b, 4.2 * b, 3.1 * b]}
+        fill={fill}
+        stroke={C.titanLine}
+        end={(j) => footAt(j.end, 4.2 * b, fill, C.titanLine)}
       />
-    </g>
-  );
+    );
+  };
+
+  const arm = (p: number, far: boolean) => {
+    const fill = far ? C.titanFar : C.titan;
+    // swings opposite its leg, half a beat late, with the elbow loose
+    const lagged = p - 0.45;
+    return (
+      <Limb
+        root={{ x: far ? 3 : 0.5, y: shoulderY }}
+        a={-Math.sin(lagged) * 16 * stride + (far ? 5 : 2)}
+        bend={-(9 + 16 * Math.max(0, -Math.sin(lagged)) * stride)}
+        l1={armLen * 0.47}
+        l2={armLen * 0.5}
+        r={[4.2 * b, 3.1 * b, 2.5 * b]}
+        fill={fill}
+        stroke={C.titanLine}
+        end={(j) => (
+          <g transform={`translate(${n2(j.end.x)} ${n2(j.end.y)}) rotate(${n2(-j.lower)})`}>
+            {/* a big, slack hand with the fingers hanging */}
+            <path
+              d={`M${-3.2 * b} -1 C${-3.6 * b} ${3 * b} ${-2 * b} ${5.6 * b} 0 ${5.8 * b} C${2.2 * b} ${5.6 * b} ${3.4 * b} ${3 * b} ${3 * b} -1 Z`}
+              fill={fill}
+              {...line(C.titanLine)}
+            />
+            <path
+              d={`M${-1.2 * b} ${2.4 * b} L${-1.1 * b} ${4.6 * b} M${0.6 * b} ${2.6 * b} L${0.7 * b} ${4.8 * b}`}
+              fill="none"
+              {...line(C.titanLine, W.detail)}
+            />
+          </g>
+        )}
+      />
+    );
+  };
+
+  const nod = Math.sin(phase * 2 - 0.8) * 2.5 * stride;
 
   return (
     <g>
-      {leg(-swing, true)}
-      {arm(swing * 0.55 + 4, true)}
+      {leg(phase + Math.PI, true)}
+      {arm(phase, true)}
       <path d={TORSO[look.kind]} fill={C.titan} {...line(C.titanLine)} />
-      <path d={TORSO_DETAIL[look.kind]} fill="none" {...line(C.titanDetail, 0.75)} />
-      <g transform={`translate(-3 ${headY}) scale(${hs})`}>
+      <path d={TORSO_DETAIL[look.kind]} fill="none" {...line(C.titanDetail, W.detail)} />
+      <g transform={`translate(-3 ${headY}) rotate(${n2(nod)} 3 ${10 * hs}) scale(${hs})`}>
         <TitanHead look={look} />
       </g>
-      {leg(swing, false)}
-      {arm(-swing * 0.55 - 2, false)}
+      {leg(phase, false)}
+      {arm(phase + Math.PI, false)}
     </g>
   );
 };
 
 /* ------------------------------------------------------- the attack titan */
-
-/** Two-segment limb from `root`: upper part at angle `a`, lower bent back by `bend` (degrees, 0 = straight down). */
-const jointed = (root: { x: number; y: number }, a: number, bend: number, len1: number, len2: number) => {
-  const r = Math.PI / 180;
-  const k = { x: root.x - Math.sin(a * r) * len1, y: root.y + Math.cos(a * r) * len1 };
-  const e = { x: k.x - Math.sin((a - bend) * r) * len2, y: k.y + Math.cos((a - bend) * r) * len2 };
-  return { d: `M${root.x} ${root.y} L${k.x} ${k.y} L${e.x} ${e.y}`, end: e, mid: k };
-};
 
 /**
  * Eren's titan, facing left with feet at (0,0), about 120 units tall: lean
@@ -200,53 +303,73 @@ export const AttackTitanFigure: React.FC<{ run: number; stride: number }> = ({ r
   const shoulder = { x: 1, y: -90 };
   const sw = Math.sin(run) * 38 * stride;
   const legBend = (p: number) => (12 + 70 * Math.max(0, Math.sin(p))) * stride + 4;
-  const near = jointed(hip, sw, legBend(run + Math.PI / 2), 27, 27);
-  const far = jointed(hip, -sw, legBend(run - Math.PI / 2), 27, 27);
-  const armNear = jointed(shoulder, -sw * 0.9, -(30 + 60 * stride), 22, 21);
-  const armFar = jointed(shoulder, sw * 0.9, -(30 + 60 * stride), 22, 21);
   const bob = Math.abs(Math.cos(run)) * 3 * stride;
 
-  const limbStroke = (d: string, w: number, far: boolean) => (
-    <g>
-      <path d={d} fill="none" stroke={C.shifterLine} strokeWidth={w + 2} strokeLinecap="round" strokeLinejoin="round" />
-      <path
-        d={d}
-        fill="none"
-        stroke={far ? C.shifterFar : C.shifter}
-        strokeWidth={w}
-        strokeLinecap="round"
-        strokeLinejoin="round"
+  const leg = (a: number, bend: number, far: boolean) => {
+    const fill = far ? C.shifterFar : C.shifter;
+    return (
+      <Limb
+        root={{ x: hip.x + (far ? 2 : -1), y: hip.y }}
+        a={a}
+        bend={bend}
+        l1={27}
+        l2={27}
+        r={[6.8, 4.6, 3.3]}
+        fill={fill}
+        stroke={C.shifterLine}
+        end={(j) => footAt(j.end, 4.4, fill, C.shifterLine)}
       />
-    </g>
-  );
-  const foot = (p: { x: number; y: number }, far: boolean) => (
-    <ellipse cx={p.x - 4} cy={p.y + 1} rx={7} ry={3.2} fill={far ? C.shifterFar : C.shifter} {...line(C.shifterLine)} />
-  );
+    );
+  };
+  const arm = (a: number, far: boolean) => {
+    const fill = far ? C.shifterFar : C.shifter;
+    return (
+      <Limb
+        root={{ x: shoulder.x + (far ? 3 : 0), y: shoulder.y }}
+        a={a}
+        bend={-(30 + 60 * stride)}
+        l1={22}
+        l2={21}
+        r={[4.4, 3.4, 2.7]}
+        fill={fill}
+        stroke={C.shifterLine}
+        end={(j) => <circle cx={n2(j.end.x)} cy={n2(j.end.y)} r={4.6} fill={fill} {...line(C.shifterLine)} />}
+      />
+    );
+  };
 
   return (
     // lean into the run
-    <g transform={`translate(0 ${-bob}) rotate(${-14 * stride} 0 -52)`}>
-      {limbStroke(far.d, 10, true)}
-      {foot(far.end, true)}
-      {limbStroke(armFar.d, 7.5, true)}
-      <circle cx={armFar.end.x} cy={armFar.end.y} r={4.6} fill={C.shifterFar} {...line(C.shifterLine)} />
+    <g transform={`translate(0 ${n2(-bob)}) rotate(${n2(-14 * stride)} 0 -52)`}>
+      {leg(-sw, legBend(run - Math.PI / 2), true)}
+      {arm(sw * 0.9, true)}
 
-      {/* long hair falling down the back */}
+      {/* loose hair hanging to the shoulders behind the head, swaying with the run */}
+      <g transform={`rotate(${n2(Math.sin(run - 0.6) * 5 * stride)} 0 -118)`}>
+        <path
+          d="M-11 -118 C-8 -127 6 -128 11 -121 C15 -116 15 -108 16 -99 C16.4 -95 15.6 -92 14.6 -90 L12.6 -94 L12 -88.6 L9.8 -93.4 L8.6 -88 L6.6 -94 L5 -89.4 L3.6 -96 Z"
+          fill={C.shifterHair}
+          {...line(C.shifterLine)}
+        />
+      </g>
+      {/* lean, fit torso: a narrow chest tapering to the waist */}
       <path
-        d="M-2 -116 C8 -120 16 -112 16 -100 C17 -92 15 -84 12 -78 L8 -84 L7 -76 L3 -86 Z"
-        fill={C.shifterHair}
-        {...line(C.shifterLine)}
-      />
-      {/* lean, V-shaped torso */}
-      <path
-        d="M-9 -50 C-15 -60 -16 -74 -14 -84 C-11 -92 -5 -96 4 -96 C12 -95 17 -89 16 -79 C15 -67 11 -57 8 -50 Z"
+        d="M-8 -50 C-12 -58 -13.4 -70 -12.6 -80 C-11.8 -88 -7.6 -93.6 1.6 -94 C9.6 -93.6 13.6 -88.6 13 -80.4 C12.4 -70 10.2 -58 7 -50 Z"
         fill={C.shifter}
         {...line(C.shifterLine)}
       />
+      {/* defined abs, obliques, a light pec line and the ribs along the side */}
       <path
-        d="M-13 -83 Q-6 -78 2 -83 M-12 -74 L-12 -56 M-12 -68 Q-9 -67 -6 -68 M-12 -62 Q-9 -61 -6 -62 M-5 -94 Q1 -92 7 -94"
+        d="M-12.2 -82.6 Q-7.4 -79.6 -2.4 -82.4
+           M-9.4 -77.6 L-9 -56.6
+           M-12.2 -73.6 Q-10.8 -72.2 -9.4 -73.2 M-9.2 -73.2 Q-7.6 -72 -6 -73.4
+           M-12.4 -67.6 Q-10.9 -66.2 -9.3 -67.2 M-9.1 -67.2 Q-7.5 -66 -5.8 -67.4
+           M-12 -61.6 Q-10.6 -60.4 -9.2 -61.2 M-9 -61.2 Q-7.6 -60.2 -6.2 -61.4
+           M-5.2 -75 Q-3 -66 -4.8 -55.6
+           M-1.6 -84 L0.6 -82.4 M-1.4 -79.6 L0.8 -78 M-1.2 -75.2 L1 -73.6
+           M4 -93 Q10 -92 11.6 -84.6"
         fill="none"
-        {...line(C.shifterLine, 0.8)}
+        {...line(C.shifterLine, W.detail)}
       />
       {/* neck */}
       <path d="M-5 -95 L-4 -103 L5 -103 L7 -95 Z" fill={C.shifter} {...line(C.shifterLine)} />
@@ -260,28 +383,32 @@ export const AttackTitanFigure: React.FC<{ run: number; stride: number }> = ({ r
         {/* pointed ear */}
         <path d="M4 -2 L10.6 -9 L8 1 Z" fill={C.shifter} {...line(C.shifterLine)} />
         {/* heavy brow over a glowing green eye */}
-        <path d="M-10 -5.6 L-2.6 -3.8" fill="none" {...line(C.shifterLine, 1.4)} />
-        <ellipse cx={-6.4} cy={-2.4} rx={2.4} ry={1.5} fill={C.shifterEye} {...line(C.shifterLine, 0.7)} />
+        <path d="M-10 -5.6 L-2.6 -3.8" fill="none" {...line(C.shifterLine, W.feature)} />
+        <ellipse cx={-6.4} cy={-2.4} rx={2.4} ry={1.5} fill={C.shifterEye} {...line(C.shifterLine, W.detail)} />
         {/* no lips: bared teeth and cheek muscle running back to the jaw */}
-        <path d="M-11.4 3.4 L1.6 4.4 L1.4 8.8 L-10.4 8 Z" fill={C.bg} {...line(C.shifterLine, 0.9)} />
+        <path d="M-11.4 3.4 L1.6 4.4 L1.4 8.8 L-10.4 8 Z" fill={C.bg} {...line(C.shifterLine)} />
         <path
           d="M-11 5.9 L1.5 6.6 M-8.6 3.6 L-8.4 8.2 M-6 3.8 L-5.8 8.4 M-3.4 4 L-3.2 8.6 M-0.8 4.2 L-0.6 8.7"
           fill="none"
-          {...line(C.shifterLine, 0.6)}
+          {...line(C.shifterLine, W.detail)}
         />
-        <path d="M1.6 4.4 Q5 3 6.4 5.4 M1.4 8.8 Q4.6 9.8 6.2 7.4" fill="none" {...line(C.shifterLine, 0.7)} />
-        {/* hair over the crown */}
+        <path d="M1.6 4.4 Q5 3 6.4 5.4 M1.4 8.8 Q4.6 9.8 6.2 7.4" fill="none" {...line(C.shifterLine, W.detail)} />
+        {/* loose hair over the crown, parted, with ragged locks falling past the
+            cheek and over the ear rather than pulled back */}
         <path
-          d="M-10 -4 C-10 -13 -2 -16.6 5 -14 C10 -12 12.6 -6.4 12 0 L9 -5 L8.4 2 L5.4 -6 L1 -7.4 L-4 -6.6 Z"
+          d="M-11 -2 C-12 -12 -4 -16.8 3.6 -15 C10 -13.4 13.4 -7.4 12.8 0.6 C12.8 5 12.4 9 11.6 12.6 L9.6 8.6 L9 14 L7 8 L5.2 1.4 L3.6 -6.6 L1 -7.6 L-1.6 -5.6 L-3 -9 L-5.4 -5.2 L-7.4 -8.6 L-9 -3.6 L-10 0.6 Z"
           fill={C.shifterHair}
           {...line(C.shifterLine)}
         />
+        <path
+          d="M-1.6 -8.4 C-4 -6 -5 -2 -4.4 2.6 M5.6 -6.4 C7.4 -2 7.8 3 6.8 8.4"
+          fill="none"
+          {...line(C.shifterLine, W.detail)}
+        />
       </g>
 
-      {limbStroke(near.d, 10.5, false)}
-      {foot(near.end, false)}
-      {limbStroke(armNear.d, 8, false)}
-      <circle cx={armNear.end.x} cy={armNear.end.y} r={4.8} fill={C.shifter} {...line(C.shifterLine)} />
+      {leg(sw, legBend(run + Math.PI / 2), false)}
+      {arm(-sw * 0.9, false)}
     </g>
   );
 };
@@ -300,8 +427,8 @@ const HAIR: Record<ScoutName, string> = {
 /** Head centred at (0,-12.5): face, then hair. */
 const ScoutHead: React.FC<{ who: ScoutName }> = ({ who }) => (
   <g>
-    <circle cx={0} cy={-12.5} r={3.1} fill={C.skin} {...line(C.ink, 0.8)} />
-    <path d={HAIR[who]} fill={who === 'armin' ? C.blond : C.ink} {...line(C.ink, 0.8)} />
+    <circle cx={0} cy={-12.5} r={3.1} fill={C.skin} {...line(C.ink)} />
+    <path d={HAIR[who]} fill={who === 'armin' ? C.blond : C.ink} {...line(C.ink)} />
   </g>
 );
 
@@ -318,14 +445,15 @@ const Leg: React.FC<{ d: string; boot: string }> = ({ d, boot }) => (
  * In flight: origin at the waist, head pointing to -y (the strip rotates the
  * figure so the head leads the motion). Arms forward, legs trailing.
  */
-const Flying: React.FC<{ who: ScoutName; w1: number; w2: number }> = ({ who, w1, w2 }) => (
+const Flying: React.FC<{ who: ScoutName; w1: number; w2: number; lag: number }> = ({ who, w1, w2, lag }) => (
   <g>
-    {/* everyone wears the green Survey Corps cape */}
+    {/* cape and scarf hang from the shoulders and trail behind turns */}
+    <g transform={`rotate(${n2(lag)} 0 -9)`}>
     {(
       <path
         d={`M-3.4 -9 C-6.4 -2 ${-7.4 + w1} 6 ${-6.4 + w2} 13 L${-1 + w1} 11 L${3 + w2} 14 C${5.4 + w1} 6 5.4 -2 3.4 -9 Z`}
         fill={C.cloak}
-        {...line(C.ink, 0.7)}
+        {...line(C.ink)}
       />
     )}
     {who === 'mikasa' && (
@@ -333,17 +461,20 @@ const Flying: React.FC<{ who: ScoutName; w1: number; w2: number }> = ({ who, w1,
         d={`M-2 -10 C${-4 + w1} -2 ${3 + w2} 6 ${-1 + w1} 14 C${-3 + w2} 18 ${2 + w1} 21 ${1 + w2} 24
             L${3 + w2} 23 C${4 + w1} 19 ${0 + w2} 16 ${2 + w1} 12 C${5 + w2} 5 ${-1 + w1} -3 2 -10 Z`}
         fill={C.scarf}
-        {...line(C.ink, 0.6)}
+        {...line(C.ink)}
       />
     )}
+    </g>
     <Leg d="M-1.3 1.4 L-1.7 10.6" boot="M-1.6 7.6 L-1.7 10.8" />
     <Leg d="M1.3 1.4 L1.5 10.6" boot="M1.5 7.6 L1.5 10.8" />
     {/* short jacket over a light shirt */}
-    <path d="M-3 -9.2 L3 -9.2 L2.6 2 L-2.6 2 Z" fill={C.jacket} {...line(C.ink, 0.8)} />
+    <path d="M-3 -9.2 L3 -9.2 L2.6 2 L-2.6 2 Z" fill={C.jacket} {...line(C.ink)} />
     <path d="M-0.9 -9.2 L0 -5.4 L0.9 -9.2" fill={C.pants} />
+    {/* the gear harness belt */}
+    <path d="M-2.7 -0.4 L2.7 -0.4" fill="none" {...line(C.ink, W.detail)} />
     {/* gear canisters on both hips */}
-    <rect x={-6} y={-1.6} width={2.8} height={5} rx={0.9} fill={C.steel} {...line(C.ink, 0.7)} />
-    <rect x={3.2} y={-1.6} width={2.8} height={5} rx={0.9} fill={C.steel} {...line(C.ink, 0.7)} />
+    <rect x={-6} y={-1.6} width={2.8} height={5} rx={0.9} fill={C.steel} {...line(C.ink)} />
+    <rect x={3.2} y={-1.6} width={2.8} height={5} rx={0.9} fill={C.steel} {...line(C.ink)} />
     {/* arms forward, long blades */}
     <path d="M-2.6 -8 L-5.6 -12 M2.6 -8 L5.6 -12" {...limb(C.jacket, 1.8)} />
     <path d="M-5.6 -12 L-7.8 -21 M5.6 -12 L7.8 -21" {...limb(C.steel, 1)} />
@@ -356,14 +487,15 @@ const Flying: React.FC<{ who: ScoutName; w1: number; w2: number }> = ({ who, w1,
  * Crouched on a rooftop or branch: origin at the feet, facing +x, blades
  * held low and back, ready to jump.
  */
-const Perched: React.FC<{ who: ScoutName; w1: number; w2: number }> = ({ who, w1, w2 }) => (
+const Perched: React.FC<{ who: ScoutName; w1: number; w2: number; lag: number }> = ({ who, w1, w2, lag }) => (
   <g>
-    {/* everyone wears the green Survey Corps cape */}
+    {/* cape and scarf hang from the shoulders; they flick up on landing and settle */}
+    <g transform={`rotate(${n2(lag)} 1.2 -17)`}>
     {(
       <path
         d={`M2.8 -16.8 C-1.2 -15.6 ${-4.8 + w1 * 0.5} -10.6 ${-6.4 + w2 * 0.4} -5 L${-2 + w1 * 0.4} -6 C-1 -10 -0.6 -13.6 -0.4 -17.2 Z`}
         fill={C.cloak}
-        {...line(C.ink, 0.7)}
+        {...line(C.ink)}
       />
     )}
     {who === 'mikasa' && (
@@ -371,13 +503,15 @@ const Perched: React.FC<{ who: ScoutName; w1: number; w2: number }> = ({ who, w1
         d={`M2 -18.2 C${-2 + w1 * 0.4} -18.8 ${-6 + w2 * 0.5} ${-16.2 + w1 * 0.4} ${-10.6 + w1 * 0.4} ${-17 + w2 * 0.5}
             L${-10.2 + w2 * 0.4} ${-15.2 + w1 * 0.4} C${-6 + w1 * 0.4} -14.4 ${-2 + w2 * 0.3} -16.4 1.6 -16.4 Z`}
         fill={C.scarf}
-        {...line(C.ink, 0.6)}
+        {...line(C.ink)}
       />
     )}
+    </g>
     <Leg d="M-1 -9 L-3.6 -4.6 L-2.6 -0.6" boot="M-3.4 -3.4 L-2.6 -0.4" />
     {/* jacket, leaning forward */}
-    <path d="M-2.4 -8.2 L1.9 -8.2 L4 -17 L-0.3 -17.9 Z" fill={C.jacket} {...line(C.ink, 0.8)} />
-    <rect x={-4.8} y={-10.8} width={3.2} height={4.4} rx={0.9} fill={C.steel} {...line(C.ink, 0.7)} />
+    <path d="M-2.4 -8.2 L1.9 -8.2 L4 -17 L-0.3 -17.9 Z" fill={C.jacket} {...line(C.ink)} />
+    <path d="M-2.2 -9.4 L2.2 -9.4" fill="none" {...line(C.ink, W.detail)} />
+    <rect x={-4.8} y={-10.8} width={3.2} height={4.4} rx={0.9} fill={C.steel} {...line(C.ink)} />
     <Leg d="M0.4 -9 L3.4 -5 L1.8 -0.6" boot="M3 -3.6 L1.8 -0.4" />
     {/* arm down and back, blade trailing behind */}
     <path d="M2.6 -16 L0.8 -12 L-0.6 -11" {...limb(C.jacket, 1.8)} />
@@ -389,17 +523,23 @@ const Perched: React.FC<{ who: ScoutName; w1: number; w2: number }> = ({ who, w1
   </g>
 );
 
-export const ScoutFigure: React.FC<{ who: ScoutName; wave: number; pose: 'fly' | 'perch' }> = ({
-  who,
-  wave,
-  pose,
-}) => {
+export const ScoutFigure: React.FC<{
+  who: ScoutName;
+  wave: number;
+  pose: 'fly' | 'perch';
+  /** How far the cape and scarf swing from rest, in degrees (follow-through). */
+  lag?: number;
+}> = ({ who, wave, pose, lag = 0 }) => {
   const w1 = Math.sin(wave) * 2.2;
   const w2 = Math.sin(wave + 1.3) * 3;
   const size = who === 'eren' ? 1.06 : 1;
   return (
     <g transform={`scale(${size})`}>
-      {pose === 'fly' ? <Flying who={who} w1={w1} w2={w2} /> : <Perched who={who} w1={w1} w2={w2} />}
+      {pose === 'fly' ? (
+        <Flying who={who} w1={w1} w2={w2} lag={lag} />
+      ) : (
+        <Perched who={who} w1={w1} w2={w2} lag={lag} />
+      )}
     </g>
   );
 };
@@ -422,21 +562,21 @@ export const House: React.FC<{ w: number; h: number; roof: number; chimney: bool
         width={w * 0.11}
         height={roof * 0.62}
         fill={fill}
-        {...line(C.propLine, 0.8)}
+        {...line(C.propLine, W.scenery)}
       />
     )}
-    <rect x={0} y={-h} width={w} height={h} fill={fill} {...line(C.propLine, 0.8)} />
-    <path d={`M0 ${-h * 0.55} L${w} ${-h * 0.55}`} fill="none" {...line(C.propLine, 0.6)} />
-    <path d={`M${-w * 0.08} ${-h} L${w / 2} ${-h - roof} L${w * 1.08} ${-h} Z`} fill={fill} {...line(C.propLine, 0.8)} />
+    <rect x={0} y={-h} width={w} height={h} fill={fill} {...line(C.propLine, W.scenery)} />
+    <path d={`M0 ${-h * 0.55} L${w} ${-h * 0.55}`} fill="none" {...line(C.propLine, W.detail)} />
+    <path d={`M${-w * 0.08} ${-h} L${w / 2} ${-h - roof} L${w * 1.08} ${-h} Z`} fill={fill} {...line(C.propLine, W.scenery)} />
     {/* roof tiles */}
     <path
       d={`M${w * 0.12} ${-h - roof * 0.25} L${w * 0.88} ${-h - roof * 0.25} M${w * 0.28} ${-h - roof * 0.55} L${w * 0.72} ${-h - roof * 0.55}`}
       fill="none"
-      {...line(C.propLine, 0.5)}
+      {...line(C.propLine, W.detail)}
     />
-    <rect x={w * 0.14} y={-h * 0.44} width={w * 0.16} height={h * 0.22} fill={C.bg} {...line(C.propLine, 0.6)} />
-    <rect x={w * 0.7} y={-h * 0.44} width={w * 0.16} height={h * 0.22} fill={C.bg} {...line(C.propLine, 0.6)} />
-    <rect x={w * 0.42} y={-h * 0.36} width={w * 0.16} height={h * 0.36} fill={C.bg} {...line(C.propLine, 0.6)} />
+    <rect x={w * 0.14} y={-h * 0.44} width={w * 0.16} height={h * 0.22} fill={C.bg} {...line(C.propLine, W.detail)} />
+    <rect x={w * 0.7} y={-h * 0.44} width={w * 0.16} height={h * 0.22} fill={C.bg} {...line(C.propLine, W.detail)} />
+    <rect x={w * 0.42} y={-h * 0.36} width={w * 0.16} height={h * 0.36} fill={C.bg} {...line(C.propLine, W.detail)} />
   </g>
 );
 
@@ -456,10 +596,10 @@ export const Tree: React.FC<{ w: number; h: number }> = ({ w, h }) => {
         width={w * 0.14}
         height={h * 0.32}
         fill={C.propBack}
-        {...line(C.propLine, 0.8)}
+        {...line(C.propLine, W.scenery)}
       />
       {tiers.map((d, i) => (
-        <path key={i} d={d} fill={C.propBack} {...line(C.propLine, 0.8)} />
+        <path key={i} d={d} fill={C.propBack} {...line(C.propLine, W.scenery)} />
       ))}
     </g>
   );
@@ -475,7 +615,7 @@ export const Cloud: React.FC<{ w: number; puff: number }> = ({ w, puff }) => {
           C${w * 0.44} ${-h * (1.3 - puff * 0.2)} ${w * 0.16} ${-h * 1.18} ${w * 0.2} ${-h * 0.58}
           C${-h * 0.2} ${-h * 0.7} ${-h * 0.4} 0 0 0 Z`}
       fill={C.cloud}
-      {...line(C.cloudLine, 0.8)}
+      {...line(C.cloudLine, W.scenery)}
     />
   );
 };

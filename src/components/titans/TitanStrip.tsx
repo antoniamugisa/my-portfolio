@@ -2,13 +2,25 @@ import React, { useEffect, useRef, useState } from 'react';
 import './titans.css';
 import { titanAnatomy } from './anatomy';
 import { AttackTitanFigure, Cloud, House, ScoutFigure, TitanFigure, Tree } from './figures';
+
+/**
+ * Titans' poses are drawn "on twos", like hand-drawn animation: the walk and
+ * run cycles step through a fixed set of poses while the body still glides
+ * smoothly across the screen. That reads as drawn rather than tweened, and
+ * because a memoised figure only redraws when its pose changes, it keeps the
+ * many limb shapes from being restyled on every frame.
+ */
+const POSES_PER_CYCLE = 24;
+const onTwos = (phase: number) => Math.round((phase * POSES_PER_CYCLE) / (Math.PI * 2)) * ((Math.PI * 2) / POSES_PER_CYCLE);
+const TitanPose = React.memo(TitanFigure);
+const AttackTitanPose = React.memo(AttackTitanFigure);
 import {
-  LAND,
   LAUNCH,
   RISE,
   SCOUT_SCALE,
   SHIFTER_SCALE,
   bob,
+  landSquash,
   createSim,
   groundY,
   lift,
@@ -88,18 +100,29 @@ const TitanStrip: React.FC = () => {
     const reduce = window.matchMedia('(prefers-reduced-motion: reduce)');
     let raf = 0;
     let last = 0;
+    // On a device that can't keep up, draw every other frame (a steady 30 fps)
+    // rather than stutter. The simulation still steps every frame, so motion
+    // speed is unchanged either way.
+    let avgFrame = 1000 / 60;
+    let halfRate = false;
+    let tick = 0;
     let onScreen = false;
 
     const loop = (now: number) => {
-      const dt = last ? Math.min(0.05, (now - last) / 1000) : 0;
+      const gap = last ? now - last : 1000 / 60;
+      const dt = Math.min(0.05, gap / 1000);
       last = now;
       if (simRef.current) step(simRef.current, dt);
-      redraw();
+      avgFrame += (gap - avgFrame) * 0.05;
+      if (!halfRate && avgFrame > 21) halfRate = true;
+      else if (halfRate && avgFrame < 15) halfRate = false;
+      if (!halfRate || ++tick % 2 === 0) redraw();
       raf = requestAnimationFrame(loop);
     };
     const start = () => {
       if (raf || reduce.matches || document.hidden || !onScreen) return;
       last = 0;
+      avgFrame = 1000 / 60;
       raf = requestAnimationFrame(loop);
     };
     const stop = () => {
@@ -181,7 +204,7 @@ const TitanStrip: React.FC = () => {
               onPointerEnter={clickable ? () => (sim.hover = t.id) : undefined}
               onPointerLeave={clickable ? () => (sim.hover = 0) : undefined}
             >
-              <TitanFigure look={t.look} swing={t.state === 'walk' ? Math.sin(t.phase) * 22 : 0} />
+              <TitanPose look={t.look} phase={onTwos(t.phase)} stride={t.state === 'walk' ? 1 : 0} />
             </g>
           );
         })}
@@ -192,7 +215,10 @@ const TitanStrip: React.FC = () => {
           const shake = sh.stage === 'roar' ? Math.sin(sh.t * 60) * 1.2 : 0;
           return (
             <g transform={`translate(${sh.x + shake} ${g}) scale(${-sh.dir * S} ${S})`}>
-              <AttackTitanFigure run={sh.run} stride={sh.stage === 'run' ? Math.min(1, sh.t / 0.4) : 0} />
+              <AttackTitanPose
+                run={onTwos(sh.run)}
+                stride={sh.stage === 'run' ? Math.round(Math.min(1, sh.t / 0.4) * 4) / 4 : 0}
+              />
             </g>
           );
         })()}
@@ -260,7 +286,7 @@ const TitanStrip: React.FC = () => {
           if (sc.state === 'away') return null;
           const S = SCOUT_SCALE * k;
           const perched = sc.state === 'perch' || sc.state === 'launch';
-          const crouch = sc.state === 'launch' ? Math.sin((sc.t / LAUNCH) * (Math.PI / 2)) : sc.land / LAND;
+          const crouch = sc.state === 'launch' ? Math.sin((sc.t / LAUNCH) * (Math.PI / 2)) : landSquash(sc.land);
           return (
             <g key={sc.who}>
               {sc.wires.map((w, i) => (
@@ -279,11 +305,11 @@ const TitanStrip: React.FC = () => {
                 <g
                   transform={`translate(${sc.pos.x} ${sc.pos.y}) scale(${sc.face * S * (1 + crouch * 0.12)} ${S * (1 - crouch * 0.24)})`}
                 >
-                  <ScoutFigure who={sc.who} wave={sim.time * 5} pose="perch" />
+                  <ScoutFigure who={sc.who} wave={sim.time * 5} pose="perch" lag={sc.capeLag} />
                 </g>
               ) : (
                 <g transform={`translate(${sc.pos.x} ${sc.pos.y - lift(sim)}) rotate(${sc.angle + sc.spin}) scale(${S})`}>
-                  <ScoutFigure who={sc.who} wave={sim.time * 14} pose="fly" />
+                  <ScoutFigure who={sc.who} wave={sim.time * 14} pose="fly" lag={sc.capeLag} />
                 </g>
               )}
               {/* Eren can be clicked to transform: a generous invisible hit area */}
