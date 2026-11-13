@@ -64,8 +64,11 @@ export interface Scout {
   wires: Vec[];
   puffClock: number;
   rest: number;
-  /** Seconds left of the landing squash. */
+  /** Seconds left of the landing settle. */
   land: number;
+  /** Cape and scarf swing from rest, in degrees, and how fast it's changing. */
+  capeLag: number;
+  capeVel: number;
   kills: number;
   /** Just landed in a tree after a kill: next hop goes to a house. */
   afterKill: boolean;
@@ -147,7 +150,18 @@ const SLASH = 0.36;
 const FALL = 1.05;
 const DOWN = 3.2;
 export const LAUNCH = 0.16;
-export const LAND = 0.22;
+export const LAND = 0.45;
+
+/**
+ * How squashed a scout is while landing: 1 is a full crouch, negative a
+ * slight stretch. A damped bounce, so they absorb the impact, rise a touch
+ * too far, and settle.
+ */
+export const landSquash = (land: number) => {
+  if (land <= 0) return 0;
+  const t = LAND - land;
+  return Math.exp(-t * 9) * Math.cos(t * 22);
+};
 /** Scout drawing scale (times the strip scale k). */
 export const SCOUT_SCALE = 1.5;
 
@@ -337,6 +351,8 @@ function makeScout(who: ScoutName, pos: Vec, perch: number): Scout {
     puffClock: 0,
     rest: rand(1, 3),
     land: 0,
+    capeLag: 0,
+    capeVel: 0,
     kills: 0,
     afterKill: false,
   };
@@ -722,6 +738,7 @@ export function step(sim: Sim, dt: number) {
     sc.t += dt;
     sc.land = Math.max(0, sc.land - dt);
     const prev = { ...sc.pos };
+    const prevAngle = sc.angle;
 
     if (sc.state === 'perch') {
       if (sc.perch >= 0) sc.pos = { ...sim.props[sc.perch].perch };
@@ -764,6 +781,8 @@ export function step(sim: Sim, dt: number) {
         sc.state = 'perch';
         sc.perch = sc.toPerch;
         sc.land = LAND;
+        // the cape keeps going for a moment after the scout stops
+        sc.capeVel += 320;
         const waiting = sim.titans.some((t) => t.clicked && !t.targeted);
         sc.rest = waiting ? 0.15 : sc.afterKill ? rand(0.7, 1.3) : rand(2.5, 5.5);
       }
@@ -837,6 +856,15 @@ export function step(sim: Sim, dt: number) {
       }
     } else {
       sc.angle = 0;
+    }
+
+    // follow-through: the cape is a damped spring that trails behind turns
+    // (opposite the way the body is rotating) and drifts back to rest
+    if (dt > 0) {
+      const turning = ((((sc.angle - prevAngle + 540) % 360) - 180) / dt) * (sc.state === 'perch' ? 0 : 1);
+      const target = clamp(-turning * 0.07, -40, 40);
+      sc.capeVel += ((target - sc.capeLag) * 110 - sc.capeVel * 12) * dt;
+      sc.capeLag = clamp(sc.capeLag + sc.capeVel * dt, -55, 55);
     }
   }
 
