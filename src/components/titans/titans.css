@@ -1,0 +1,87 @@
+/*
+ * Colours for the titan town. Each shade sits between the page background
+ * (0%) and foreground (100%), so the scene follows light and dark mode.
+ *
+ * The plain greys come first as a fallback for browsers without color-mix()
+ * (Safari before 16.2); they match the site's light and dark palettes. The
+ * @supports block then derives them from the live theme colours instead.
+ */
+.aot-scene {
+  --aot-bg: hsl(var(--background));
+  --aot-shifter-eye: hsl(145 75% 42%);
+  --aot-bolt: hsl(48 100% 58%);
+  --aot-cloak: hsl(135 32% 34%);
+  --aot-blond: hsl(46 92% 56%);
+  --aot-scarf: hsl(2 74% 47%);
+  --aot-far: hsl(0 0% 95.8%); /* 5% */
+  --aot-cloud: hsl(0 0% 97.5%); /* 3% */
+  --aot-cloud-line: hsl(0 0% 86.4%); /* 16% */
+  --aot-shifter: hsl(0 0% 66.0%); /* 40% */
+  --aot-shifter-far: hsl(0 0% 74.5%); /* 30% */
+  --aot-shifter-line: hsl(0 0% 33.7%); /* 78% */
+  --aot-shifter-hair: hsl(0 0% 32.0%); /* 80% */
+  --aot-prop-back: hsl(0 0% 93.2%); /* 8% */
+  --aot-prop-front: hsl(0 0% 89.0%); /* 13% */
+  --aot-prop-line: hsl(0 0% 74.5%); /* 30% */
+  --aot-titan: hsl(0 0% 77.9%); /* 26% */
+  --aot-titan-far: hsl(0 0% 83.8%); /* 19% */
+  --aot-titan-line: hsl(0 0% 50.7%); /* 58% */
+  --aot-titan-detail: hsl(0 0% 62.6%); /* 44% */
+  --aot-ink: hsl(0 0% 23.5%); /* 90% */
+  --aot-jacket: hsl(0 0% 42.2%); /* 68% */
+  --aot-pants: hsl(0 0% 93.2%); /* 8% */
+  --aot-skin: hsl(0 0% 94.9%); /* 6% */
+  --aot-steel: hsl(0 0% 60.9%); /* 46% */
+  --aot-titan-lit: hsl(0 0% 69.4%); /* 36% */
+  --aot-titan-far-lit: hsl(0 0% 76.2%); /* 28% */
+}
+
+.dark .aot-scene {
+  --aot-far: hsl(0 0% 19.0%);
+  --aot-cloud: hsl(0 0% 17.4%);
+  --aot-cloud-line: hsl(0 0% 27.8%);
+  --aot-shifter: hsl(0 0% 47.0%);
+  --aot-shifter-far: hsl(0 0% 39.0%);
+  --aot-shifter-line: hsl(0 0% 77.4%);
+  --aot-shifter-hair: hsl(0 0% 79.0%);
+  --aot-prop-back: hsl(0 0% 21.4%);
+  --aot-prop-front: hsl(0 0% 25.4%);
+  --aot-prop-line: hsl(0 0% 39.0%);
+  --aot-titan: hsl(0 0% 35.8%);
+  --aot-titan-far: hsl(0 0% 30.2%);
+  --aot-titan-line: hsl(0 0% 61.4%);
+  --aot-titan-detail: hsl(0 0% 50.2%);
+  --aot-ink: hsl(0 0% 87.0%);
+  --aot-jacket: hsl(0 0% 69.4%);
+  --aot-pants: hsl(0 0% 21.4%);
+  --aot-skin: hsl(0 0% 19.8%);
+  --aot-steel: hsl(0 0% 51.8%);
+  --aot-titan-lit: hsl(0 0% 43.8%);
+  --aot-titan-far-lit: hsl(0 0% 37.4%);
+}
+
+@supports (color: color-mix(in srgb, red 50%, blue)) {
+  .aot-scene {
+    --aot-far: color-mix(in srgb, hsl(var(--foreground)) 5%, hsl(var(--background)));
+    --aot-cloud: color-mix(in srgb, hsl(var(--foreground)) 3%, hsl(var(--background)));
+    --aot-cloud-line: color-mix(in srgb, hsl(var(--foreground)) 16%, hsl(var(--background)));
+    --aot-shifter: color-mix(in srgb, hsl(var(--foreground)) 40%, hsl(var(--background)));
+    --aot-shifter-far: color-mix(in srgb, hsl(var(--foreground)) 30%, hsl(var(--background)));
+    --aot-shifter-line: color-mix(in srgb, hsl(var(--foreground)) 78%, hsl(var(--background)));
+    --aot-shifter-hair: color-mix(in srgb, hsl(var(--foreground)) 80%, hsl(var(--background)));
+    --aot-prop-back: color-mix(in srgb, hsl(var(--foreground)) 8%, hsl(var(--background)));
+    --aot-prop-front: color-mix(in srgb, hsl(var(--foreground)) 13%, hsl(var(--background)));
+    --aot-prop-line: color-mix(in srgb, hsl(var(--foreground)) 30%, hsl(var(--background)));
+    --aot-titan: color-mix(in srgb, hsl(var(--foreground)) 26%, hsl(var(--background)));
+    --aot-titan-far: color-mix(in srgb, hsl(var(--foreground)) 19%, hsl(var(--background)));
+    --aot-titan-line: color-mix(in srgb, hsl(var(--foreground)) 58%, hsl(var(--background)));
+    --aot-titan-detail: color-mix(in srgb, hsl(var(--foreground)) 44%, hsl(var(--background)));
+    --aot-ink: color-mix(in srgb, hsl(var(--foreground)) 90%, hsl(var(--background)));
+    --aot-jacket: color-mix(in srgb, hsl(var(--foreground)) 68%, hsl(var(--background)));
+    --aot-pants: color-mix(in srgb, hsl(var(--foreground)) 8%, hsl(var(--background)));
+    --aot-skin: color-mix(in srgb, hsl(var(--foreground)) 6%, hsl(var(--background)));
+    --aot-steel: color-mix(in srgb, hsl(var(--foreground)) 46%, hsl(var(--background)));
+    --aot-titan-lit: color-mix(in srgb, hsl(var(--foreground)) 36%, hsl(var(--background)));
+    --aot-titan-far-lit: color-mix(in srgb, hsl(var(--foreground)) 28%, hsl(var(--background)));
+  }
+}

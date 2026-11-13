@@ -13,9 +13,9 @@ const Interests = () => {
   );
 
   return (
-    <div className="min-h-screen overflow-x-hidden bg-background pt-20 md:pt-24 flex flex-col">
+    <div className="overflow-x-hidden bg-background pt-20 md:pt-24 flex flex-col">
       <div className="mx-auto w-full max-w-5xl px-6 flex-grow">
-        <section className="py-8 md:py-12 text-[15px] md:text-base leading-relaxed">
+        <section className="pt-8 pb-4 md:pt-12 md:pb-6 text-[15px] md:text-base leading-relaxed">
           <p className="mb-8 max-w-2xl text-foreground/70">
             Things I&apos;ve loved lately. It&apos;s a living list, so it keeps growing.
           </p>
