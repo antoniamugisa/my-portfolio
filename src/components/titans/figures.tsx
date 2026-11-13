@@ -330,7 +330,7 @@ export const AttackTitanFigure: React.FC<{ run: number; stride: number }> = ({ r
         bend={-(30 + 60 * stride)}
         l1={22}
         l2={21}
-        r={[5, 3.8, 3]}
+        r={[4.4, 3.4, 2.7]}
         fill={fill}
         stroke={C.shifterLine}
         end={(j) => <circle cx={n2(j.end.x)} cy={n2(j.end.y)} r={4.6} fill={fill} {...line(C.shifterLine)} />}
@@ -344,20 +344,30 @@ export const AttackTitanFigure: React.FC<{ run: number; stride: number }> = ({ r
       {leg(-sw, legBend(run - Math.PI / 2), true)}
       {arm(sw * 0.9, true)}
 
-      {/* long hair falling down the back */}
+      {/* loose hair hanging to the shoulders behind the head, swaying with the run */}
+      <g transform={`rotate(${n2(Math.sin(run - 0.6) * 5 * stride)} 0 -118)`}>
+        <path
+          d="M-11 -118 C-8 -127 6 -128 11 -121 C15 -116 15 -108 16 -99 C16.4 -95 15.6 -92 14.6 -90 L12.6 -94 L12 -88.6 L9.8 -93.4 L8.6 -88 L6.6 -94 L5 -89.4 L3.6 -96 Z"
+          fill={C.shifterHair}
+          {...line(C.shifterLine)}
+        />
+      </g>
+      {/* lean, fit torso: a narrow chest tapering to the waist */}
       <path
-        d="M-2 -116 C8 -120 16 -112 16 -100 C17 -92 15 -84 12 -78 L8 -84 L7 -76 L3 -86 Z"
-        fill={C.shifterHair}
-        {...line(C.shifterLine)}
-      />
-      {/* lean, V-shaped torso */}
-      <path
-        d="M-9 -50 C-15 -60 -16 -74 -14 -84 C-11 -92 -5 -96 4 -96 C12 -95 17 -89 16 -79 C15 -67 11 -57 8 -50 Z"
+        d="M-8 -50 C-12 -58 -13.4 -70 -12.6 -80 C-11.8 -88 -7.6 -93.6 1.6 -94 C9.6 -93.6 13.6 -88.6 13 -80.4 C12.4 -70 10.2 -58 7 -50 Z"
         fill={C.shifter}
         {...line(C.shifterLine)}
       />
+      {/* defined abs, obliques, a light pec line and the ribs along the side */}
       <path
-        d="M-13 -83 Q-6 -78 2 -83 M-12 -74 L-12 -56 M-12 -68 Q-9 -67 -6 -68 M-12 -62 Q-9 -61 -6 -62 M-5 -94 Q1 -92 7 -94"
+        d="M-12.2 -82.6 Q-7.4 -79.6 -2.4 -82.4
+           M-9.4 -77.6 L-9 -56.6
+           M-12.2 -73.6 Q-10.8 -72.2 -9.4 -73.2 M-9.2 -73.2 Q-7.6 -72 -6 -73.4
+           M-12.4 -67.6 Q-10.9 -66.2 -9.3 -67.2 M-9.1 -67.2 Q-7.5 -66 -5.8 -67.4
+           M-12 -61.6 Q-10.6 -60.4 -9.2 -61.2 M-9 -61.2 Q-7.6 -60.2 -6.2 -61.4
+           M-5.2 -75 Q-3 -66 -4.8 -55.6
+           M-1.6 -84 L0.6 -82.4 M-1.4 -79.6 L0.8 -78 M-1.2 -75.2 L1 -73.6
+           M4 -93 Q10 -92 11.6 -84.6"
         fill="none"
         {...line(C.shifterLine, W.detail)}
       />
@@ -383,11 +393,17 @@ export const AttackTitanFigure: React.FC<{ run: number; stride: number }> = ({ r
           {...line(C.shifterLine, W.detail)}
         />
         <path d="M1.6 4.4 Q5 3 6.4 5.4 M1.4 8.8 Q4.6 9.8 6.2 7.4" fill="none" {...line(C.shifterLine, W.detail)} />
-        {/* hair over the crown */}
+        {/* loose hair over the crown, parted, with ragged locks falling past the
+            cheek and over the ear rather than pulled back */}
         <path
-          d="M-10 -4 C-10 -13 -2 -16.6 5 -14 C10 -12 12.6 -6.4 12 0 L9 -5 L8.4 2 L5.4 -6 L1 -7.4 L-4 -6.6 Z"
+          d="M-11 -2 C-12 -12 -4 -16.8 3.6 -15 C10 -13.4 13.4 -7.4 12.8 0.6 C12.8 5 12.4 9 11.6 12.6 L9.6 8.6 L9 14 L7 8 L5.2 1.4 L3.6 -6.6 L1 -7.6 L-1.6 -5.6 L-3 -9 L-5.4 -5.2 L-7.4 -8.6 L-9 -3.6 L-10 0.6 Z"
           fill={C.shifterHair}
           {...line(C.shifterLine)}
+        />
+        <path
+          d="M-1.6 -8.4 C-4 -6 -5 -2 -4.4 2.6 M5.6 -6.4 C7.4 -2 7.8 3 6.8 8.4"
+          fill="none"
+          {...line(C.shifterLine, W.detail)}
         />
       </g>
 
