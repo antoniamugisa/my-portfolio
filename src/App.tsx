@@ -9,6 +9,7 @@ import Navigation from "./components/Navigation";
 import VersionMark from "./components/VersionMark";
 import Index from "./pages/Index";
 import Preloader from "./components/Preloader";
+import TitanStrip from "./components/titans/TitanStrip";
 import ReactGA from 'react-ga4';
 import { HelmetProvider } from 'react-helmet-async';
 
@@ -211,12 +212,19 @@ const AppContent = () => {
       <Toaster />
       <Sonner />
       {isLoading && <Preloader />}
-      <div className={`min-h-screen bg-background text-foreground transition-opacity duration-300 ${
+      <div className={`flex min-h-screen flex-col supports-[min-height:100svh]:min-h-svh bg-background text-foreground transition-opacity duration-300 ${
         isLoading ? 'opacity-0' : 'opacity-100'
       }`}>
         <Navigation />
         <VersionMark />
         <PersistentPages />
+        {/* the titan town closes out every page but Photos: at the bottom of
+            the screen when the page is short, after the content when it's long */}
+        {!location.pathname.startsWith('/photos') && (
+          <div className="mt-auto pt-12 md:pt-11">
+            <TitanStrip />
+          </div>
+        )}
       </div>
     </>
   );

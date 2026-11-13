@@ -32,7 +32,7 @@ export function CaseStudyLayout({ project, meta, onOpenDemo, demoHref, children 
   const year = new Date(project.date).getFullYear();
 
   return (
-    <div className="min-h-screen bg-background pt-20 md:pt-24">
+    <div className="bg-background pt-20 md:pt-24">
       <div className="mx-auto grid w-full max-w-6xl grid-cols-1 gap-x-12 px-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,42rem)_minmax(0,1fr)]">
         <aside className="hidden lg:block" aria-hidden={false}>
           <div className="h-full pt-12">
@@ -100,7 +100,7 @@ export function CaseStudyLayout({ project, meta, onOpenDemo, demoHref, children 
             </div>
           </div>
 
-          <div ref={bodyRef} className="case-study-body pt-10 pb-24">
+          <div ref={bodyRef} className="case-study-body pt-10 pb-6">
             <div className="lg:hidden">
               <TableOfContentsCompact containerRef={bodyRef} />
             </div>

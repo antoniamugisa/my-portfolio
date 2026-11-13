@@ -90,9 +90,10 @@ const markdownComponents: Components = {
     );
   },
   // Links with preview
-  a({ href, children, ...props }: any) {
-    // Extract href from props if not directly available (for HTML links)
-    const linkHref = href || props.href || (props as any).node?.properties?.href;
+  a({ href, children, node, ...props }) {
+    // Raw HTML links in the markdown (via rehype-raw) carry their href on the parsed node
+    const nodeHref = node?.properties?.href;
+    const linkHref = href || (typeof nodeHref === 'string' ? nodeHref : undefined);
     if (!linkHref) return <a {...props}>{children}</a>;
     
     // Only show preview for external links
@@ -139,7 +140,9 @@ const BlogPost: React.FC = () => {
           text: post.description,
           url,
         });
-      } catch {}
+      } catch {
+        // the reader closed the share sheet; nothing to do
+      }
     } else {
       try {
         await navigator.clipboard.writeText(url);
@@ -147,12 +150,14 @@ const BlogPost: React.FC = () => {
           title: 'Link copied!',
           description: 'The blog post link has been copied to your clipboard.',
         });
-      } catch {}
+      } catch {
+        // clipboard access was blocked; the page still works without the copy
+      }
     }
   };
 
   return (
-    <div className="min-h-screen bg-background pt-20 md:pt-24">
+    <div className="bg-background pt-20 md:pt-24">
       {/* Article Header */}
       <article className="mx-auto w-full max-w-5xl px-6 md:px-6">
         {/* Hero Image */}
@@ -219,7 +224,7 @@ const BlogPost: React.FC = () => {
         </div>
 
         {/* Article Content */}
-        <div className="max-w-none mb-12 pb-16 text-[15px] md:text-base">
+        <div className="max-w-none pb-6 text-[15px] md:text-base">
           <ReactMarkdown
             remarkPlugins={[remarkGfm]}
             rehypePlugins={[rehypeRaw]}

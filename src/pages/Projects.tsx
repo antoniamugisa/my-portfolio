@@ -75,7 +75,7 @@ const Projects = () => {
   let videoOrder = 0;
 
   return (
-    <div className="min-h-screen bg-background pt-20 md:pt-24 flex flex-col">
+    <div className="bg-background pt-20 md:pt-24 flex flex-col">
       <div className="mx-auto w-full max-w-5xl px-6 md:px-6 flex-grow">
         <section className="py-8 md:py-12 text-[15px] md:text-base leading-relaxed">
           <p className="mb-6 max-w-2xl text-foreground/70">
@@ -170,7 +170,6 @@ const Projects = () => {
             })}
           </div>
 
-          <div className="h-32 md:h-16"></div>
         </section>
       </div>
     </div>
