@@ -1,12 +1,15 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { lazy, Suspense, useCallback, useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useParams, Navigate } from 'react-router-dom';
 import { projects } from '@/data/portfolio';
 import { Project } from '@/data/projects';
-import BikeShareTorontoPage from '@/pages/bike-share-toronto/page';
 import { caseStudies } from '@/pages/case-studies';
 import { CaseStudyLayout } from '@/components/case-study/CaseStudyLayout';
 import { StandardCaseStudy, standardMeta } from '@/pages/case-studies/StandardCaseStudy';
+
+/** The bike share demo pulls in Mapbox, deck.gl and DuckDB, so it gets its own chunk instead of riding along with every project page. */
+const loadBikeShareDemo = () => import('@/pages/bike-share-toronto/page');
+const BikeShareTorontoPage = lazy(loadBikeShareDemo);
 
 const ProjectDetail = () => {
   const { id } = useParams<{ id: string }>();
@@ -27,6 +30,15 @@ const ProjectDetail = () => {
 
   useEffect(() => {
     if (id !== 'bike-share-toronto') setBikeDemoOpen(false);
+  }, [id]);
+
+  // On the bike share page, fetch the demo in the background once the page is idle so opening it stays quick.
+  useEffect(() => {
+    if (id !== 'bike-share-toronto') return;
+    const idle = window.requestIdleCallback ?? ((cb: () => void) => window.setTimeout(cb, 1500));
+    const cancel = window.cancelIdleCallback ?? window.clearTimeout;
+    const handle = idle(() => void loadBikeShareDemo());
+    return () => cancel(handle);
   }, [id]);
 
   useEffect(() => {
@@ -66,7 +78,9 @@ const ProjectDetail = () => {
         aria-modal="true"
         aria-label="Bike Share Toronto live demo"
       >
-        <BikeShareTorontoPage embedded={false} portalFullscreen onRequestProjectDetails={closeBikeDemo} />
+        <Suspense fallback={null}>
+          <BikeShareTorontoPage embedded={false} portalFullscreen onRequestProjectDetails={closeBikeDemo} />
+        </Suspense>
       </div>,
       document.body,
     );
